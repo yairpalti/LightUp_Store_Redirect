@@ -1,204 +1,333 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlashLight App</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            color: #ffffff;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        .app-icon {
-            width: 120px;
-            height: 120px;
-            border-radius: 24px;
-            margin: 20px auto;
-            background-color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        .icon-inner {
-            width: 60px;
-            height: 60px;
-            background-color: #ffcc00;
-            border-radius: 50%;
-            box-shadow: 0 0 40px #ffcc00;
-        }
-        h1 {
-            font-size: 32px;
-            margin: 20px 0;
-        }
-        p {
-            font-size: 18px;
-            line-height: 1.6;
-            color: #cccccc;
-            margin-bottom: 30px;
-        }
-        .store-buttons {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            margin: 40px 0;
-        }
-        .store-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #ffffff;
-            color: #121212;
-            border-radius: 12px;
-            padding: 16px 30px;
-            font-weight: bold;
-            text-decoration: none;
-            width: 80%;
-            max-width: 300px;
-            font-size: 18px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .store-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        .store-icon {
-            font-size: 24px;
-            margin-right: 12px;
-        }
-        .features {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin: 40px 0;
-        }
-        .feature {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 24px;
-            width: 100%;
-            max-width: 250px;
-        }
-        .feature h3 {
-            font-size: 20px;
-            margin-top: 0;
-        }
-        .feature p {
-            font-size: 16px;
-            margin-bottom: 0;
-        }
-        .footer {
-            margin-top: 60px;
-            font-size: 14px;
-            color: #666666;
-        }
-        
-        @media (min-width: 768px) {
-            .store-buttons {
-                flex-direction: row;
-                justify-content: center;
-            }
-            .store-button {
-                width: auto;
-            }
-        }
-        
-        /* Script will add this class to hide elements initially */
-        .initially-hidden {
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="app-icon">
-            <div class="icon-inner"></div>
-        </div>
-        
-        <h1>FlashLight App</h1>
-        <p>Advanced lighting control at your fingertips.</p>
-        
-        <!-- App Store button (initially hidden, will show based on device) -->
-        <div class="store-buttons">
-            <a href="https://apps.apple.com/app/your-app-id" class="store-button ios-button initially-hidden">
-                <span class="store-icon">📱</span>
-                Download on App Store
-            </a>
-            
-            <!-- Google Play button (initially hidden, will show based on device) -->
-            <a href="https://play.google.com/store/apps/details?id=your.package.name" class="store-button android-button initially-hidden">
-                <span class="store-icon">🤖</span>
-                Get it on Google Play
-            </a>
-            
-            <!-- Generic button (for other platforms) -->
-            <a href="#features" class="store-button other-button initially-hidden">
-                <span class="store-icon">ℹ️</span>
-                Learn More
-            </a>
-        </div>
-        
-        <div id="features" class="features">
-            <div class="feature">
-                <h3>Multiple Modes</h3>
-                <p>ON, OFF, BLINK, MORSE, TWINKLE, and GROW modes for any situation.</p>
-            </div>
-            <div class="feature">
-                <h3>Morse Code</h3>
-                <p>Send messages using international morse code with custom timing.</p>
-            </div>
-            <div class="feature">
-                <h3>Timer Display</h3>
-                <p>Precise timing control with millisecond accuracy.</p>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>&copy; 2025 FlashLight App. All rights reserved.</p>
-        </div>
-    </div>
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:qr_flutter/qr_flutter.dart'; // Add this package
+import 'dart:io' show Platform;
 
-    <script>
-        // Platform detection and redirection script
-        document.addEventListener('DOMContentLoaded', function() {
-            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-            var isAndroid = /android/i.test(userAgent);
-            
-            // Show relevant store button
-            if (isIOS) {
-                document.querySelector('.ios-button').classList.remove('initially-hidden');
-                
-                // Auto-redirect to App Store after short delay
-                setTimeout(function() {
-                    window.location.href = "https://apps.apple.com/app/your-app-id";
-                }, 1500);
-            } 
-            else if (isAndroid) {
-                document.querySelector('.android-button').classList.remove('initially-hidden');
-                
-                // Auto-redirect to Play Store after short delay
-                setTimeout(function() {
-                    window.location.href = "https://play.google.com/store/apps/details?id=your.package.name";
-                }, 1500);
-            }
-            else {
-                // Show both buttons for desktop/other platforms
-                document.querySelector('.ios-button').classList.remove('initially-hidden');
-                document.querySelector('.android-button').classList.remove('initially-hidden');
-            }
-        });
-    </script>
-</body>
-</html>
+class InstructionDialog extends StatelessWidget {
+  final String message;
+  final String buttonText;
+  final VoidCallback onButtonPressed;
+  final TextDirection textDirection;
+  final double width;
+  final Color backgroundColor;
+  final Color buttonColor;
+  final Color buttonTextColor;
+  
+  // Use a universal/deep link that redirects based on platform
+  final String universalAppLink;
+  
+  // Store-specific links (as fallbacks or for direct sharing)
+  final String iosAppStoreLink;
+  final String androidPlayStoreLink;
+  
+  // Whether to show QR codes or just use the assets
+  final bool generateQrCodes;
+
+  const InstructionDialog({
+    super.key,
+    required this.message,
+    this.buttonText = "OK",
+    required this.onButtonPressed,
+    this.textDirection = TextDirection.rtl,
+    this.width = 0.8,
+    this.backgroundColor = Colors.white,
+    this.buttonColor = Colors.black,
+    this.buttonTextColor = Colors.white,
+    this.iosAppStoreLink = "https://apps.apple.com/il/app/lightup-crowd/id6745174049",
+    this.androidPlayStoreLink = "https://play.google.com/store/apps/details?id=com.paltidigital.crowdlighting",
+    this.universalAppLink = "https://yairpalti.github.io/LightUp_Store_Redirect/",
+    this.generateQrCodes = false,
+  });
+
+  // Share app using the appropriate link based on the target platform
+  void _shareApp(BuildContext context, {required bool isIOS}) {
+    // Select the appropriate URL based on the platform selection
+    final String shareUrl = isIOS ? iosAppStoreLink : androidPlayStoreLink;
+    final String shareMessage = 'Check out this awesome flashlight app: $shareUrl';
+
+    // For iOS share sheet, we need to provide the sharePositionOrigin
+    if (Platform.isIOS) {
+      final RenderBox? box = context.findRenderObject() as RenderBox?;
+      final Rect? sharePositionOrigin = box != null
+          ? Rect.fromLTWH(
+              box.localToGlobal(Offset.zero).dx,
+              box.localToGlobal(Offset.zero).dy,
+              box.size.width,
+              box.size.height * 0.75,
+            )
+          : null;
+
+      Share.share(
+        shareMessage,
+        subject: 'LightUp Crowd App',
+        sharePositionOrigin: sharePositionOrigin,
+      );
+    } else {
+      // For Android and other platforms
+      Share.share(shareMessage, subject: 'LightUp Crowd App');
+    }
+  }
+
+  // Share the universal app link that works on any platform
+  void _shareUniversalLink(BuildContext context) {
+    final String shareMessage = 'Check out this awesome flashlight app: $universalAppLink';
+
+    if (Platform.isIOS) {
+      final RenderBox? box = context.findRenderObject() as RenderBox?;
+      final Rect? sharePositionOrigin = box != null
+          ? Rect.fromLTWH(
+              box.localToGlobal(Offset.zero).dx,
+              box.localToGlobal(Offset.zero).dy,
+              box.size.width,
+              box.size.height * 0.75,
+            )
+          : null;
+
+      Share.share(
+        shareMessage,
+        subject: 'LightUp Crowd App',
+        sharePositionOrigin: sharePositionOrigin,
+      );
+    } else {
+      Share.share(shareMessage, subject: 'LightUp Crowd App');
+    }
+  }
+
+  // Copy app link to clipboard
+  void _copyLink(BuildContext context, String link) {
+    Clipboard.setData(ClipboardData(text: link));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Link copied to clipboard')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isTablet = screenSize.shortestSide >= 600;
+    final double contentWidth = MediaQuery.of(context).size.width * width;
+    final bool useHorizontalLayout = contentWidth > 360;
+
+    return Container(
+      color: Colors.black.withOpacity(0.5),
+      child: Center(
+        child: Container(
+          width: contentWidth,
+          padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Message text
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                textDirection: textDirection,
+                style: TextStyle(
+                  fontSize: isTablet ? 20 : 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: isTablet ? 24.0 : 20.0),
+              
+              // Share App Title
+              Text(
+                "Share The App",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isTablet ? 22 : 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: isTablet ? 16.0 : 12.0),
+              
+              // Universal QR Code
+              if (generateQrCodes)
+                Column(
+                  children: [
+                    Text(
+                      "Scan to download",
+                      style: TextStyle(
+                        fontSize: isTablet ? 16 : 14,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    QrImageView(
+                      data: universalAppLink,
+                      version: QrVersions.auto,
+                      size: isTablet ? 180.0 : 140.0,
+                      backgroundColor: Colors.white,
+                      errorStateBuilder: (context, error) => Center(
+                        child: Text('Error generating QR code'),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () => _copyLink(context, universalAppLink),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                universalAppLink,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(Icons.copy, size: 14, color: Colors.grey),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: () => _shareUniversalLink(context),
+                      icon: Icon(Icons.share, size: 18),
+                      label: Text("Share App Link"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                    ),
+                    Divider(height: 32),
+                    Text(
+                      "Or share directly to:",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                ),
+              
+              // Platform-specific QR codes
+              useHorizontalLayout
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildPlatformQRCode(context, true, isTablet),  // iOS
+                        _buildPlatformQRCode(context, false, isTablet), // Android
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        _buildPlatformQRCode(context, true, isTablet),  // iOS
+                        SizedBox(height: 20),
+                        _buildPlatformQRCode(context, false, isTablet), // Android
+                      ],
+                    ),
+
+              SizedBox(height: isTablet ? 24.0 : 20.0),
+              
+              // OK Button
+              ElevatedButton(
+                onPressed: onButtonPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: buttonColor,
+                  foregroundColor: buttonTextColor,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 32 : 24,
+                    vertical: isTablet ? 12 : 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  buttonText,
+                  style: TextStyle(
+                    fontSize: isTablet ? 18 : 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlatformQRCode(BuildContext context, bool isIOS, bool isTablet) {
+    final String platformLink = isIOS ? iosAppStoreLink : androidPlayStoreLink;
+    
+    return Column(
+      children: [
+        // Platform name
+        Text(
+          isIOS ? "iOS" : "Android",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: isTablet ? 18 : 16,
+            color: isIOS ? Colors.blue : Colors.green,
+          ),
+        ),
+        SizedBox(height: 8),
+        
+        // QR code - either generated or from assets
+        if (generateQrCodes)
+          QrImageView(
+            data: platformLink,
+            version: QrVersions.auto,
+            size: isTablet ? 140.0 : 100.0,
+            backgroundColor: Colors.white,
+            errorStateBuilder: (context, error) => Center(
+              child: Text('Error generating QR code'),
+            ),
+          )
+        else
+          Image.asset(
+            isIOS ? 'assets/images/barcode_ios.png' : 'assets/images/barcode_android.png',
+            height: isTablet ? 120.0 : 100.0,
+            fit: BoxFit.contain,
+          ),
+          
+        SizedBox(height: 8),
+        
+        // Share button
+        Builder(
+          builder: (innerContext) => ElevatedButton.icon(
+            onPressed: () => _shareApp(innerContext, isIOS: isIOS),
+            icon: Icon(Icons.share, size: isTablet ? 20 : 18),
+            label: Text(isIOS ? "Share iOS" : "Share Android"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isIOS ? Colors.blue : Colors.green,
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 16 : 12,
+                vertical: isTablet ? 10 : 8,
+              ),
+              textStyle: TextStyle(fontSize: isTablet ? 16 : 14),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
