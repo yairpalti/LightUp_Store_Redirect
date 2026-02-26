@@ -350,6 +350,94 @@ a:hover {
     line-height: 1.6;
 }
 
+/* Products grid: teaser cards, click to expand detail */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.product-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.product-card.is-open {
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.product-teaser {
+    display: block;
+    width: 100%;
+    padding: 20px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+}
+
+.product-teaser:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.product-teaser:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+.product-name {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+.product-summary {
+    display: block;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.product-teaser::after {
+    content: '+';
+    float: right;
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--text-muted);
+}
+
+.product-card.is-open .product-teaser::after {
+    content: '−';
+}
+
+.product-detail {
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--card-border);
+}
+
+.product-detail[hidden] {
+    display: none;
+}
+
+.product-detail p {
+    font-size: 15px;
+    margin: 16px 0;
+}
+
+.product-detail .video-wrap {
+    margin-top: 12px;
+}
+
 /* Scroll reveal: fade-in when section enters viewport */
 .scroll-reveal {
     opacity: 0;

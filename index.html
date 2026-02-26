@@ -80,9 +80,7 @@
                 <a href="download/index.html" class="store-button">Download the app</a>
             </div>
             <nav class="scroll-nav nav-links">
-                <a href="#basic-options">Basic options</a>
-                <a href="#indoor">Indoor</a>
-                <a href="#advanced">Advanced</a>
+                <a href="#products">Products</a>
                 <a href="#possibilities">Features</a>
                 <a href="#advantages">Why LightUp Crowd</a>
             </nav>
@@ -99,62 +97,81 @@
         </div>
     </section>
 
-    <section id="basic-options" class="section">
+    <section id="products" class="section">
         <div class="section-block">
-            <h2>Two basic options</h2>
-            <p class="section-intro">Both require no hardware, no pre-mapping, and no action from the venue — attendees simply open the app when they arrive. Every show is fully bespoke: branded colors, custom welcome screen, and multilingual support.</p>
+            <h2>Light show options</h2>
+            <p class="section-intro">No hardware, no pre-mapping — attendees simply open the app. Every show is tailored to you: branded colors, custom welcome screen, and multilingual support.</p>
         </div>
-        <div class="show-types-grid">
-            <div class="show-type">
-                <h3>Crowd Flash (phone flashlight)</h3>
-                <p>Every attendee's phone flashlight fires in sync — blinking, strobing, and twinkling in organic unison across the crowd. A raw, high-energy effect that works in any venue with zero setup. The classic concert lighter, reimagined at scale.</p>
-                <div class="video-wrap video-in-card">
-                    <video controls preload="metadata">
-                        <source src="media/crowd-flash.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
+        <div class="products-grid">
+            <article class="product-card" data-product="crowd-flash">
+                <button type="button" class="product-teaser" aria-expanded="false" aria-controls="product-detail-crowd-flash" id="product-teaser-crowd-flash">
+                    <span class="product-name">Crowd Flash</span>
+                    <span class="product-summary">Endless light patterns — phone flashlights in sync.</span>
+                </button>
+                <div id="product-detail-crowd-flash" class="product-detail" role="region" aria-labelledby="product-teaser-crowd-flash" hidden>
+                    <p>Many different light patterns can be applied across the whole crowd or at random — from blinking, strobing, and twinkling to waves and custom sequences — so you get energetic, high-impact effects that work in any venue with zero setup. The classic concert lighter, reimagined at scale.</p>
+                    <div class="video-wrap video-in-card">
+                        <video controls preload="metadata">
+                            <source src="media/crowd-flash.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
                 </div>
-            </div>
-            <div class="show-type">
-                <h3>Crowd Glow (phone screen color)</h3>
-                <p>Every attendee's screen lights up in synchronized color — pulsing, breathing, and shifting through dynamic effects. Each phone brings its own subtle organic variation, so the crowd looks alive rather than robotic. Works in any indoor space, any size, no seat mapping required.</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="indoor" class="section">
-        <div class="section-block">
-            <h2>Also suitable for indoor events (no seat mapping required)</h2>
-        </div>
-        <div class="show-types-grid">
-            <div class="show-type">
-                <h3>Directed Glow</h3>
-                <p>Same as Crowd Glow, with an operator triggering each stage live so the show stays in sync with the performance.</p>
-            </div>
-            <div class="show-type">
-                <h3>Zone Show</h3>
-                <p>The crowd is divided into sections; each section glows in a different color simultaneously, creating sweeping patterns across the room.</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="advanced" class="section">
-        <div class="section-block">
-            <h2>Advanced modes (outdoor events or venues with seat mapping)</h2>
-        </div>
-        <div class="show-types-grid">
-            <div class="show-type">
-                <h3>Field Show</h3>
-                <p>GPS-based zones, auto-detected by phone location. Ideal for outdoor stadiums and large open venues.</p>
-            </div>
-            <div class="show-type">
-                <h3>Canvas Show</h3>
-                <p>Every seat individually addressed — the crowd becomes a high-resolution display for text, images, and video art.</p>
-            </div>
-            <div class="show-type">
-                <h3>Directed Canvas Show</h3>
-                <p>Canvas Show with live operator control — full video art with cues triggered in real time.</p>
-            </div>
+            </article>
+            <article class="product-card" data-product="crowd-glow">
+                <button type="button" class="product-teaser" aria-expanded="false" aria-controls="product-detail-crowd-glow" id="product-teaser-crowd-glow">
+                    <span class="product-name">Crowd Glow</span>
+                    <span class="product-summary">Endless color and motion patterns — screens in sync.</span>
+                </button>
+                <div id="product-detail-crowd-glow" class="product-detail" role="region" aria-labelledby="product-teaser-crowd-glow" hidden>
+                    <p>Many different color and motion patterns can be applied — from pulsing, breathing, and shifting to waves and custom sequences — so the crowd looks alive and dynamic rather than robotic. Each phone can follow the same pattern or vary subtly. Works in any space, any size, no seat mapping required.</p>
+                </div>
+            </article>
+            <article class="product-card" data-product="directed-glow">
+                <button type="button" class="product-teaser" aria-expanded="false" aria-controls="product-detail-directed-glow" id="product-teaser-directed-glow">
+                    <span class="product-name">Directed Glow</span>
+                    <span class="product-summary">Crowd Glow with a live operator triggering each stage.</span>
+                </button>
+                <div id="product-detail-directed-glow" class="product-detail" role="region" aria-labelledby="product-teaser-directed-glow" hidden>
+                    <p>Same as Crowd Glow, with an operator triggering each stage live so the show stays in sync with the performance.</p>
+                </div>
+            </article>
+            <article class="product-card" data-product="zone-show">
+                <button type="button" class="product-teaser" aria-expanded="false" aria-controls="product-detail-zone-show" id="product-teaser-zone-show">
+                    <span class="product-name">Zone Show</span>
+                    <span class="product-summary">Sections glow in different colors — sweeping patterns.</span>
+                </button>
+                <div id="product-detail-zone-show" class="product-detail" role="region" aria-labelledby="product-teaser-zone-show" hidden>
+                    <p>The crowd is divided into sections; each section glows in a different color simultaneously, creating sweeping patterns across the room.</p>
+                </div>
+            </article>
+            <article class="product-card" data-product="field-show">
+                <button type="button" class="product-teaser" aria-expanded="false" aria-controls="product-detail-field-show" id="product-teaser-field-show">
+                    <span class="product-name">Field Show</span>
+                    <span class="product-summary">Zones by location. Outdoor only.</span>
+                </button>
+                <div id="product-detail-field-show" class="product-detail" role="region" aria-labelledby="product-teaser-field-show" hidden>
+                    <p>Location is detected automatically. Zones are driven by where each phone is. Outdoor only — ideal for stadiums and large open venues.</p>
+                </div>
+            </article>
+            <article class="product-card" data-product="canvas-show">
+                <button type="button" class="product-teaser" aria-expanded="false" aria-controls="product-detail-canvas-show" id="product-teaser-canvas-show">
+                    <span class="product-name">Canvas Show</span>
+                    <span class="product-summary">Every seat a pixel — high-resolution display.</span>
+                </button>
+                <div id="product-detail-canvas-show" class="product-detail" role="region" aria-labelledby="product-teaser-canvas-show" hidden>
+                    <p>Every seat individually addressed — the crowd becomes a high-resolution display for text, images, and video art.</p>
+                </div>
+            </article>
+            <article class="product-card" data-product="directed-canvas">
+                <button type="button" class="product-teaser" aria-expanded="false" aria-controls="product-detail-directed-canvas" id="product-teaser-directed-canvas">
+                    <span class="product-name">Directed Canvas Show</span>
+                    <span class="product-summary">Canvas Show with live operator control.</span>
+                </button>
+                <div id="product-detail-directed-canvas" class="product-detail" role="region" aria-labelledby="product-teaser-directed-canvas" hidden>
+                    <p>Canvas Show with live operator control — full video art with cues triggered in real time.</p>
+                </div>
+            </article>
         </div>
     </section>
 
@@ -242,6 +259,27 @@
             if (target) {
                 e.preventDefault();
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Product cards: click teaser to expand/collapse detail (accordion)
+    document.querySelectorAll('.product-teaser').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var card = this.closest('.product-card');
+            var detail = document.getElementById(this.getAttribute('aria-controls'));
+            var isOpen = card.classList.contains('is-open');
+            document.querySelectorAll('.product-card').forEach(function(c) {
+                c.classList.remove('is-open');
+                var d = c.querySelector('.product-detail');
+                if (d) d.setAttribute('hidden', '');
+                var b = c.querySelector('.product-teaser');
+                if (b) b.setAttribute('aria-expanded', 'false');
+            });
+            if (!isOpen) {
+                card.classList.add('is-open');
+                if (detail) detail.removeAttribute('hidden');
+                this.setAttribute('aria-expanded', 'true');
             }
         });
     });
