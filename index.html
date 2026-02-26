@@ -9,90 +9,152 @@
     <meta property="og:description" content="Turn the audience's smartphones into one coordinated light show. One app. Audience phones only. Any venue. No hardware.">
     <meta property="og:url" content="https://lightupcrowd.com/">
     <meta property="og:type" content="website">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="favicon.ico" sizes="32x32">
     <link rel="stylesheet" href="css/site.css">
     <style>
-        .hero { padding: 48px 20px 40px; max-width: 720px; margin: 0 auto; }
-        .hero .app-icon {
-            width: 100px;
-            height: 100px;
-            border-radius: 20px;
-            margin: 0 auto 24px;
-            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        .hero-wrap {
+            position: relative;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            position: relative;
             overflow: hidden;
         }
-        .hero .app-icon::before {
-            content: '';
+        .hero-bg-video {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(1px 1px at 20px 30px, #fff, transparent),
-                radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.6), transparent),
-                radial-gradient(1px 1px at 60px 20px, rgba(255,255,255,0.9), transparent),
-                radial-gradient(1px 1px at 80px 80px, rgba(255,255,255,0.7), transparent);
-            background-repeat: no-repeat;
-            background-size: 100px 100px;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            z-index: 0;
         }
-        .hero .tagline { font-size: 20px; color: var(--text-muted); margin: 8px 0 24px; }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(18,18,18,0.85) 70%, var(--bg) 100%);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 48px 20px 60px;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .hero .tagline { font-size: 20px; color: var(--text-muted); margin: 8px 0 24px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+        .hero h1 { text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
         .cta-download { margin: 24px 0; }
         .cta-download .store-button { font-size: 20px; padding: 18px 36px; }
         .section { padding: 32px 20px; }
         .section h2 { font-size: 26px; }
         .scroll-nav { margin-top: 16px; }
+        .scroll-hint {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        .scroll-hint span { display: block; font-size: 24px; margin-bottom: 4px; }
+        @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
     </style>
 </head>
 <body>
-    <header class="hero">
-        <div class="app-icon"></div>
-        <h1>LightUp Crowd</h1>
-        <p class="tagline">Synchronized crowd light shows. One app. Audience phones only. Any venue.</p>
-        <div class="cta-download">
-            <a href="/download" class="store-button">Download the app</a>
+    <header class="hero-wrap">
+        <video class="hero-bg-video" autoplay muted loop playsinline aria-hidden="true">
+            <source src="media/lightup-crowd.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div class="hero-content hero">
+            <h1>LightUp Crowd</h1>
+            <p class="tagline">Synchronized crowd light shows. One app. Audience phones only. Any venue.</p>
+            <div class="cta-download">
+                <a href="download/index.html" class="store-button">Download the app</a>
+            </div>
+            <nav class="scroll-nav nav-links">
+                <a href="#basic-options">Basic options</a>
+                <a href="#indoor">Indoor</a>
+                <a href="#advanced">Advanced</a>
+                <a href="#possibilities">Features</a>
+                <a href="#advantages">Why LightUp Crowd</a>
+            </nav>
         </div>
-        <nav class="scroll-nav nav-links">
-            <a href="#what-it-does">What it does</a>
-            <a href="#modes">Two ways to light up</a>
-            <a href="#possibilities">Features</a>
-            <a href="#advantages">Why LightUp Crowd</a>
-            <a href="#summary">Summary</a>
-        </nav>
+        <a href="#what-it-does" class="scroll-hint" aria-label="Scroll to content">
+            <span>↓</span> Scroll
+        </a>
     </header>
 
     <section id="what-it-does" class="section">
         <div class="section-block">
             <h2>What LightUp Crowd Does</h2>
-            <p>LightUp Crowd turns the audience's smartphones into one coordinated light show. No external bands, no hardware at the venue—just phones. People use their phone's <strong>flashlight</strong> or <strong>full screen</strong> to display colors and patterns in perfect sync. Everything runs from the cloud and syncs by time, so there's no need for any local setup or equipment on site.</p>
+            <p>LightUp Crowd supports the full spectrum of crowd light shows — from a plug-and-play basic show to a fully choreographed video art experience. The audience's smartphones become one coordinated light show: no external bands, no hardware at the venue—just phones. Everything runs from the cloud and syncs by time, so there's no need for any local setup or equipment on site.</p>
         </div>
     </section>
 
-    <section id="modes" class="section">
+    <section id="basic-options" class="section">
         <div class="section-block">
-            <h2>Two Ways to Light Up</h2>
-            <table class="modes-table">
-                <thead>
-                    <tr>
-                        <th>Mode</th>
-                        <th>Use case</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Flashlight</strong></td>
-                        <td>Stadiums, outdoor events, dark venues. Camera flash in sync with the crowd.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Screen</strong></td>
-                        <td>Indoor arenas, daytime, or when you want big blocks of color and patterns on the display.</td>
-                    </tr>
-                </tbody>
-            </table>
-            <p style="text-align: center; margin-bottom: 0;">The same show can run as flashlight or screen—one app, one event.</p>
+            <h2>Two basic options</h2>
+            <p class="section-intro">Both require no hardware, no pre-mapping, and no action from the venue — attendees simply open the app when they arrive. Every show is fully bespoke: branded colors, custom welcome screen, and multilingual support.</p>
+        </div>
+        <div class="show-types-grid">
+            <div class="show-type">
+                <h3>Crowd Flash (phone flashlight)</h3>
+                <p>Every attendee's phone flashlight fires in sync — blinking, strobing, and twinkling in organic unison across the crowd. A raw, high-energy effect that works in any venue with zero setup. The classic concert lighter, reimagined at scale.</p>
+                <div class="video-wrap video-in-card">
+                    <video controls preload="metadata">
+                        <source src="media/crowd-flash.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            <div class="show-type">
+                <h3>Crowd Glow (phone screen color)</h3>
+                <p>Every attendee's screen lights up in synchronized color — pulsing, breathing, and shifting through dynamic effects. Each phone brings its own subtle organic variation, so the crowd looks alive rather than robotic. Works in any indoor space, any size, no seat mapping required.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="indoor" class="section">
+        <div class="section-block">
+            <h2>Also suitable for indoor events (no seat mapping required)</h2>
+        </div>
+        <div class="show-types-grid">
+            <div class="show-type">
+                <h3>Directed Glow</h3>
+                <p>Same as Crowd Glow, with an operator triggering each stage live so the show stays in sync with the performance.</p>
+            </div>
+            <div class="show-type">
+                <h3>Zone Show</h3>
+                <p>The crowd is divided into sections; each section glows in a different color simultaneously, creating sweeping patterns across the room.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="advanced" class="section">
+        <div class="section-block">
+            <h2>Advanced modes (outdoor events or venues with seat mapping)</h2>
+        </div>
+        <div class="show-types-grid">
+            <div class="show-type">
+                <h3>Field Show</h3>
+                <p>GPS-based zones, auto-detected by phone location. Ideal for outdoor stadiums and large open venues.</p>
+            </div>
+            <div class="show-type">
+                <h3>Canvas Show</h3>
+                <p>Every seat individually addressed — the crowd becomes a high-resolution display for text, images, and video art.</p>
+            </div>
+            <div class="show-type">
+                <h3>Directed Canvas Show</h3>
+                <p>Canvas Show with live operator control — full video art with cues triggered in real time.</p>
+            </div>
         </div>
     </section>
 
@@ -129,7 +191,7 @@
             </div>
             <div class="feature">
                 <h3>App Store &amp; Google Play</h3>
-                <p>Available on Apple App Store and Google Play. Multi-language support for any audience. Ongoing improvements and new features.</p>
+                <p>Available on Apple App Store and Google Play. Multi-language support and ongoing improvements.</p>
             </div>
         </div>
     </section>
@@ -143,19 +205,8 @@
                 <li><strong>Works offline</strong> at show time — no internet or expensive local hardware; real advantage for big crowds</li>
                 <li><strong>Optional operator</strong> uses their phone — no expensive external hardware</li>
                 <li><strong>No crowd size limit</strong> — each phone independent, synced by time</li>
-                <li><strong>Easy event setup</strong> — minutes to hours; simulator shows exact behaviour</li>
                 <li><strong>Multi-event &amp; multi-language</strong> — multiple locations and languages supported</li>
             </ul>
-        </div>
-    </section>
-
-    <section id="summary" class="section">
-        <div class="section-block">
-            <h2>Summary</h2>
-            <p>LightUp Crowd is built for <strong>stadiums, arenas, festivals, and brand events</strong> that want a simple, scalable way to turn the crowd's phones into one synchronized light show—without extra hardware or complex on-site tech. Flashlight or screen, one app; audience phones only; cloud-based and works offline.</p>
-            <p style="text-align: center; margin-bottom: 0;">
-                <a href="/download" class="store-button">Download the app</a>
-            </p>
         </div>
     </section>
 
@@ -170,12 +221,52 @@
     </div>
 
     <footer class="site-footer">
-        <a href="/">Home</a>
+        <a href="index.html">Home</a>
         <span class="sep">·</span>
-        <a href="/download">Download</a>
+        <a href="download/index.html">Download</a>
         <span class="sep">·</span>
         <a href="mailto:paltidigital@gmail.com">Contact</a>
         <p>&copy; 2025 LightUp Crowd. All rights reserved.</p>
     </footer>
+
+    <script>
+(function() {
+    'use strict';
+
+    // Smooth scroll for in-page anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+            var targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            var target = document.querySelector(targetId);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Fade-in sections on scroll (Intersection Observer)
+    var sections = document.querySelectorAll('.section, .contact-section');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+            }
+        });
+    }, { rootMargin: '0px 0px -80px 0px', threshold: 0 });
+
+    sections.forEach(function(section) {
+        section.classList.add('scroll-reveal');
+        observer.observe(section);
+    });
+
+    // Ensure hero background video plays (some browsers need user interaction first)
+    var heroVideo = document.querySelector('.hero-bg-video');
+    if (heroVideo) {
+        heroVideo.play().catch(function() {});
+    }
+})();
+    </script>
 </body>
 </html>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0a0a12"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="35%" r="50%">
+      <stop offset="0%" style="stop-color:#fff;stop-opacity:0.35"/>
+      <stop offset="70%" style="stop-color:#fff;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#fff;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="url(#bg)"/>
+  <ellipse cx="16" cy="12" rx="10" ry="8" fill="url(#glow)"/>
+  <!-- Stars / sparkles -->
+  <circle cx="6" cy="6" r="0.8" fill="#fff" opacity="0.9"/>
+  <circle cx="26" cy="5" r="0.6" fill="#fff" opacity="0.8"/>
+  <circle cx="8" cy="22" r="0.5" fill="#fff" opacity="0.7"/>
+  <circle cx="24" cy="26" r="0.7" fill="#fff" opacity="0.85"/>
+  <circle cx="16" cy="28" r="0.4" fill="#fff" opacity="0.6"/>
+  <circle cx="4" cy="14" r="0.5" fill="#fff" opacity="0.75"/>
+  <circle cx="28" cy="16" r="0.6" fill="#fff" opacity="0.8"/>
+  <!-- Shooting star hints -->
+  <line x1="3" y1="4" x2="6" y2="6" stroke="#fff" stroke-width="0.4" opacity="0.6"/>
+  <line x1="26" y1="8" x2="29" y2="6" stroke="#fff" stroke-width="0.35" opacity="0.5"/>
+  <!-- Phone body -->
+  <rect x="12" y="14" width="8" height="14" rx="1.5" fill="none" stroke="#c8c8d0" stroke-width="0.9"/>
+  <rect x="13" y="15.5" width="6" height="11" rx="0.8" fill="#16213e"/>
+  <!-- Flashlight -->
+  <circle cx="16" cy="12.5" r="2.2" fill="#fff"/>
+  <line x1="16" y1="10" x2="16" y2="4" stroke="#fff" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="16" y1="10.5" x2="13" y2="5" stroke="#fff" stroke-width="0.45" stroke-linecap="round" opacity="0.9"/>
+  <line x1="16" y1="10.5" x2="19" y2="5" stroke="#fff" stroke-width="0.45" stroke-linecap="round" opacity="0.9"/>
+  <line x1="16" y1="10.8" x2="14.5" y2="4.5" stroke="#fff" stroke-width="0.4" stroke-linecap="round" opacity="0.8"/>
+  <line x1="16" y1="10.8" x2="17.5" y2="4.5" stroke="#fff" stroke-width="0.4" stroke-linecap="round" opacity="0.8"/>
+</svg>
