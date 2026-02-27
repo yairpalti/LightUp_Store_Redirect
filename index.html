@@ -108,13 +108,15 @@
                     <span class="product-name">Crowd Flash</span>
                     <span class="product-summary">Endless light patterns — phone flashlights in sync.</span>
                 </button>
-                <div id="product-detail-crowd-flash" class="product-detail" role="region" aria-labelledby="product-teaser-crowd-flash" hidden>
+                <div id="product-detail-crowd-flash" class="product-detail" role="region" aria-labelledby="product-teaser-crowd-flash">
                     <p>Many different light patterns can be applied across the whole crowd or at random — from blinking, strobing, and twinkling to waves and custom sequences — so you get energetic, high-impact effects that work in any venue with zero setup. The classic concert lighter, reimagined at scale.</p>
-                    <div class="video-wrap video-in-card">
-                        <video controls preload="metadata">
-                            <source src="media/crowd-flash.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                    <div class="product-videos">
+                        <div class="video-wrap video-in-card">
+                            <video controls preload="metadata">
+                                <source src="media/crowd-flash.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
                     </div>
                 </div>
             </article>
@@ -123,8 +125,16 @@
                     <span class="product-name">Crowd Glow</span>
                     <span class="product-summary">Endless color and motion patterns — screens in sync.</span>
                 </button>
-                <div id="product-detail-crowd-glow" class="product-detail" role="region" aria-labelledby="product-teaser-crowd-glow" hidden>
+                <div id="product-detail-crowd-glow" class="product-detail" role="region" aria-labelledby="product-teaser-crowd-glow">
                     <p>Many different color and motion patterns can be applied — from pulsing, breathing, and shifting to waves and custom sequences — so the crowd looks alive and dynamic rather than robotic. Each phone can follow the same pattern or vary subtly. Works in any space, any size, no seat mapping required.</p>
+                    <div class="product-videos">
+                        <div class="video-wrap video-in-card">
+                            <video controls preload="metadata">
+                                <source src="media/crowd-glow.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
                 </div>
             </article>
             <article class="product-card" data-product="directed-glow">
@@ -132,7 +142,7 @@
                     <span class="product-name">Directed Glow</span>
                     <span class="product-summary">Crowd Glow with a live operator triggering each stage.</span>
                 </button>
-                <div id="product-detail-directed-glow" class="product-detail" role="region" aria-labelledby="product-teaser-directed-glow" hidden>
+                <div id="product-detail-directed-glow" class="product-detail" role="region" aria-labelledby="product-teaser-directed-glow">
                     <p>Same as Crowd Glow, with an operator triggering each stage live so the show stays in sync with the performance.</p>
                 </div>
             </article>
@@ -141,8 +151,16 @@
                     <span class="product-name">Zone Show</span>
                     <span class="product-summary">Sections glow in different colors — sweeping patterns.</span>
                 </button>
-                <div id="product-detail-zone-show" class="product-detail" role="region" aria-labelledby="product-teaser-zone-show" hidden>
+                <div id="product-detail-zone-show" class="product-detail" role="region" aria-labelledby="product-teaser-zone-show">
                     <p>The crowd is divided into sections; each section glows in a different color simultaneously, creating sweeping patterns across the room.</p>
+                    <div class="product-videos">
+                        <div class="video-wrap video-in-card">
+                            <video controls preload="metadata">
+                                <source src="media/zone-show.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
                 </div>
             </article>
             <article class="product-card" data-product="field-show">
@@ -150,7 +168,7 @@
                     <span class="product-name">Field Show</span>
                     <span class="product-summary">Zones by location. Outdoor only.</span>
                 </button>
-                <div id="product-detail-field-show" class="product-detail" role="region" aria-labelledby="product-teaser-field-show" hidden>
+                <div id="product-detail-field-show" class="product-detail" role="region" aria-labelledby="product-teaser-field-show">
                     <p>Location is detected automatically. Zones are driven by where each phone is. Outdoor only — ideal for stadiums and large open venues.</p>
                 </div>
             </article>
@@ -159,7 +177,7 @@
                     <span class="product-name">Canvas Show</span>
                     <span class="product-summary">Every seat a pixel — high-resolution display.</span>
                 </button>
-                <div id="product-detail-canvas-show" class="product-detail" role="region" aria-labelledby="product-teaser-canvas-show" hidden>
+                <div id="product-detail-canvas-show" class="product-detail" role="region" aria-labelledby="product-teaser-canvas-show">
                     <p>Every seat individually addressed — the crowd becomes a high-resolution display for text, images, and video art.</p>
                 </div>
             </article>
@@ -168,7 +186,7 @@
                     <span class="product-name">Directed Canvas Show</span>
                     <span class="product-summary">Canvas Show with live operator control.</span>
                 </button>
-                <div id="product-detail-directed-canvas" class="product-detail" role="region" aria-labelledby="product-teaser-directed-canvas" hidden>
+                <div id="product-detail-directed-canvas" class="product-detail" role="region" aria-labelledby="product-teaser-directed-canvas">
                     <p>Canvas Show with live operator control — full video art with cues triggered in real time.</p>
                 </div>
             </article>
@@ -263,22 +281,21 @@
         });
     });
 
-    // Product cards: click teaser to expand/collapse detail (accordion)
+    // Product cards: click teaser to expand/collapse detail (accordion — only one open)
     document.querySelectorAll('.product-teaser').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var card = this.closest('.product-card');
-            var detail = document.getElementById(this.getAttribute('aria-controls'));
-            var isOpen = card.classList.contains('is-open');
+            if (!card) return;
+            var wasOpen = card.classList.contains('is-open');
+            // Close every product card
             document.querySelectorAll('.product-card').forEach(function(c) {
                 c.classList.remove('is-open');
-                var d = c.querySelector('.product-detail');
-                if (d) d.setAttribute('hidden', '');
                 var b = c.querySelector('.product-teaser');
                 if (b) b.setAttribute('aria-expanded', 'false');
             });
-            if (!isOpen) {
+            // If the clicked card was closed, open only this one
+            if (!wasOpen) {
                 card.classList.add('is-open');
-                if (detail) detail.removeAttribute('hidden');
                 this.setAttribute('aria-expanded', 'true');
             }
         });
