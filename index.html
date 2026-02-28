@@ -180,8 +180,21 @@
                 <h3 class="product-detail-title">Directed Glow</h3>
                 <p>Same as Crowd Glow, with an operator triggering each stage live so the show stays in sync with the performance.</p>
                 <div class="product-videos">
-                    <div class="video-wrap video-in-card">
-                        <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Directed%20Glow.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                    <div class="product-videos-slider">
+                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                        <div class="product-videos-track">
+                            <div class="product-video-item active">
+                                <div class="video-wrap video-in-card">
+                                    <video controls preload="metadata"><source src="media/Directed-Crowd-Glow.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                </div>
+                            </div>
+                            <div class="product-video-item">
+                                <div class="video-wrap video-in-card">
+                                    <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Directed%20Glow.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
                     </div>
                 </div>
             </div>
@@ -211,8 +224,21 @@
                 <h3 class="product-detail-title">Field Show</h3>
                 <p>Location is detected automatically. Zones are driven by where each phone is. Outdoor only — ideal for stadiums and large open venues.</p>
                 <div class="product-videos">
-                    <div class="video-wrap video-in-card">
-                        <video controls preload="metadata"><source src="media/outdoor%20zones%20gps.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                    <div class="product-videos-slider">
+                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                        <div class="product-videos-track">
+                            <div class="product-video-item active">
+                                <div class="video-wrap video-in-card">
+                                    <video controls preload="metadata"><source src="media/Field-Show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                </div>
+                            </div>
+                            <div class="product-video-item">
+                                <div class="video-wrap video-in-card">
+                                    <video controls preload="metadata"><source src="media/outdoor%20zones%20gps.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
                     </div>
                 </div>
             </div>
@@ -398,6 +424,8 @@
                     if (video) { video.pause(); }
                 }
             });
+            var activeVideo = items[idx].querySelector('video');
+            if (activeVideo) { activeVideo.play().catch(function() {}); }
         }
         if (prevBtn) prevBtn.addEventListener('click', function() { setActive(idx - 1); });
         if (nextBtn) nextBtn.addEventListener('click', function() { setActive(idx + 1); });
