@@ -308,6 +308,24 @@ a:hover {
     object-fit: contain;
     display: block;
 }
+
+@media (max-width: 768px) {
+    .product-detail-reveal .product-videos {
+        margin-left: -20px;
+        margin-right: -20px;
+        width: calc(100% + 40px);
+    }
+    .product-detail .video-wrap,
+    .product-detail-reveal .video-wrap {
+        max-height: 85vh;
+        margin: 12px 0;
+    }
+    .product-detail .video-wrap video,
+    .product-detail-reveal .video-wrap video {
+        max-height: 85vh;
+    }
+}
+
 /* Multiple videos per product */
 .product-detail .product-videos,
 .product-detail-reveal .product-videos {
