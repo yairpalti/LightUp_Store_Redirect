@@ -8,22 +8,13 @@
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="alternate icon" href="../favicon.ico" sizes="32x32">
     <link rel="stylesheet" href="../css/site.css">
-    <!-- Firebase Analytics (crowd-lighting) -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
-      const firebaseConfig = {
-        apiKey: "AIzaSyDPkPA5jItgkIP0BiZn0VegEA37fW1EbCI",
-        authDomain: "crowd-lighting.firebaseapp.com",
-        databaseURL: "https://crowd-lighting-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "crowd-lighting",
-        storageBucket: "crowd-lighting.firebasestorage.app",
-        messagingSenderId: "474376624884",
-        appId: "1:474376624884:web:785e71be86cf8ea0839ca1",
-        measurementId: "G-NPFV8ZV17E"
-      };
-      const app = initializeApp(firebaseConfig);
-      getAnalytics(app);
+    <!-- Google tag (gtag.js) - GA4 Web stream -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJZX1HFPLB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-DJZX1HFPLB');
     </script>
     <style>
         .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
