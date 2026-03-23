@@ -89,6 +89,7 @@
             </div>
             <nav class="scroll-nav nav-links">
                 <a href="#products">Products</a>
+                <a href="#special-dynamic-modes">Dynamic modes</a>
                 <a href="#possibilities">Features</a>
                 <a href="#advantages">Why LightUp Crowd</a>
             </nav>
@@ -105,7 +106,7 @@
         </div>
     </section>
 
-    <section id="products" class="section">
+    <section id="products" class="section" data-product-picker>
         <div class="section-block">
             <h2>LightUp Crowd products</h2>
             <p class="section-intro">We offer a range of products so you can match the show to your event: small, medium, or large crowds; indoor or outdoor; seated or standing; music, sport, conference, or anything in between. Pick the show that fits your venue and format.</p>
@@ -307,6 +308,94 @@
         </div>
     </section>
 
+    <section id="special-dynamic-modes" class="section" data-product-picker>
+        <div class="section-block">
+            <h2>LightUp special dynamic modes</h2>
+            <p class="section-intro">Beyond the core show types — extra modes that react, compete, or crown the moment. Same app experience; different energy on the floor.</p>
+        </div>
+        <div class="product-circles" role="tablist" aria-label="Special dynamic modes">
+            <button type="button" class="product-circle is-center" data-product="crown-show" role="tab" aria-selected="true" aria-controls="special-modes-detail-reveal" title="Click to show details"><span class="product-circle-label">Crown Show</span></button>
+            <button type="button" class="product-circle" data-product="party-flash" role="tab" aria-selected="false" aria-controls="special-modes-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Party Flash</span></button>
+            <button type="button" class="product-circle" data-product="party-glow" role="tab" aria-selected="false" aria-controls="special-modes-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Party Glow</span></button>
+            <button type="button" class="product-circle" data-product="gaming" role="tab" aria-selected="false" aria-controls="special-modes-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Gaming</span></button>
+        </div>
+        <div id="special-modes-detail-reveal" class="product-detail-reveal is-open" role="tabpanel">
+            <div class="product-detail-content is-visible" data-product="crown-show">
+                <h3 class="product-detail-title">Crown Show</h3>
+                <p>Highlight a single participant or a rotating “crown” of phones — perfect for winners, VIP moments, or drawing the crowd’s focus to one glowing point.</p>
+                <div class="product-videos">
+                    <div class="product-videos-slider">
+                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                        <div class="product-videos-track">
+                            <div class="product-video-item active">
+                                <div class="video-wrap video-in-card product-video-placeholder" aria-hidden="true">
+                                    <p class="product-video-placeholder-text">Video coming soon</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product-detail-content" data-product="party-flash">
+                <h3 class="product-detail-title">Party Flash</h3>
+                <p>The crowd’s lights pulse and shift with the sound and energy of the room — tighter sync to music and atmosphere without extra hardware.</p>
+                <div class="product-videos">
+                    <div class="product-videos-slider">
+                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                        <div class="product-videos-track">
+                            <div class="product-video-item active">
+                                <div class="video-wrap video-in-card product-video-placeholder" aria-hidden="true">
+                                    <p class="product-video-placeholder-text">Video coming soon</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product-detail-content" data-product="party-glow">
+                <h3 class="product-detail-title">Party Glow</h3>
+                <p>Smoother color washes and random color play driven by the room’s energy — a softer party look that still tracks the vibe.</p>
+                <div class="product-videos">
+                    <div class="product-videos-slider">
+                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                        <div class="product-videos-track">
+                            <div class="product-video-item active">
+                                <div class="video-wrap video-in-card">
+                                    <video controls preload="metadata"><source src="media/audio%20-%20colors2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                </div>
+                            </div>
+                            <div class="product-video-item">
+                                <div class="video-wrap video-in-card">
+                                    <video controls preload="metadata"><source src="media/audio%20colors%20-%20random%202.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
+                    </div>
+                </div>
+            </div>
+            <div class="product-detail-content" data-product="gaming">
+                <h3 class="product-detail-title">Gaming</h3>
+                <p>Interactive, game-style crowd moments — teams, reactions, and playful competition that turns the audience into part of the show.</p>
+                <div class="product-videos">
+                    <div class="product-videos-slider">
+                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                        <div class="product-videos-track">
+                            <div class="product-video-item active">
+                                <div class="video-wrap video-in-card product-video-placeholder" aria-hidden="true">
+                                    <p class="product-video-placeholder-text">Video coming soon</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="possibilities" class="section">
         <h2>Product Possibilities</h2>
         <div class="features">
@@ -395,61 +484,61 @@
         });
     });
 
-    // Product circles: click non-center → make it center; click center → toggle detail panel below
-    var circles = document.querySelectorAll('.product-circle');
-    var detailReveal = document.getElementById('product-detail-reveal');
-    var detailContents = document.querySelectorAll('.product-detail-content');
+    // Product / mode pickers: scoped per section with [data-product-picker]
+    function initProductPicker(root) {
+        var circles = root.querySelectorAll('.product-circle');
+        var detailReveal = root.querySelector('.product-detail-reveal');
+        var detailContents = root.querySelectorAll('.product-detail-content');
+        if (!circles.length || !detailReveal) return;
 
-    function setCenter(centerCircle) {
-        var product = centerCircle.getAttribute('data-product');
-        circles.forEach(function(c) {
-            c.classList.remove('is-center');
-            c.setAttribute('aria-selected', c === centerCircle ? 'true' : 'false');
-        });
-        centerCircle.classList.add('is-center');
-        detailContents.forEach(function(el) {
-            var isVisible = el.getAttribute('data-product') === product;
-            el.classList.toggle('is-visible', isVisible);
-            if (!isVisible) {
-                el.querySelectorAll('video').forEach(function(v) { v.pause(); });
+        function playVisibleProductVideo() {
+            var visible = root.querySelector('.product-detail-content.is-visible');
+            if (!visible) return;
+            var activeItem = visible.querySelector('.product-video-item.active');
+            var video = activeItem ? activeItem.querySelector('video') : visible.querySelector('.product-videos video');
+            if (video) {
+                video.play().catch(function() {});
             }
-        });
-        playVisibleProductVideo();
-    }
-
-    function playVisibleProductVideo() {
-        var visible = document.querySelector('.product-detail-content.is-visible');
-        if (!visible) return;
-        var activeItem = visible.querySelector('.product-video-item.active');
-        var video = activeItem ? activeItem.querySelector('video') : visible.querySelector('.product-videos video');
-        if (video) {
-            video.play().catch(function() {});
         }
-    }
 
-    function openDetailPanel() {
-        if (detailReveal) detailReveal.classList.add('is-open');
-        playVisibleProductVideo();
-    }
+        function setCenter(centerCircle) {
+            var product = centerCircle.getAttribute('data-product');
+            circles.forEach(function(c) {
+                c.classList.remove('is-center');
+                c.setAttribute('aria-selected', c === centerCircle ? 'true' : 'false');
+            });
+            centerCircle.classList.add('is-center');
+            detailContents.forEach(function(el) {
+                var isVisible = el.getAttribute('data-product') === product;
+                el.classList.toggle('is-visible', isVisible);
+                if (!isVisible) {
+                    el.querySelectorAll('video').forEach(function(v) { v.pause(); });
+                }
+            });
+            playVisibleProductVideo();
+        }
 
-    function closeDetailPanel() {
-        if (detailReveal) detailReveal.classList.remove('is-open');
-    }
+        function openDetailPanel() {
+            detailReveal.classList.add('is-open');
+            playVisibleProductVideo();
+        }
 
-    circles.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var isCenter = this.classList.contains('is-center');
-            if (isCenter) {
-                openDetailPanel();
-            } else {
-                setCenter(this);
-            }
+        circles.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var isCenter = this.classList.contains('is-center');
+                if (isCenter) {
+                    openDetailPanel();
+                } else {
+                    setCenter(this);
+                }
+            });
         });
-    });
 
-    // Initial center product
-    var initialCenter = document.querySelector('.product-circle.is-center');
-    if (initialCenter) setCenter(initialCenter);
+        var initialCenter = root.querySelector('.product-circle.is-center');
+        if (initialCenter) setCenter(initialCenter);
+    }
+
+    document.querySelectorAll('[data-product-picker]').forEach(initProductPicker);
 
     // Product video slider: < > arrows to browse multiple videos
     document.querySelectorAll('.product-videos-slider').forEach(function(slider) {
