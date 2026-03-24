@@ -20,7 +20,7 @@
     <div class="box">
         <h1>LightUp Crowd</h1>
         <p id="msg">Opening the app store…</p>
-        <p style="font-size:14px;color:#666">If you already have the app installed, this link opens the show directly.</p>
+        <p style="font-size:14px;color:#666">If the app is installed, this link opens it. Otherwise you’ll go to the App Store or Google Play.</p>
     </div>
     <script src="../js/deep-link-redirect.js"></script>
     <script>
@@ -28,11 +28,22 @@
         var params = new URLSearchParams(window.location.search);
         var eventId = params.get('e') || params.get('event') || '';
         if (!eventId) {
-          document.getElementById('msg').textContent = 'Missing event. Use a valid join link from the organizer.';
-        } else {
-          gtag('event', 'deep_link_join', { event_id: eventId });
-          window.LightUpRedirect.run({ eventId: eventId, token: '' });
+          var parts = window.location.pathname.replace(/\/+$/, '').split('/');
+          var ji = parts.indexOf('join');
+          if (ji >= 0 && parts[ji + 1]) {
+            try {
+              eventId = decodeURIComponent(parts[ji + 1]);
+            } catch (e) {
+              eventId = parts[ji + 1];
+            }
+          }
         }
+        if (eventId) {
+          gtag('event', 'deep_link_join', { event_id: eventId });
+        } else {
+          gtag('event', 'deep_link_join_generic');
+        }
+        window.LightUpRedirect.run({ eventId: eventId || '', token: '' });
       })();
     </script>
 </body>
