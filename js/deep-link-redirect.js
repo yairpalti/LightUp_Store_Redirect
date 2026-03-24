@@ -49,36 +49,28 @@
     buildClipboardPayload: buildClipboardPayload,
 
     /**
-     * Try to open the installed app via intent:// (same URL as this page).
-     * Falls back to Play Store (with referrer) if the app is not installed.
-     * @param {string} playUrl
+     * Try to open the installed app via Chrome intent:// (same https URL as this page).
+     * Uses S.browser_fallback_url for Play when the app is not installed.
+     *
+     * Do NOT use a short setTimeout → Play: Chrome often keeps the tab "visible" while
+     * the app opens, so the timer fires and sends users to the store anyway.
+     * @param {string} playUrl full Play URL including referrer=
      */
     openAndroidAppOrPlay: function (playUrl) {
       var u = window.location;
-      var pathPart = u.host + u.pathname + (u.search || '');
+      var pathPart = u.host + (u.pathname || '/') + (u.search || '');
+      var fallbackEnc = encodeURIComponent(playUrl);
+      // Host/path + explicit VIEW. No JS timer → Play (that was firing while the app opened).
       var intentUrl =
         'intent://' +
         pathPart +
-        '#Intent;scheme=https;package=com.paltidigital.crowdlighting;S.browser_fallback_url=' +
-        encodeURIComponent(playUrl) +
+        '#Intent;scheme=https;package=com.paltidigital.crowdlighting;' +
+        'action=android.intent.action.VIEW;' +
+        'category=android.intent.category.DEFAULT;' +
+        'category=android.intent.category.BROWSABLE;' +
+        'S.browser_fallback_url=' +
+        fallbackEnc +
         ';end';
-
-      var fallbackMs = 900;
-      var timer = setTimeout(function () {
-        window.location.href = playUrl;
-      }, fallbackMs);
-
-      function cancelFallback() {
-        clearTimeout(timer);
-      }
-      window.addEventListener('pagehide', cancelFallback, { once: true });
-      window.addEventListener('blur', cancelFallback, { once: true });
-      document.addEventListener('visibilitychange', function onVis() {
-        if (document.visibilityState === 'hidden') {
-          cancelFallback();
-          document.removeEventListener('visibilitychange', onVis);
-        }
-      });
 
       window.location.href = intentUrl;
     },
@@ -107,8 +99,9 @@
         }
       }
 
-      // Short delay so user sees the page (matches /download/ behavior)
-      setTimeout(go, 1200);
+      // Android: short delay only (intent runs quickly). iOS/desktop: brief message delay.
+      var delayMs = isAndroid ? 250 : 1200;
+      setTimeout(go, delayMs);
     },
   };
 })();
