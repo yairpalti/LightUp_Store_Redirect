@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.paltidigital.crowdlighting",
       "sha256_cert_fingerprints": [
-        "13:5C:D4:66:FD:56:A8:AB:69:84:20:72:CF:11:E6:1C:C4:4E:22:E2:A2:91:91:0F:C3:C4:77:50:DE:92:8C:8A"
+        "13:5C:D4:66:FD:56:A8:AB:69:84:20:72:CF:11:E6:1C:C4:4E:22:E2:A2:91:91:0F:C3:C4:77:50:DE:92:8C:8A",
+        "33:EE:C9:A7:D2:69:EF:0B:BB:CD:B0:02:FF:72:A2:55:46:B5:C5:B5:57:90:A7:65:CC:E1:2A:F8:12:C0:53:F8"
       ]
     }
   }
