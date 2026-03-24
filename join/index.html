@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join show — LightUp Crowd</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/site.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJZX1HFPLB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-DJZX1HFPLB');
+    </script>
+    <style>.box{max-width:560px;margin:48px auto;padding:0 20px;text-align:center}</style>
+</head>
+<body>
+    <div class="box">
+        <h1>LightUp Crowd</h1>
+        <p id="msg">Opening the app store…</p>
+        <p style="font-size:14px;color:#666">If you already have the app installed, this link opens the show directly.</p>
+    </div>
+    <script src="../js/deep-link-redirect.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var eventId = params.get('e') || params.get('event') || '';
+        if (!eventId) {
+          document.getElementById('msg').textContent = 'Missing event. Use a valid join link from the organizer.';
+        } else {
+          gtag('event', 'deep_link_join', { event_id: eventId });
+          window.LightUpRedirect.run({ eventId: eventId, token: '' });
+        }
+      })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your ticket — LightUp Crowd</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/site.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJZX1HFPLB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-DJZX1HFPLB');
+    </script>
+    <style>.box{max-width:560px;margin:48px auto;padding:0 20px;text-align:center}</style>
+</head>
+<body>
+    <div class="box">
+        <h1>LightUp Crowd</h1>
+        <p id="msg">Opening the app store…</p>
+        <p style="font-size:14px;color:#666">Your seat is linked to this ticket. Install once; the app opens to your show.</p>
+    </div>
+    <script src="../js/deep-link-redirect.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var token = params.get('t') || params.get('token') || '';
+        if (!token) {
+          document.getElementById('msg').textContent = 'Missing ticket token. Open the link from your ticket email.';
+          return;
+        }
+        var payload = window.LightUpRedirect.parseJwtPayload(token);
+        var eventId = payload.event_id || payload.e || payload.eventId || '';
+        gtag('event', 'deep_link_ticket', { event_id: eventId || 'unknown' });
+        window.LightUpRedirect.run({ eventId: eventId, token: token });
+      })();
+    </script>
+</body>
+</html>
