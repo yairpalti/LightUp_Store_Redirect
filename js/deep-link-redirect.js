@@ -48,6 +48,41 @@
     buildReferrerQuery: buildReferrerQuery,
     buildClipboardPayload: buildClipboardPayload,
 
+    /**
+     * Try to open the installed app via intent:// (same URL as this page).
+     * Falls back to Play Store (with referrer) if the app is not installed.
+     * @param {string} playUrl
+     */
+    openAndroidAppOrPlay: function (playUrl) {
+      var u = window.location;
+      var pathPart = u.host + u.pathname + (u.search || '');
+      var intentUrl =
+        'intent://' +
+        pathPart +
+        '#Intent;scheme=https;package=com.paltidigital.crowdlighting;S.browser_fallback_url=' +
+        encodeURIComponent(playUrl) +
+        ';end';
+
+      var fallbackMs = 900;
+      var timer = setTimeout(function () {
+        window.location.href = playUrl;
+      }, fallbackMs);
+
+      function cancelFallback() {
+        clearTimeout(timer);
+      }
+      window.addEventListener('pagehide', cancelFallback, { once: true });
+      window.addEventListener('blur', cancelFallback, { once: true });
+      document.addEventListener('visibilitychange', function onVis() {
+        if (document.visibilityState === 'hidden') {
+          cancelFallback();
+          document.removeEventListener('visibilitychange', onVis);
+        }
+      });
+
+      window.location.href = intentUrl;
+    },
+
     /** @param {{ eventId: string, token?: string }} opts */
     run: function (opts) {
       var eventId = opts.eventId || '';
@@ -66,7 +101,7 @@
           }
           window.location.href = IOS_STORE;
         } else if (isAndroid) {
-          window.location.href = playUrl;
+          window.LightUpRedirect.openAndroidAppOrPlay(playUrl);
         } else {
           window.location.href = playUrl;
         }
