@@ -47,6 +47,38 @@ a:hover {
     text-decoration: underline;
 }
 
+/* iOS store redirect: full-width CTA (shown via JS on iPhone/iPad only) */
+.lightup-ios-hint {
+    display: none;
+    max-width: 520px;
+    margin: 12px auto 8px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #aaa;
+    text-align: center;
+}
+
+.lightup-store-btn {
+    display: none;
+    width: 100%;
+    max-width: 400px;
+    margin: 8px auto 16px;
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    background: #0071e3;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.lightup-store-btn:active {
+    opacity: 0.88;
+}
+
 /* Cards / feature blocks */
 .features {
     display: flex;

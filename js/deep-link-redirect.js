@@ -86,20 +86,59 @@
       var playUrl = PLAY_PKG + '&referrer=' + encodeURIComponent(ref);
       var clip = buildClipboardPayload(eventId, token);
 
-      function go() {
-        if (isIOS) {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(clip).catch(function () {});
+      // iOS: guaranteed copy needs a user gesture — full-width button; auto-fallback ~2s to App Store.
+      if (isIOS) {
+        var navigated = false;
+        var autoTimer = null;
+        function redirectToStore() {
+          if (navigated) return;
+          navigated = true;
+          if (autoTimer) {
+            clearTimeout(autoTimer);
+            autoTimer = null;
           }
           window.location.href = IOS_STORE;
-        } else if (isAndroid) {
+        }
+        function copyAndRedirect() {
+          if (navigated) return;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard
+              .writeText(clip)
+              .then(redirectToStore)
+              .catch(redirectToStore);
+          } else {
+            redirectToStore();
+          }
+        }
+        var hint = document.getElementById('lightup-ios-hint');
+        if (hint) {
+          hint.style.display = 'block';
+        }
+        var msg = document.getElementById('msg');
+        if (msg) {
+          msg.textContent = 'Opening the App Store…';
+        }
+        var btn = document.getElementById('lightup-continue-store');
+        if (btn) {
+          btn.style.display = 'block';
+          btn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            copyAndRedirect();
+          });
+        }
+        autoTimer = setTimeout(redirectToStore, 2000);
+        return;
+      }
+
+      function go() {
+        if (isAndroid) {
           window.LightUpRedirect.openAndroidAppOrPlay(playUrl);
         } else {
           window.location.href = playUrl;
         }
       }
 
-      // Android: short delay only (intent runs quickly). iOS/desktop: brief message delay.
+      // Android: short delay only (intent runs quickly). Desktop: brief message delay.
       var delayMs = isAndroid ? 250 : 1200;
       setTimeout(go, delayMs);
     },
