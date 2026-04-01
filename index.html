@@ -328,8 +328,8 @@
                         <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
                         <div class="product-videos-track">
                             <div class="product-video-item active">
-                                <div class="video-wrap video-in-card product-video-placeholder" aria-hidden="true">
-                                    <p class="product-video-placeholder-text">Video coming soon</p>
+                                <div class="video-wrap video-in-card">
+                                    <video controls preload="metadata"><source src="media/outstanding.mp4" type="video/mp4">Your browser does not support the video tag.</video>
                                 </div>
                             </div>
                         </div>
@@ -568,6 +568,29 @@
         if (prevBtn) prevBtn.addEventListener('click', function() { setActive(idx - 1); });
         if (nextBtn) nextBtn.addEventListener('click', function() { setActive(idx + 1); });
     });
+
+    // Pause product demo videos when scrolled fully off-screen; resume from same time when visible again
+    (function initProductVideoViewportPause() {
+        var videos = document.querySelectorAll('.product-videos video');
+        if (!videos.length || !('IntersectionObserver' in window)) return;
+
+        var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                var video = entry.target;
+                if (entry.isIntersecting) {
+                    if (video.dataset.resumeVisibilityPlay === '1') {
+                        delete video.dataset.resumeVisibilityPlay;
+                        video.play().catch(function() {});
+                    }
+                } else if (!video.paused) {
+                    video.pause();
+                    video.dataset.resumeVisibilityPlay = '1';
+                }
+            });
+        }, { threshold: 0 });
+
+        videos.forEach(function(v) { io.observe(v); });
+    })();
 
     // Fade-in sections on scroll (Intersection Observer)
     var sections = document.querySelectorAll('.section, .contact-section');
