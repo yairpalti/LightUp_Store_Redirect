@@ -54,6 +54,14 @@
             max-width: 720px;
             margin: 0 auto;
         }
+        .hero .purpose-line {
+            font-size: clamp(20px, 2.2vw, 26px);
+            font-weight: 700;
+            line-height: 1.6;
+            color: #f0f4ff;
+            margin: 0 0 12px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+        }
         .hero .tagline { font-size: 20px; color: var(--text-muted); margin: 8px 0 24px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
         .hero h1 { text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
         .cta-download { margin: 24px 0; }
@@ -73,9 +81,33 @@
         }
         .scroll-hint span { display: block; font-size: 24px; margin-bottom: 4px; }
         @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+        .back-to-top {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 20;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            color: #111;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: 700;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .back-to-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+            text-decoration: none;
+        }
     </style>
 </head>
-<body>
+<body id="top">
     <header class="hero-wrap">
         <video class="hero-bg-video" autoplay muted loop playsinline aria-hidden="true">
             <source src="media/lightup-crowd.mp4" type="video/mp4">
@@ -83,11 +115,13 @@
         <div class="hero-overlay" aria-hidden="true"></div>
         <div class="hero-content hero">
             <h1>LightUp Crowd</h1>
-            <p class="tagline">Synchronized crowd light shows. One app. Audience phones only. Any venue.</p>
+            <p class="purpose-line">Connect your crowd to the event with a collective synchronized light show</p>
+            <p class="tagline">No extra devices. Participant phones only. Any venue.</p>
             <div class="cta-download">
                 <a href="download/index.html" class="store-button">Download the app</a>
             </div>
             <nav class="scroll-nav nav-links">
+                <a href="#venues-events">Venues &amp; events</a>
                 <a href="#products">Products</a>
                 <a href="#special-dynamic-modes">Dynamic modes</a>
                 <a href="#possibilities">Features</a>
@@ -101,8 +135,67 @@
 
     <section id="what-it-does" class="section">
         <div class="section-block">
-            <h2>What LightUp Crowd Does</h2>
-            <p>LightUp Crowd supports the full spectrum of crowd light shows — from a plug-and-play basic show to a fully choreographed video art experience. The audience's smartphones become one coordinated light show: no external bands, no hardware at the venue—just phones. Everything runs from the cloud and syncs by time, so there's no need for any local setup or equipment on site.</p>
+            <h2>From Crowd Lighting to Full Event Visuals</h2>
+            <p>LightUp Crowd supports the full spectrum of event light shows, from plug-and-play activation to fully choreographed visual experiences. Many productions still rely on dedicated controllers, RF wristbands, and logistics-heavy external systems; LightUp Crowd replaces these setups by turning participant phones into one coordinated show.</p>
+            <div class="replacement-visual-summary">
+                <h3>Traditional alternatives are often static, expensive, or operationally heavy</h3>
+                <div class="alternatives-grid alternatives-grid-compact">
+                    <figure class="alternative-card">
+                        <img src="media/Small-Controller-for-LED-Bracelets.png" alt="Dedicated LED wristband control hardware">
+                        <span class="alt-x" aria-hidden="true">✕</span>
+                        <figcaption>Dedicated control hardware</figcaption>
+                    </figure>
+                    <figure class="alternative-card">
+                        <img src="media/RF-Remote-Control-Led-Wristband-Concert-Xylo-Bands-10-Zones-Control-Led-Wristband-for-Stadium-Concert.png" alt="RF LED wristband and controller setup">
+                        <span class="alt-x" aria-hidden="true">✕</span>
+                        <figcaption>RF wristbands and signal infrastructure</figcaption>
+                    </figure>
+                    <figure class="alternative-card">
+                        <img src="media/madrid.jpg" alt="Stadium fan banner choreography">
+                        <span class="alt-x" aria-hidden="true">✕</span>
+                        <figcaption>Large fan banners and static displays</figcaption>
+                    </figure>
+                    <figure class="alternative-card">
+                        <img src="media/20260420_064042.jpg" alt="Arena crowd in coordinated shirt colors">
+                        <span class="alt-x" aria-hidden="true">✕</span>
+                        <figcaption>Color t-shirts for one-time looks</figcaption>
+                    </figure>
+                </div>
+                <p class="replacement-note">Unlike these alternatives, which are often complex, expensive, or limited to static visuals, LightUp Crowd delivers dynamic synchronized effects in real time using participant phones.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="venues-events" class="section">
+        <div class="section-block">
+            <h2>Venues &amp; Events</h2>
+            <p class="section-intro">LightUp Crowd works across live experiences of every scale, from intimate gatherings to packed arenas, with the same phone-only setup and synchronized visual impact.</p>
+        </div>
+        <div class="venues-grid">
+            <article class="event-card">
+                <h3>Music &amp; Concerts</h3>
+                <p>Turn audiences into one moving light canvas that follows the music, set list, and key emotional moments.</p>
+            </article>
+            <article class="event-card">
+                <h3>Sports</h3>
+                <p>Run team colors, intros, halftime effects, and win moments in stadiums and indoor arenas without extra gear.</p>
+            </article>
+            <article class="event-card">
+                <h3>Conferences</h3>
+                <p>Elevate openings, product launches, and keynote transitions with coordinated crowd visuals from participant phones.</p>
+            </article>
+            <article class="event-card">
+                <h3>Weddings</h3>
+                <p>Create unforgettable first dance, entrance, and celebration moments with synchronized lighting from guests.</p>
+            </article>
+            <article class="event-card">
+                <h3>School Graduation Parties</h3>
+                <p>Celebrate class identity and shared memories with custom color stories, patterns, and text moments.</p>
+            </article>
+            <article class="event-card">
+                <h3>Any Live Event</h3>
+                <p>Festivals, community events, and brand activations can all use the same app experience with no venue hardware.</p>
+            </article>
         </div>
     </section>
 
@@ -454,7 +547,6 @@
             <h2>Why LightUp Crowd</h2>
             <ul class="advantages-list">
                 <li><strong>Audience phones only</strong> — no external bands or venue hardware</li>
-                <li><strong>Cloud-based, sync by time</strong> — no local operations or equipment on site</li>
                 <li><strong>Works offline</strong> at show time — no internet or expensive local hardware; real advantage for big crowds</li>
                 <li><strong>Optional operator</strong> uses their phone — no expensive external hardware</li>
                 <li><strong>No crowd size limit</strong> — each phone independent, synced by time</li>
@@ -481,6 +573,8 @@
         <a href="mailto:paltidigital@gmail.com">Contact</a>
         <p>&copy; 2025 LightUp Crowd. All rights reserved.</p>
     </footer>
+
+    <a href="#top" class="back-to-top" aria-label="Back to top">↑</a>
 
     <script>
 (function() {
