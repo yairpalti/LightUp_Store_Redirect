@@ -88,20 +88,13 @@
 
       // iOS: guaranteed copy needs a user gesture — full-width button; auto-fallback ~2s to App Store.
       if (isIOS) {
-        var isRedirecting = false;
         var autoTimer = null;
         function redirectToStore() {
-          if (isRedirecting) return;
-          isRedirecting = true;
           if (autoTimer) {
             clearTimeout(autoTimer);
             autoTimer = null;
           }
           window.location.href = IOS_STORE;
-          // Allow another tap if the user comes back to this page from App Store.
-          setTimeout(function () {
-            isRedirecting = false;
-          }, 800);
         }
         function copyAndRedirect() {
           if (navigator.clipboard && navigator.clipboard.writeText) {
