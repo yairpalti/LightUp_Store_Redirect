@@ -224,6 +224,54 @@ a:hover {
     color: var(--text);
 }
 
+/* Hero: scroll targets read as clickable buttons on video */
+.hero .nav-links {
+    gap: 10px 12px;
+}
+
+.hero .nav-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.hero .nav-links a:hover {
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.hero .nav-links a:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.hero .nav-links a:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 3px;
+}
+
 /* Modes table (marketing) */
 .modes-table {
     width: 100%;
@@ -453,9 +501,8 @@ a:hover {
     line-height: 1.6;
 }
 
-/* Venues/events and alternatives sections */
-.venues-grid,
-.alternatives-grid {
+/* Venues/events grid */
+.venues-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 18px;
@@ -491,13 +538,65 @@ a:hover {
 }
 
 .replacement-visual-summary {
-    margin-top: 22px;
+    margin-top: 0;
 }
 
+.replacement-visual-summary h2,
 .replacement-visual-summary h3 {
     margin: 0 0 16px;
     font-size: 21px;
     color: var(--text);
+}
+
+.replacement-lead {
+    max-width: 820px;
+    margin: 0 auto 20px;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: left;
+}
+
+/* Alternatives carousel (compact slides, one at a time) */
+.alternatives-carousel-slider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 400px;
+    margin: 12px auto 0;
+}
+
+.alternatives-carousel-track {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+}
+
+.alternatives-carousel-item {
+    display: none;
+}
+
+.alternatives-carousel-item.active {
+    display: block;
+}
+
+.alternative-card--carousel {
+    max-width: 220px;
+    margin: 0 auto;
+}
+
+.alternative-card--carousel img {
+    height: 96px;
+}
+
+.alternative-card--carousel .alt-x {
+    font-size: 1.75rem;
+    font-weight: 900;
+    text-shadow:
+        0 0 3px rgba(0, 0, 0, 0.75),
+        0 1px 6px rgba(0, 0, 0, 0.55);
 }
 
 .alternative-card img {
@@ -535,45 +634,14 @@ a:hover {
     text-align: left;
 }
 
-.replacement-note {
-    max-width: 820px;
-    margin: 24px auto 0;
-    font-size: 17px;
-}
-
-.alternatives-grid-compact .alternative-card img {
-    height: 190px;
+.alternative-card--carousel figcaption {
+    padding: 8px 10px 10px;
+    font-size: 13px;
+    text-align: center;
 }
 
 @media (min-width: 700px) {
     .venues-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .alternatives-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 1024px) {
-    .alternatives-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-/* Keep the compact alternatives block in a 2x2 layout */
-.alternatives-grid-compact {
-    max-width: 860px;
-}
-
-@media (min-width: 700px) {
-    .alternatives-grid-compact {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 1024px) {
-    .alternatives-grid-compact {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }

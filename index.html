@@ -11,7 +11,7 @@
     <meta property="og:type" content="website">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="alternate icon" href="favicon.ico" sizes="32x32">
-    <link rel="stylesheet" href="css/site.css?v=20260420-1">
+    <link rel="stylesheet" href="css/site.css?v=20260504-2">
     <!-- Google tag (gtag.js) - GA4 Web stream -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJZX1HFPLB"></script>
     <script>
@@ -125,6 +125,7 @@
                 <a href="#products">Products</a>
                 <a href="#special-dynamic-modes">Dynamic modes</a>
                 <a href="#possibilities">Features</a>
+                <a href="#traditional-alternatives">What we replace</a>
                 <a href="#advantages">Why LightUp Crowd</a>
             </nav>
         </div>
@@ -136,33 +137,7 @@
     <section id="what-it-does" class="section">
         <div class="section-block">
             <h2>From Crowd Lighting to Full Event Visuals</h2>
-            <p>LightUp Crowd supports the full spectrum of event light shows, from plug-and-play activation to fully choreographed visual experiences. Many productions still rely on dedicated controllers, RF wristbands, and logistics-heavy external systems; LightUp Crowd replaces these setups by turning participant phones into one coordinated show.</p>
-            <div class="replacement-visual-summary">
-                <h3>Traditional alternatives are often static, expensive, or operationally heavy</h3>
-                <div class="alternatives-grid alternatives-grid-compact">
-                    <figure class="alternative-card">
-                        <img src="media/Small-Controller-for-LED-Bracelets.png" alt="Dedicated LED wristband control hardware">
-                        <span class="alt-x" aria-hidden="true">✕</span>
-                        <figcaption>Dedicated control hardware</figcaption>
-                    </figure>
-                    <figure class="alternative-card">
-                        <img src="media/RF-Remote-Control-Led-Wristband-Concert-Xylo-Bands-10-Zones-Control-Led-Wristband-for-Stadium-Concert.png" alt="RF LED wristband and controller setup">
-                        <span class="alt-x" aria-hidden="true">✕</span>
-                        <figcaption>RF wristbands and signal infrastructure</figcaption>
-                    </figure>
-                    <figure class="alternative-card">
-                        <img src="media/madrid.jpg" alt="Stadium fan banner choreography">
-                        <span class="alt-x" aria-hidden="true">✕</span>
-                        <figcaption>Large fan banners and static displays</figcaption>
-                    </figure>
-                    <figure class="alternative-card">
-                        <img src="media/20260420_064042.jpg" alt="Arena crowd in coordinated shirt colors">
-                        <span class="alt-x" aria-hidden="true">✕</span>
-                        <figcaption>Color t-shirts for one-time looks</figcaption>
-                    </figure>
-                </div>
-                <p class="replacement-note">Unlike these alternatives, which are often complex, expensive, or limited to static visuals, LightUp Crowd delivers dynamic synchronized effects in real time using participant phones.</p>
-            </div>
+            <p>LightUp Crowd supports the full spectrum of event light shows, from plug-and-play activation to fully choreographed visual experiences.</p>
         </div>
     </section>
 
@@ -552,6 +527,47 @@
         </div>
     </section>
 
+    <section id="traditional-alternatives" class="section">
+        <div class="section-block replacement-visual-summary">
+            <h2>What we replace</h2>
+            <p class="replacement-lead">Traditional alternatives are often static, expensive, or operationally heavy. Many productions still rely on dedicated controllers, RF wristbands, and logistics-heavy external systems; LightUp Crowd replaces these setups by turning participant phones into one coordinated show.</p>
+            <div class="alternatives-carousel-slider" role="region" aria-roledescription="carousel" aria-label="Traditional crowd technology setups">
+                <button type="button" class="alternatives-carousel-prev product-video-prev" aria-label="Previous slide">‹</button>
+                <div class="alternatives-carousel-track">
+                    <div class="alternatives-carousel-item active">
+                        <figure class="alternative-card alternative-card--carousel">
+                            <img src="media/Small-Controller-for-LED-Bracelets.png" alt="Dedicated LED wristband control hardware">
+                            <span class="alt-x" aria-hidden="true">✕</span>
+                            <figcaption>Dedicated control hardware</figcaption>
+                        </figure>
+                    </div>
+                    <div class="alternatives-carousel-item">
+                        <figure class="alternative-card alternative-card--carousel">
+                            <img src="media/RF-Remote-Control-Led-Wristband-Concert-Xylo-Bands-10-Zones-Control-Led-Wristband-for-Stadium-Concert.png" alt="RF LED wristband and controller setup">
+                            <span class="alt-x" aria-hidden="true">✕</span>
+                            <figcaption>RF wristbands and signal infrastructure</figcaption>
+                        </figure>
+                    </div>
+                    <div class="alternatives-carousel-item">
+                        <figure class="alternative-card alternative-card--carousel">
+                            <img src="media/madrid.jpg" alt="Stadium fan banner choreography">
+                            <span class="alt-x" aria-hidden="true">✕</span>
+                            <figcaption>Large fan banners and static displays</figcaption>
+                        </figure>
+                    </div>
+                    <div class="alternatives-carousel-item">
+                        <figure class="alternative-card alternative-card--carousel">
+                            <img src="media/20260420_064042.jpg" alt="Arena crowd in coordinated shirt colors">
+                            <span class="alt-x" aria-hidden="true">✕</span>
+                            <figcaption>Color t-shirts for one-time looks</figcaption>
+                        </figure>
+                    </div>
+                </div>
+                <button type="button" class="alternatives-carousel-next product-video-next" aria-label="Next slide">›</button>
+            </div>
+        </div>
+    </section>
+
     <section id="advantages" class="section">
         <div class="section-block">
             <h2>Why LightUp Crowd</h2>
@@ -678,6 +694,24 @@
             });
             var activeVideo = items[idx].querySelector('video');
             if (activeVideo) { activeVideo.play().catch(function() {}); }
+        }
+        if (prevBtn) prevBtn.addEventListener('click', function() { setActive(idx - 1); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { setActive(idx + 1); });
+    });
+
+    // Traditional alternatives carousel
+    document.querySelectorAll('.alternatives-carousel-slider').forEach(function(slider) {
+        var track = slider.querySelector('.alternatives-carousel-track');
+        var items = track ? track.querySelectorAll('.alternatives-carousel-item') : [];
+        var prevBtn = slider.querySelector('.alternatives-carousel-prev');
+        var nextBtn = slider.querySelector('.alternatives-carousel-next');
+        if (items.length <= 1) return;
+        var idx = 0;
+        function setActive(i) {
+            idx = (i + items.length) % items.length;
+            items.forEach(function(el, n) {
+                el.classList.toggle('active', n === idx);
+            });
         }
         if (prevBtn) prevBtn.addEventListener('click', function() { setActive(idx - 1); });
         if (nextBtn) nextBtn.addEventListener('click', function() { setActive(idx + 1); });
