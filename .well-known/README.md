@@ -5,12 +5,12 @@
 Run locally (replace host if you use only `www`):
 
 ```bash
-# Apple — expect HTTP 200 and JSON body (no login HTML)
+# Apple - expect HTTP 200 and JSON body (no login HTML)
 curl -sS -D - -o /tmp/aasa.json \
   "https://lightupcrowd.com/.well-known/apple-app-site-association"
 head -c 400 /tmp/aasa.json
 
-# Android — expect HTTP 200 and JSON array
+# Android - expect HTTP 200 and JSON array
 curl -sS -D - -o /tmp/al.json \
   "https://lightupcrowd.com/.well-known/assetlinks.json"
 cat /tmp/al.json
@@ -24,8 +24,8 @@ cat /tmp/al.json
 
 **Optional checks**
 
-- [Apple App Search API Validation Tool](https://search.developer.apple.com/appsearch-validation-tool/) — enter `https://lightupcrowd.com` (use the exact host your entitlements use, e.g. with or without `www`).
-- Android: [Statement List Generator and Tester](https://developers.google.com/digital-asset-links/tools/generator) — package `com.paltidigital.crowdlighting`, paste your `assetlinks.json` or fetch from URL.
+- [Apple App Search API Validation Tool](https://search.developer.apple.com/appsearch-validation-tool/) - enter `https://lightupcrowd.com` (use the exact host your entitlements use, e.g. with or without `www`).
+- Android: [Statement List Generator and Tester](https://developers.google.com/digital-asset-links/tools/generator) - package `com.paltidigital.crowdlighting`, paste your `assetlinks.json` or fetch from URL.
 
 ---
 

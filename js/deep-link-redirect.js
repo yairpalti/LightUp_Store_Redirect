@@ -1,5 +1,5 @@
 /**
- * LightUp Crowd — store redirect with Android Install Referrer + iOS clipboard handoff.
+ * LightUp Crowd - store redirect with Android Install Referrer + iOS clipboard handoff.
  * Constants must match Flutter DeepLinkService / Play referrer parsing.
  */
 (function () {
@@ -86,7 +86,7 @@
       var playUrl = PLAY_PKG + '&referrer=' + encodeURIComponent(ref);
       var clip = buildClipboardPayload(eventId, token);
 
-      // iOS: guaranteed copy needs a user gesture — full-width button; auto-fallback ~2s to App Store.
+      // iOS: guaranteed copy needs a user gesture - full-width button; auto-fallback ~2s to App Store.
       if (isIOS) {
         var autoTimer = null;
         function redirectToStore() {

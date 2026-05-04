@@ -537,21 +537,17 @@ a:hover {
     color: var(--text-muted);
 }
 
-.replacement-visual-summary {
-    margin-top: 0;
+/* Traditional alternatives carousel (under Why LightUp Crowd) */
+.advantages-traditional {
+    margin: 28px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--card-border);
+    max-width: 640px;
 }
 
-.replacement-visual-summary h2,
-.replacement-visual-summary h3 {
+.advantages-traditional-lead {
     margin: 0 0 16px;
-    font-size: 21px;
-    color: var(--text);
-}
-
-.replacement-lead {
-    max-width: 820px;
-    margin: 0 auto 20px;
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.6;
     color: var(--text-muted);
     text-align: left;
@@ -592,11 +588,11 @@ a:hover {
 }
 
 .alternative-card--carousel .alt-x {
-    font-size: 1.75rem;
+    font-size: clamp(2.25rem, 4.5vw, 3.5rem);
     font-weight: 900;
     text-shadow:
-        0 0 3px rgba(0, 0, 0, 0.75),
-        0 1px 6px rgba(0, 0, 0, 0.55);
+        0 0 4px rgba(0, 0, 0, 0.78),
+        0 1px 8px rgba(0, 0, 0, 0.55);
 }
 
 .alternative-card img {
