@@ -1,0 +1,3191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Venue Seat Mapper</title>
+  <!-- Leaflet JS — open source, no account needed -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- leaflet-rotate — adds map bearing/rotation support -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0f1117;
+      --bg2:     #1a1d27;
+      --bg3:     #252836;
+      --border:  #2a2d3e;
+      --border2: #3a3d52;
+      --accent:  #4f8ef7;
+      --accent2: #3a6fd4;
+      --green:   #22d07a;
+      --danger:  #f06060;
+      --text:    #e8eaf0;
+      --text2:   #8a8fa8;
+      --text3:   #555a70;
+      --r:       5px;
+      --panel-w: 272px;
+      --handle:  9px;
+    }
+
+    html, body {
+      height: 100%; overflow: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      font-size: 13px; line-height: 1.4;
+    }
+
+    /* ── Layout ─────────────────────────────────────── */
+    #app { display: flex; height: 100vh; }
+
+    /* ── Panel ──────────────────────────────────────── */
+    #panel {
+      width: var(--panel-w); flex-shrink: 0;
+      background: var(--bg); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    .ph { padding: 14px 16px 0; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .ph-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .ph-actions { display:flex; gap:6px; }
+    .ph h1 { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+    .ph p  { font-size: 11px; color: var(--text3); margin-top: 3px; }
+    .tabs { display:flex; gap:4px; margin-top:10px; border-bottom:1px solid var(--border); }
+    .tab-btn {
+      flex:1; border:1px solid transparent; border-bottom:none; background:transparent;
+      color:var(--text2); border-radius:6px 6px 0 0; padding:6px 8px 7px;
+      font-size: 11px; cursor: pointer;
+    }
+    .tab-btn.active { background: var(--bg2); color: var(--text); border-color: var(--border2); }
+
+    .pb {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+    }
+    .pb::-webkit-scrollbar { width: 4px; }
+    .pb::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    .pf {
+      padding: 8px 16px; border-top: 1px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pf span { font-size: 10px; color: var(--text3); }
+
+    /* ── Sections ───────────────────────────────────── */
+    .sec { padding: 11px 16px; border-bottom: 1px solid var(--border); }
+    .sec-title {
+      font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.9px; color: var(--text3); margin-bottom: 9px;
+    }
+
+    /* ── Controls ───────────────────────────────────── */
+    .ctrl { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+    .ctrl:last-child { margin-bottom: 0; }
+    .ctrl-lbl { font-size: 11px; color: var(--text2); min-width: 62px; flex-shrink: 0; }
+
+    input[type=range] {
+      flex: 1; height: 3px; accent-color: var(--accent);
+      background: var(--bg3); border-radius: 2px; cursor: pointer; outline: none;
+    }
+
+    .ctrl-val {
+      font-size: 10.5px; color: var(--text); min-width: 34px;
+      text-align: right; font-variant-numeric: tabular-nums;
+    }
+
+    .chk { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+    .chk input { accent-color: var(--accent); width: 12px; height: 12px; cursor: pointer; flex-shrink: 0; }
+    .chk label { font-size: 11px; color: var(--text2); cursor: pointer; user-select: none; }
+
+    /* ── Buttons ─────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 5px 10px; border-radius: var(--r); border: 1px solid transparent;
+      font-size: 11px; font-weight: 500; cursor: pointer;
+      transition: background 0.12s, color 0.12s; white-space: nowrap; line-height: 1.3;
+    }
+    .btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+
+    .btn-sub { background: var(--bg2); color: var(--text2); border-color: var(--border); }
+    .btn-sub:hover { background: var(--bg3); color: var(--text); }
+
+    .btn-green { background: #0a2e1a; color: var(--green); border-color: #1a6040; }
+    .btn-green:hover { background: #0d3d22; }
+
+    .btn-danger { background: #2a0e0e; color: var(--danger); border-color: #5a2020; }
+    .btn-danger:hover { background: #3d1212; }
+
+    .btn-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 3px; background: transparent; border: 1px solid var(--border);
+      color: var(--text3); border-radius: 4px; cursor: pointer; transition: all 0.12s; line-height: 1;
+    }
+    .btn-icon:hover { color: var(--text); border-color: var(--border2); }
+
+    .row-2 { display: flex; gap: 6px; }
+    .row-2 .btn { flex: 1; }
+
+    .row-3 { display: flex; gap: 5px; }
+    .row-3 .btn { flex: 1; padding: 5px 6px; }
+
+    /* ── Search ─────────────────────────────────────── */
+    #search-wrap { position: relative; }
+
+    #search-input {
+      width: 100%; padding: 7px 10px;
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: var(--r); color: var(--text); font-size: 12px; outline: none;
+      transition: border-color 0.12s;
+    }
+    #search-input:focus { border-color: var(--accent); }
+    #search-input::placeholder { color: var(--text3); }
+
+    #search-results {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 9999;
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: var(--r); overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    #search-results:empty { display: none; }
+
+    .sr-item {
+      padding: 8px 10px; font-size: 11px; cursor: pointer;
+      border-bottom: 1px solid var(--border); line-height: 1.4; transition: background 0.1s;
+    }
+    .sr-item:last-child { border-bottom: none; }
+    .sr-item:hover { background: var(--bg3); }
+    .sr-item b { color: var(--text); font-weight: 500; }
+    .sr-item span { color: var(--text3); font-size: 10px; display: block; margin-top: 1px; }
+    .sr-msg { padding: 10px; font-size: 11px; color: var(--text3); text-align: center; }
+
+    /* ── Upload ─────────────────────────────────────── */
+    #upload-zone {
+      border: 1.5px dashed var(--border2); border-radius: var(--r);
+      padding: 14px 10px; text-align: center; cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    #upload-zone:hover, #upload-zone.over { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+    #upload-zone p { font-size: 11px; color: var(--text3); line-height: 1.6; }
+    #upload-zone b { color: var(--accent); font-weight: 500; }
+    #upload-input { display: none; }
+    #img-ctrls { display: none; }
+
+    /* ── Picker ─────────────────────────────────────── */
+    .picker-btn { width: 100%; margin-bottom: 9px; }
+    .picker-btn.on { background: #0a2415; color: var(--green); border-color: #1a6040; }
+    .picker-btn.on:hover { background: #0d3020; }
+
+    /* ── Coord list ─────────────────────────────────── */
+    #coord-list {
+      max-height: 176px; overflow-y: auto; margin-bottom: 7px;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+    }
+    #coord-list::-webkit-scrollbar { width: 3px; }
+    #coord-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    .ci { display: flex; align-items: center; gap: 5px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .ci-n { font-size: 10px; color: var(--accent); font-weight: 700; min-width: 20px; flex-shrink: 0; }
+    .ci-v { flex: 1; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px; color: var(--text); }
+
+    .coord-empty { font-size: 11px; color: var(--text3); text-align: center; padding: 14px 0; line-height: 1.6; }
+
+    .ca { display: flex; gap: 5px; }
+    .ca .btn { flex: 1; }
+
+    /* ── Map ─────────────────────────────────────────── */
+    #panel-splitter {
+      width: 8px;
+      flex-shrink: 0;
+      cursor: col-resize;
+      position: relative;
+      background: linear-gradient(to right, transparent 0, rgba(255,255,255,0.05) 50%, transparent 100%);
+    }
+    #panel-splitter::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 44px;
+      border-radius: 2px;
+      background: var(--border2);
+      opacity: 0.8;
+    }
+    #panel-splitter:hover::after,
+    #panel-splitter.dragging::after {
+      background: var(--accent);
+    }
+
+    #map-wrap { flex: 1; position: relative; overflow: hidden; }
+    #map { width: 100%; height: 100%; background: #111; }
+
+    /* ── Image overlay ───────────────────────────────── */
+    #ov-el {
+      position: absolute; z-index: 350;
+      cursor: move; user-select: none; touch-action: none;
+    }
+    #ov-el img {
+      display: block; width: 100%; height: 100%;
+      object-fit: fill; pointer-events: none;
+      user-select: none; -webkit-user-drag: none;
+    }
+
+    .ovh {
+      position: absolute; width: var(--handle); height: var(--handle);
+      background: #fff; border: 2px solid var(--accent); border-radius: 50%; z-index: 6;
+    }
+    .ovh-tl { top: calc(var(--handle) / -2); left: calc(var(--handle) / -2); cursor: nwse-resize; }
+    .ovh-tr { top: calc(var(--handle) / -2); right: calc(var(--handle) / -2); cursor: nesw-resize; }
+    .ovh-bl { bottom: calc(var(--handle) / -2); left: calc(var(--handle) / -2); cursor: nesw-resize; }
+    .ovh-br { bottom: calc(var(--handle) / -2); right: calc(var(--handle) / -2); cursor: nwse-resize; }
+
+    .ovh-arm {
+      position: absolute; top: -26px; left: 50%;
+      transform: translateX(-50%); width: 1.5px; height: 22px;
+      background: var(--accent); pointer-events: none;
+    }
+    .ovh-rot {
+      position: absolute; top: -40px; left: 50%;
+      transform: translateX(-50%); width: var(--handle); height: var(--handle);
+      background: var(--accent); border: 2px solid #fff; border-radius: 50%;
+      cursor: grab; z-index: 6;
+    }
+
+    #ov-el.locked { cursor: default; pointer-events: none; }
+    #ov-el.locked .ovh, #ov-el.locked .ovh-arm, #ov-el.locked .ovh-rot { display: none; }
+
+    /* ── Picking cursor ──────────────────────────────── */
+    #map-wrap.picking,
+    #map-wrap.picking .leaflet-container,
+    #map-wrap.picking .leaflet-grab { cursor: crosshair !important; }
+
+    /* ── Leaflet overrides ───────────────────────────── */
+    .leaflet-control-zoom a {
+      background: var(--bg2) !important; color: var(--text) !important;
+      border-color: var(--border2) !important;
+    }
+    .leaflet-control-zoom a:hover { background: var(--bg3) !important; }
+    .leaflet-control-attribution {
+      background: rgba(15,17,23,0.75) !important;
+      color: var(--text3) !important; font-size: 9px !important;
+    }
+    .leaflet-control-attribution a { color: var(--text2) !important; }
+    .leaflet-control-scale-line {
+      background: rgba(15,17,23,0.75); border-color: var(--text3);
+      color: var(--text2); font-size: 9px;
+    }
+
+    /* ── Rows ────────────────────────────────────────── */
+    .ctrl-input {
+      flex: 1; padding: 5px 8px;
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: var(--r); color: var(--text); font-size: 11px; outline: none;
+      min-width: 0;
+    }
+    .ctrl-input:focus { border-color: var(--accent); }
+    input[type=number].ctrl-input { appearance: textfield; -moz-appearance: textfield; }
+    input[type=number].ctrl-input::-webkit-inner-spin-button { opacity: 0.5; }
+
+    .draw-hint {
+      font-size: 11px; color: var(--green); text-align: center;
+      padding: 8px 10px; background: #0a2415;
+      border: 1px solid #1a6040; border-radius: var(--r); margin-bottom: 6px;
+    }
+
+    .row-mode-row {
+      display: flex; gap: 14px; margin-bottom: 7px;
+    }
+    .row-mode-row label {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 11px; color: var(--text2); cursor: pointer;
+    }
+    .row-mode-row input { accent-color: var(--accent); cursor: pointer; }
+
+    #row-list { margin-top: 6px; }
+    .row-empty { font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0; }
+    .row-tools { margin-top: 6px; }
+    .ri-group { margin-top: 6px; border: 1px solid var(--border2); border-radius: 6px; background: rgba(255,255,255,0.01); }
+    .ri-group-h {
+      display: flex; align-items: center; gap: 5px; padding: 5px 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .ri-group-h.collapsed { border-bottom: none; }
+    .ri-group-name { flex: 1; font-size: 11px; color: var(--text2); font-weight: 600; }
+    .ri-group-cnt { font-size: 10px; color: var(--text3); min-width: 32px; text-align: right; margin-right: 2px; }
+    .ri-group-rows { padding: 2px 3px 4px 10px; }
+    .ri-group.drop-target { border-color: var(--accent); box-shadow: inset 0 0 0 1px rgba(79,142,247,0.35); }
+
+    .ri {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 4px; border-radius: 4px; cursor: pointer;
+      transition: background 0.1s;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .ri[draggable="true"] { cursor: grab; }
+    .ri.dragging { opacity: 0.5; }
+    .ri:last-child { border-bottom: none; }
+    .ri:hover    { background: var(--bg2); }
+    .ri.selected {
+      background: linear-gradient(90deg, rgba(79,142,247,0.24), rgba(79,142,247,0.1));
+      border: 1px solid rgba(79,142,247,0.6);
+      box-shadow: inset 3px 0 0 var(--accent), 0 0 0 1px rgba(79,142,247,0.25);
+    }
+
+    .ri-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .ri-name { flex: 1; font-size: 11px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ri-name.complete { color: var(--green); }
+    .ri-cnt  { font-size: 10px; color: var(--text3); min-width: 26px; text-align: right; margin-right: 2px; }
+    .ri-btns { display: flex; gap: 2px; flex-shrink: 0; }
+    .ri-btns .btn-icon { padding: 2px; font-size: 11px; }
+    .ri-select { margin-right: 1px; accent-color: var(--accent); }
+    .hidden { display: none !important; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .meta-field { margin-top: 6px; }
+    .meta-field label { display: block; font-size: 10px; color: var(--text3); margin-bottom: 3px; }
+    .meta-label-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; }
+    .meta-input-row { display:flex; align-items:center; gap:6px; }
+    .meta-input-row .ctrl-input { flex:1; }
+    .meta-link-btn { width:18px; height:18px; padding:0; font-size:11px; }
+    .meta-link-btn.on {
+      color:#b9ffd8;
+      border-color:#2aa66a;
+      background:#0f4a2e;
+      box-shadow:0 0 0 1px rgba(34,208,122,0.35), 0 0 10px rgba(34,208,122,0.25);
+    }
+    .ctrl-input.linked-field {
+      color:#b9ffd8 !important;
+      border-color:#2aa66a !important;
+      background:rgba(34, 208, 122, 0.12) !important;
+      box-shadow:inset 0 0 0 1px rgba(34,208,122,0.2);
+    }
+    .meta-actions { display: flex; gap: 6px; margin-top: 8px; }
+    .meta-actions .btn { flex: 1; }
+    .small-note { font-size: 10px; color: var(--text3); margin-top: 6px; line-height: 1.4; }
+    #hier-options-editor { margin-top: 8px; }
+    .invalid-hierarchy { color: var(--danger) !important; border-color: var(--danger) !important; }
+
+    /* ── Toast ───────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%;
+      transform: translateX(-50%) translateY(70px);
+      background: #081f10; border: 1px solid #1a6040; color: var(--green);
+      padding: 7px 16px; border-radius: 20px; font-size: 11px; font-weight: 500;
+      z-index: 10000; pointer-events: none;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ═══ SIDE PANEL ════════════════════════════════ -->
+  <aside id="panel">
+    <div class="ph">
+      <div class="ph-top">
+        <h1>Venue Seat Mapper</h1>
+        <div class="ph-actions">
+          <button class="btn-icon" id="btn-save-venue-top" title="Save venue settings">💾</button>
+          <button class="btn-icon" id="btn-load-venue-top" title="Load venue settings">📂</button>
+        </div>
+      </div>
+      <p>Align seat map · pick lat/lng</p>
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-main-btn">🗺️ Map Tools</button>
+        <button class="tab-btn" id="tab-rows-btn">🪑 Rows</button>
+      </div>
+    </div>
+
+    <div class="pb">
+      <div id="tab-main">
+
+      <!-- Search -->
+      <div class="sec">
+        <div class="sec-title">Search Location</div>
+        <div id="search-wrap">
+          <input id="search-input" type="text" placeholder="Search venue or address…"
+            autocomplete="off" spellcheck="false">
+          <div id="search-results"></div>
+        </div>
+      </div>
+
+      <!-- Map controls -->
+      <div class="sec">
+        <div class="sec-title">Map</div>
+        <div class="ctrl">
+          <span class="ctrl-lbl">Opacity</span>
+          <input type="range" id="map-opacity" min="0" max="100" value="100">
+          <span class="ctrl-val" id="map-opacity-val">100%</span>
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-lbl">Bearing</span>
+          <input type="range" id="map-bearing" min="-180" max="180" value="0" step="1">
+          <span class="ctrl-val" id="map-bearing-val">0°</span>
+        </div>
+        <div class="row-3">
+          <button class="btn btn-sub" id="btn-ccw" title="Rotate −15°">↺ −15°</button>
+          <button class="btn btn-sub" id="btn-north" title="Reset north">↑ N</button>
+          <button class="btn btn-sub" id="btn-cw" title="Rotate +15°">↻ +15°</button>
+        </div>
+      </div>
+
+      <!-- Image overlay -->
+      <div class="sec">
+        <div class="sec-title">Image Overlay</div>
+
+        <div id="upload-zone">
+          <p>Drop here or <b>click to upload</b><br>venue seat map image</p>
+          <input type="file" id="upload-input" accept="image/*">
+        </div>
+
+        <div id="img-ctrls">
+          <div class="ctrl">
+            <span class="ctrl-lbl">Opacity</span>
+            <input type="range" id="img-opacity" min="0" max="100" value="70">
+            <span class="ctrl-val" id="img-opacity-val">70%</span>
+          </div>
+          <div class="ctrl">
+            <span class="ctrl-lbl">Rotation</span>
+            <input type="range" id="img-rot" min="-180" max="180" value="0" step="1">
+            <span class="ctrl-val" id="img-rot-val">0°</span>
+          </div>
+          <div class="chk">
+            <input type="checkbox" id="ar-lock" checked>
+            <label for="ar-lock">Lock aspect ratio when resizing</label>
+          </div>
+          <div class="row-2">
+            <button class="btn btn-sub" id="btn-lock">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+              Geo-lock
+            </button>
+            <button class="btn btn-danger" id="btn-remove">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Picker -->
+      <div class="sec">
+        <div class="sec-title">Coordinate Picker</div>
+        <button class="btn btn-sub picker-btn" id="btn-picker">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+          Enable Picker
+        </button>
+
+        <div id="coord-list">
+          <div class="coord-empty" id="coord-empty">
+            No coordinates yet.<br>Enable picker then click on the map.
+          </div>
+        </div>
+
+        <div class="ca">
+          <button class="btn btn-sub" id="btn-copy-all" disabled>📋 Copy JSON</button>
+          <button class="btn btn-sub" id="btn-clear" disabled>🗑️ Clear</button>
+        </div>
+      </div>
+      </div>
+
+      <!-- Seat Rows -->
+      <div class="sec hidden" id="tab-rows">
+        <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+          <span>Global Seat Hierarchy</span>
+          <button class="btn-icon" id="btn-toggle-hierarchy" title="Collapse/expand">▾</button>
+        </div>
+        <div id="hierarchy-body">
+        <div class="ctrl">
+          <span class="ctrl-lbl">Levels (without row/seat)</span>
+          <input type="number" id="hier-level-count" class="ctrl-input" min="1" max="8" value="3">
+        </div>
+        <div class="ctrl">
+          <span class="ctrl-lbl">Level Names</span>
+          <input type="text" id="hier-level-names" class="ctrl-input" value="Section,Block" placeholder="Section,Block">
+        </div>
+        <div id="hier-options-editor"></div>
+        <button class="btn btn-sub" style="width:100%;margin-top:4px" id="btn-save-hierarchy">💾 Save Hierarchy</button>
+        <div class="small-note">Set names and optional predefined options per level (comma-separated).</div>
+        </div>
+      </div>
+
+      <div class="sec hidden" id="tab-rows-rows">
+        <div class="sec-title">Seat Rows</div>
+
+        <!-- Normal: add button -->
+        <div id="row-add-ui">
+          <button class="btn btn-sub" style="width:100%" id="btn-add-row">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Add Row
+          </button>
+        </div>
+
+        <!-- Drawing status hint -->
+        <div id="draw-status" style="display:none">
+          <div class="draw-hint" id="draw-hint">Click start point on map</div>
+          <button class="btn btn-sub" style="width:100%" id="btn-cancel-draw">✖ Cancel</button>
+        </div>
+
+        <!-- Row config form (create / edit) -->
+        <div id="row-form" style="display:none">
+          <div class="ctrl">
+            <span class="ctrl-lbl">Name</span>
+            <input type="text" id="row-name" class="ctrl-input" placeholder="Row A">
+          </div>
+          <div class="row-mode-row">
+            <label><input type="radio" name="row-mode" value="count" checked> Count</label>
+            <label><input type="radio" name="row-mode" value="spacing"> Spacing</label>
+          </div>
+          <div class="ctrl" id="row-count-ctrl">
+            <span class="ctrl-lbl">Seats</span>
+            <input type="number" id="row-seats" class="ctrl-input" value="10" min="2" max="500">
+          </div>
+          <div class="ctrl" id="row-spacing-ctrl" style="display:none">
+            <span class="ctrl-lbl">Spacing</span>
+            <input type="number" id="row-spacing" class="ctrl-input" value="1.0" min="0.1" step="0.1">
+            <span class="ctrl-val">m</span>
+          </div>
+          <div class="row-2" style="margin-top:2px">
+            <button class="btn btn-primary" id="btn-create-row">✅ Create Row</button>
+            <button class="btn btn-sub"     id="btn-cancel-draw2">✖ Cancel</button>
+          </div>
+        </div>
+
+        <!-- Row list -->
+        <div class="row-2" style="margin-top:8px">
+          <button class="btn btn-sub" id="btn-sort-rows-name">🔤 Sort A→Z</button>
+          <button class="btn btn-sub" id="btn-export-rows-json">📤 Export Rows JSON</button>
+        </div>
+        <div class="row-2 row-tools">
+          <button class="btn btn-sub" id="btn-undo">↶ Undo</button>
+          <button class="btn btn-sub" id="btn-redo">↷ Redo</button>
+        </div>
+        <div class="row-2 row-tools">
+          <button class="btn btn-sub" id="btn-group-selected">🧩 Group Selected</button>
+          <button class="btn btn-sub" id="btn-clear-row-selection">🧹 Clear Selection</button>
+        </div>
+        <input type="file" id="venue-file-input" accept="application/json" style="display:none">
+        <div id="row-list">
+          <div class="row-empty">No rows yet. Click "Add Row".</div>
+        </div>
+
+        <div id="row-meta-form" style="display:none;margin-top:10px">
+          <div class="sec-title" style="margin-top:8px;margin-bottom:6px">Row Metadata</div>
+          <div class="meta-field">
+            <label>Row name</label>
+            <input type="text" id="meta-row-name" class="ctrl-input" placeholder="Row A">
+          </div>
+          <div id="row-meta-hierarchy"></div>
+          <div class="meta-grid">
+            <div class="meta-field">
+              <label>Start number</label>
+              <div class="meta-input-row">
+              <input type="number" id="meta-start-num" class="ctrl-input" value="1">
+              <button class="btn-icon meta-link-btn" id="meta-link-start" title="Link to group">🔗</button>
+              </div>
+            </div>
+          </div>
+          <div class="meta-field">
+            <label>Direction</label>
+            <div class="meta-input-row">
+              <select id="meta-direction" class="ctrl-input">
+                <option value="start_to_end">Start → End</option>
+                <option value="end_to_start">End → Start</option>
+              </select>
+              <button class="btn-icon meta-link-btn" id="meta-link-direction" title="Link to group">🔗</button>
+            </div>
+          </div>
+          <div class="meta-actions">
+            <button class="btn btn-sub" id="btn-close-meta">✖ Close</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pb -->
+
+    <div class="pf">
+      <span>Leaflet · Google · OSM</span>
+    </div>
+  </aside>
+  <div id="panel-splitter" title="Drag to resize panel"></div>
+
+  <!-- ═══ MAP ═══════════════════════════════════════ -->
+  <div id="map-wrap">
+    <div id="map"></div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let map = null;
+let pickerOn = false;
+let coords   = [];
+let coordIdx = 0;
+let ar       = 4 / 3;
+
+let ov = {
+  el: null, imgEl: null, src: null,
+  x: 0, y: 0, w: 0, h: 0,
+  rot: 0, opacity: 0.7,
+  locked: false,
+  geo: null   // { lat, lng, wM, hM, bearing }
+};
+
+const $ = id => document.getElementById(id);
+const PANEL_W_KEY = 'vsm_panel_w';
+const UI_KEY = 'vsm_ui_state';
+
+function setPanelWidth(px) {
+  const app = $('app');
+  if (!app) return;
+  const appW = app.clientWidth || window.innerWidth || 1200;
+  const minW = 240;
+  const maxW = Math.max(340, appW - 320);
+  const clamped = Math.max(minW, Math.min(maxW, Math.round(px)));
+  document.documentElement.style.setProperty('--panel-w', `${clamped}px`);
+  try { localStorage.setItem(PANEL_W_KEY, String(clamped)); } catch {}
+  if (map) setTimeout(() => map.invalidateSize(), 0);
+}
+
+function initPanelSplitter() {
+  const split = $('panel-splitter');
+  const panel = $('panel');
+  const saved = Number(localStorage.getItem(PANEL_W_KEY));
+  if (Number.isFinite(saved) && saved > 0) setPanelWidth(saved);
+  if (!split || !panel) return;
+  let drag = false;
+  split.addEventListener('mousedown', e => {
+    e.preventDefault();
+    drag = true;
+    split.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!drag) return;
+    setPanelWidth(e.clientX);
+  });
+  window.addEventListener('mouseup', () => {
+    if (!drag) return;
+    drag = false;
+    split.classList.remove('dragging');
+  });
+  window.addEventListener('resize', () => {
+    setPanelWidth(panel.getBoundingClientRect().width);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  PERSISTENCE  (image + all overlay attributes)
+// ═══════════════════════════════════════════════════
+const OV_KEY = 'vsm_overlay';
+
+function saveOv() {
+  if (!ov.src) return;
+  const data = {
+    src: ov.src, ar,
+    x: ov.x, y: ov.y, w: ov.w, h: ov.h,
+    rot: ov.rot, opacity: ov.opacity,
+    locked: ov.locked, geo: ov.geo,
+  };
+  try {
+    localStorage.setItem(OV_KEY, JSON.stringify(data));
+  } catch {
+    // Quota exceeded — save everything except the image data
+    try {
+      const slim = { ...data, src: null };
+      localStorage.setItem(OV_KEY, JSON.stringify(slim));
+    } catch { /* ignore */ }
+  }
+}
+
+function loadOv() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(OV_KEY) || 'null'); } catch { return; }
+  if (!data?.src) return;
+
+  ar         = data.ar   || 4 / 3;
+  ov.src     = data.src;
+  ov.x       = data.x;     ov.y  = data.y;
+  ov.w       = data.w;     ov.h  = data.h;
+  ov.rot     = data.rot    || 0;
+  ov.opacity = data.opacity != null ? data.opacity : 0.7;
+  ov.locked  = data.locked || false;
+  ov.geo     = data.geo    || null;
+
+  // Sync panel sliders
+  const pct = Math.round(ov.opacity * 100);
+  $('img-opacity').value = pct;
+  $('img-opacity-val').textContent = pct + '%';
+  const sliderRot = ((ov.rot % 360) + 540) % 360 - 180;
+  $('img-rot').value = sliderRot;
+  $('img-rot-val').textContent = Math.round(sliderRot) + '°';
+  $('img-rot').disabled = !!ov.locked;
+
+  buildOverlay();
+  $('upload-zone').style.display = 'none';
+  $('img-ctrls').style.display   = 'block';
+
+  if (ov.locked) {
+    ov.el.classList.add('locked');
+    setLockBtn(true);
+    // Reposition overlay relative to the current map view
+    syncGeo();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  MAP INIT
+// ═══════════════════════════════════════════════════
+const MAP_KEY = 'vsm_map';
+
+function saveMapView() {
+  try {
+    const c = map.getCenter();
+    const mapOpacity = parseInt($('map-opacity')?.value || '100', 10);
+    localStorage.setItem(MAP_KEY, JSON.stringify({
+      lat: c.lat, lng: c.lng,
+      zoom: map.getZoom(),
+      bearing: map.getBearing ? map.getBearing() : 0,
+      opacity: Number.isFinite(mapOpacity) ? Math.max(0, Math.min(100, mapOpacity)) : 100,
+    }));
+  } catch { /* ignore */ }
+}
+
+function initMap() {
+  let savedView;
+  try { savedView = JSON.parse(localStorage.getItem(MAP_KEY) || 'null'); } catch { /* ignore */ }
+
+  map = L.map('map', {
+    center: savedView ? [savedView.lat, savedView.lng] : [31.8, 35.2],
+    zoom:   savedView ? savedView.zoom : 2,
+    rotate: true,         // leaflet-rotate: enable bearing support
+    rotateControl: false, // we handle rotation in the panel
+    touchRotate: true,    // two-finger rotation on touch devices
+    zoomControl: false,   // we add it to top-right manually
+    attributionControl: true,
+  });
+
+  // Explicit pane order:
+  // base tiles < labels < image overlay < rows/seats
+  map.createPane('baseTilePane');
+  map.getPane('baseTilePane').style.zIndex = '200';
+  map.createPane('labelTilePane');
+  map.getPane('labelTilePane').style.zIndex = '250';
+  map.createPane('userImagePane');
+  map.getPane('userImagePane').style.zIndex = '350';
+  map.getPane('userImagePane').style.pointerEvents = 'auto';
+
+  // Place zoom control top-right
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  L.control.scale({ maxWidth: 90, metric: true, imperial: false, position: 'bottomright' }).addTo(map);
+
+  // Google satellite (maxNativeZoom 20, overzooms to 22 for maximum detail)
+  L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    subdomains: '0123',
+    maxZoom: 22,
+    maxNativeZoom: 20,
+    pane: 'baseTilePane',
+    attribution: '© Google Maps imagery',
+  }).addTo(map);
+
+  // Google hybrid labels overlay (roads + place names on top of satellite)
+  L.tileLayer('https://mt{s}.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
+    subdomains: '0123',
+    maxZoom: 22,
+    maxNativeZoom: 20,
+    opacity: 0.85,
+    pane: 'labelTilePane',
+    attribution: '',
+  }).addTo(map);
+
+  // ── Map opacity ───────────────────────────────────
+  const applyMapOpacity = (v) => {
+    const val = Math.max(0, Math.min(100, Number(v) || 100));
+    $('map-opacity').value = val;
+    $('map-opacity-val').textContent = val + '%';
+    const o = val / 100;
+    const pBase = map.getPane('baseTilePane');
+    const pLbl  = map.getPane('labelTilePane');
+    if (pBase) pBase.style.opacity = o;
+    if (pLbl)  pLbl.style.opacity = o;
+  };
+  $('map-opacity').oninput = e => {
+    applyMapOpacity(+e.target.value);
+    saveMapView();
+  };
+  applyMapOpacity(savedView?.opacity ?? 100);
+
+  // ── Bearing controls ──────────────────────────────
+  const syncBearingUI = b => {
+    const clamped = ((b % 360) + 540) % 360 - 180;
+    $('map-bearing').value = clamped;
+    $('map-bearing-val').textContent = Math.round(clamped) + '°';
+  };
+
+  $('map-bearing').oninput = e => {
+    const deg = +e.target.value;
+    $('map-bearing-val').textContent = deg + '°';
+    if (map.setBearing) map.setBearing(deg);
+    syncGeo();
+  };
+
+  $('btn-north').onclick = () => {
+    if (map.setBearing) map.setBearing(0);
+    syncBearingUI(0);
+    syncGeo();
+  };
+
+  $('btn-cw').onclick = () => {
+    const b = (map.getBearing ? map.getBearing() : 0) + 15;
+    if (map.setBearing) map.setBearing(b);
+    syncBearingUI(b);
+    syncGeo();
+  };
+
+  $('btn-ccw').onclick = () => {
+    const b = (map.getBearing ? map.getBearing() : 0) - 15;
+    if (map.setBearing) map.setBearing(b);
+    syncBearingUI(b);
+    syncGeo();
+  };
+
+  // Restore saved bearing
+  if (savedView?.bearing && map.setBearing) {
+    map.setBearing(savedView.bearing);
+    syncBearingUI(savedView.bearing);
+  }
+
+  // Sync slider if map is rotated via touch/gesture
+  map.on('rotate', () => {
+    syncBearingUI(map.getBearing ? map.getBearing() : 0);
+    syncGeo();
+  });
+
+  // ── Sync geo overlay on all map movements ─────────
+  map.on('move zoom',  syncGeo);
+
+  // ── Persist map view on every movement end ────────
+  map.on('moveend zoomend rotateend', saveMapView);
+
+  // ── Picker / row-draw click ───────────────────────
+  map.on('click', e => {
+    if (typeof handleSplitClick === 'function' && handleSplitClick(e)) return;
+    if (typeof handleDrawClick === 'function' && handleDrawClick(e)) return;
+    if (!pickerOn) return;
+    addCoord(e.latlng.lat, e.latlng.lng);
+  });
+  map.on('mousemove', e => {
+    if (!splitState || splitState.type !== 'group' || !splitState.p1 || !splitState.previewLine) return;
+    splitState.previewLine.setLatLngs([[splitState.p1.lat, splitState.p1.lng], [e.latlng.lat, e.latlng.lng]]);
+  });
+
+  // ── Drag-drop image onto map ──────────────────────
+  const mw = $('map-wrap');
+  mw.addEventListener('dragover', e => e.preventDefault());
+  mw.addEventListener('drop', e => {
+    e.preventDefault();
+    const f = e.dataTransfer?.files?.[0];
+    if (f?.type.startsWith('image/')) loadImg(f);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  SEARCH  (Nominatim / OpenStreetMap — no key)
+// ═══════════════════════════════════════════════════
+let searchTimer = null;
+
+$('search-input').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim();
+  if (q.length < 3) { $('search-results').innerHTML = ''; return; }
+  $('search-results').innerHTML = '<div class="sr-msg">Searching…</div>';
+  searchTimer = setTimeout(() => doSearch(q), 420);
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-wrap')) $('search-results').innerHTML = '';
+});
+
+async function doSearch(q) {
+  try {
+    const url  = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6`;
+    const data = await fetch(url, { headers: { 'Accept-Language': 'en' } }).then(r => r.json());
+    if (!data.length) { $('search-results').innerHTML = '<div class="sr-msg">No results</div>'; return; }
+    $('search-results').innerHTML = data.map((r, i) => {
+      const name = escHtml(r.display_name.split(',')[0]);
+      const sub  = escHtml(r.display_name.split(',').slice(1, 3).join(',').trim());
+      return `<div class="sr-item" data-i="${i}" data-lat="${r.lat}" data-lon="${r.lon}"
+        data-bb='${JSON.stringify(r.boundingbox)}'>
+        <b>${name}</b><span>${sub}</span></div>`;
+    }).join('');
+    $('search-results').querySelectorAll('.sr-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const bb = JSON.parse(el.dataset.bb); // [s, n, w, e]
+        map.fitBounds([[+bb[0], +bb[2]], [+bb[1], +bb[3]]], { padding: [40, 40], maxZoom: 18 });
+        $('search-input').value = el.querySelector('b').textContent;
+        $('search-results').innerHTML = '';
+      });
+    });
+  } catch {
+    $('search-results').innerHTML = '<div class="sr-msg">Search unavailable</div>';
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════
+//  IMAGE LOAD
+// ═══════════════════════════════════════════════════
+function loadImg(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const src = ev.target.result;
+    const img = new Image();
+    img.onload = () => {
+      const mw = $('map-wrap');
+      ar = img.naturalWidth / img.naturalHeight;
+      const maxW = Math.min(500, mw.offsetWidth * 0.55);
+      const w = maxW, h = w / ar;
+      const x = (mw.offsetWidth  - w) / 2;
+      const y = (mw.offsetHeight - h) / 2;
+
+      ov.src = src; ov.x = x; ov.y = y; ov.w = w; ov.h = h;
+      ov.rot = 0; ov.opacity = 0.7; ov.locked = false; ov.geo = null;
+
+      $('img-opacity').value = 70;  $('img-opacity-val').textContent = '70%';
+      $('img-rot').value = 0;       $('img-rot-val').textContent = '0°';
+      $('img-rot').disabled = false;
+
+      buildOverlay();
+      $('upload-zone').style.display = 'none';
+      $('img-ctrls').style.display = 'block';
+      setLockBtn(false);
+      saveOv();
+    };
+    img.src = src;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════════════════════════
+//  OVERLAY – BUILD
+// ═══════════════════════════════════════════════════
+function buildOverlay() {
+  if (ov.el) ov.el.remove();
+
+  const el = document.createElement('div');
+  el.id = 'ov-el';
+  placeEl(el);
+
+  const img = document.createElement('img');
+  img.src = ov.src; img.style.opacity = ov.opacity;
+  el.appendChild(img); ov.imgEl = img;
+
+  const arm = document.createElement('div');
+  arm.className = 'ovh-arm';
+  el.appendChild(arm);
+
+  const rotH = document.createElement('div');
+  rotH.className = 'ovh-rot';
+  el.appendChild(rotH);
+
+  ['tl','tr','bl','br'].forEach(c => {
+    const h = document.createElement('div');
+    h.className = `ovh ovh-${c}`; h.dataset.c = c;
+    el.appendChild(h);
+  });
+
+  // Keep overlay in the map container coordinate space so geo-sync (pan/zoom/rotate)
+  // uses Leaflet container points consistently, including after reload.
+  const host = map ? map.getContainer() : $('map-wrap');
+  host.appendChild(el);
+  ov.el = el;
+  bindOverlay(el, rotH);
+}
+
+function placeEl(el) {
+  el = el || ov.el;
+  el.style.left            = ov.x + 'px';
+  el.style.top             = ov.y + 'px';
+  el.style.width           = ov.w + 'px';
+  el.style.height          = ov.h + 'px';
+  el.style.transform       = `rotate(${ov.rot}deg)`;
+  el.style.transformOrigin = 'center center';
+}
+
+// ═══════════════════════════════════════════════════
+//  OVERLAY – INTERACTIONS
+// ═══════════════════════════════════════════════════
+function bindOverlay(el, rotH) {
+
+  // ── drag body ───────────────────────────────────
+  el.addEventListener('mousedown', e => {
+    if (ov.locked) return;
+    if (e.target !== el && e.target !== ov.imgEl) return;
+    e.preventDefault(); e.stopPropagation();
+    map && map.dragging.disable();
+
+    const ox = e.clientX - ov.x, oy = e.clientY - ov.y;
+    const mm = e2 => {
+      ov.x = e2.clientX - ox; ov.y = e2.clientY - oy;
+      el.style.left = ov.x + 'px'; el.style.top = ov.y + 'px';
+    };
+    const mu = () => {
+      map && map.dragging.enable();
+      saveOv();
+      document.removeEventListener('mousemove', mm);
+      document.removeEventListener('mouseup', mu);
+    };
+    document.addEventListener('mousemove', mm);
+    document.addEventListener('mouseup', mu);
+  });
+
+  // ── corner resize ───────────────────────────────
+  el.querySelectorAll('.ovh[data-c]').forEach(h => {
+    h.addEventListener('mousedown', e => {
+      if (ov.locked) return;
+      e.preventDefault(); e.stopPropagation();
+      map && map.dragging.disable();
+
+      const c    = h.dataset.c;
+      const sx   = e.clientX, sy = e.clientY;
+      const sw   = ov.w, sh = ov.h, sox = ov.x, soy = ov.y;
+      const lockAR = $('ar-lock').checked;
+      const rad    = ov.rot * Math.PI / 180;
+      const cosN   = Math.cos(-rad), sinN = Math.sin(-rad);
+
+      const mm = e2 => {
+        const dx = e2.clientX - sx, dy = e2.clientY - sy;
+        const lx = dx * cosN - dy * sinN;
+        const ly = dx * sinN + dy * cosN;
+        let nw = sw, nh = sh, nx = sox, ny = soy;
+        const cR = Math.cos(rad), sR = Math.sin(rad);
+
+        if (c === 'br') {
+          nw = Math.max(40, sw + lx);
+          nh = lockAR ? nw / ar : Math.max(40, sh + ly);
+        } else if (c === 'bl') {
+          nw = Math.max(40, sw - lx);
+          nh = lockAR ? nw / ar : Math.max(40, sh + ly);
+          nx = sox + (sw - nw) * cR; ny = soy + (sw - nw) * sR;
+        } else if (c === 'tr') {
+          nw = Math.max(40, sw + lx);
+          nh = lockAR ? nw / ar : Math.max(40, sh - ly);
+          nx = sox - (sh - nh) * sR; ny = soy + (sh - nh) * cR;
+        } else {
+          nw = Math.max(40, sw - lx);
+          nh = lockAR ? nw / ar : Math.max(40, sh - ly);
+          nx = sox + (sw - nw) * cR - (sh - nh) * sR;
+          ny = soy + (sw - nw) * sR + (sh - nh) * cR;
+        }
+        ov.w = nw; ov.h = nh; ov.x = nx; ov.y = ny;
+        el.style.width  = nw + 'px'; el.style.height = nh + 'px';
+        el.style.left   = nx + 'px'; el.style.top    = ny + 'px';
+      };
+      const mu = () => {
+        map && map.dragging.enable();
+        saveOv();
+        document.removeEventListener('mousemove', mm);
+        document.removeEventListener('mouseup', mu);
+      };
+      document.addEventListener('mousemove', mm);
+      document.addEventListener('mouseup', mu);
+    });
+  });
+
+  // ── rotation handle ─────────────────────────────
+  rotH.addEventListener('mousedown', e => {
+    if (ov.locked) return;
+    e.preventDefault(); e.stopPropagation();
+    map && map.dragging.disable();
+
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+
+    const mm = e2 => {
+      let angle = Math.atan2(e2.clientY - cy, e2.clientX - cx) * 180 / Math.PI + 90;
+      if (e2.shiftKey) angle = Math.round(angle / 15) * 15;
+      ov.rot = angle;
+      el.style.transform = `rotate(${angle}deg)`;
+      const sv = ((angle % 360) + 540) % 360 - 180;
+      $('img-rot').value = sv;
+      $('img-rot-val').textContent = Math.round(sv) + '°';
+    };
+    const mu = () => {
+      map && map.dragging.enable();
+      saveOv();
+      document.removeEventListener('mousemove', mm);
+      document.removeEventListener('mouseup', mu);
+    };
+    document.addEventListener('mousemove', mm);
+    document.addEventListener('mouseup', mu);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  GEO LOCK / UNLOCK
+// ═══════════════════════════════════════════════════
+
+// Meters per pixel at a given latitude and zoom (Web Mercator)
+function mppAt(lat, zoom) {
+  return (40075016.686 * Math.cos(lat * Math.PI / 180)) / (256 * Math.pow(2, zoom));
+}
+
+function mapBearing() {
+  return (map && map.getBearing) ? map.getBearing() : 0;
+}
+
+function lockOverlay() {
+  if (!ov.el || ov.locked) return;
+
+  // Center of overlay in container (map-wrap) pixel space
+  const cx = ov.x + ov.w / 2;
+  const cy = ov.y + ov.h / 2;
+
+  // Convert to lat/lng using Leaflet's container point API
+  const ll = map.containerPointToLatLng(L.point(cx, cy));
+  const m  = mppAt(ll.lat, map.getZoom());
+
+  ov.geo = {
+    lat: ll.lat, lng: ll.lng,
+    wM: ov.w * m,
+    hM: ov.h * m,
+    bearing: ov.rot + mapBearing(),
+  };
+
+  ov.locked = true;
+  ov.el.classList.add('locked');
+  $('img-rot').disabled = true;
+  setLockBtn(true);
+  saveOv();
+  showToast('Geo-locked — click anywhere on the map to pick coordinates');
+}
+
+function unlockOverlay() {
+  if (!ov.el || !ov.locked) return;
+  ov.locked = false; ov.geo = null;
+  ov.el.classList.remove('locked');
+  $('img-rot').disabled = false;
+  setLockBtn(false);
+  saveOv();
+}
+
+function setLockBtn(locked) {
+  const btn = $('btn-lock');
+  if (locked) {
+    btn.className = 'btn btn-green';
+    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1C9.24 1 7 3.24 7 6v1H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2h-1V6c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v1H9V6c0-1.66 1.34-3 3-3zm0 10c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/></svg> Unlock`;
+  } else {
+    btn.className = 'btn btn-sub';
+    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg> Geo-lock`;
+  }
+}
+
+// Called on every map move / zoom / rotate
+function syncGeo() {
+  if (!ov.el || !ov.locked || !ov.geo) return;
+  const g    = ov.geo;
+  const proj = map.latLngToContainerPoint(L.latLng(g.lat, g.lng));
+  const m    = mppAt(g.lat, map.getZoom());
+  const nw   = g.wM / m;
+  const nh   = g.hM / m;
+  const rot  = g.bearing - mapBearing();
+
+  ov.x = proj.x - nw / 2; ov.y = proj.y - nh / 2;
+  ov.w = nw; ov.h = nh; ov.rot = rot;
+
+  ov.el.style.left      = ov.x + 'px';
+  ov.el.style.top       = ov.y + 'px';
+  ov.el.style.width     = nw   + 'px';
+  ov.el.style.height    = nh   + 'px';
+  ov.el.style.transform = `rotate(${rot}deg)`;
+}
+
+// ═══════════════════════════════════════════════════
+//  IMAGE CONTROL EVENTS
+// ═══════════════════════════════════════════════════
+$('upload-zone').addEventListener('click', () => $('upload-input').click());
+
+$('upload-input').addEventListener('change', e => {
+  const f = e.target.files?.[0]; if (f) loadImg(f); e.target.value = '';
+});
+
+$('upload-zone').addEventListener('dragover',  e => { e.preventDefault(); $('upload-zone').classList.add('over'); });
+$('upload-zone').addEventListener('dragleave', () => $('upload-zone').classList.remove('over'));
+$('upload-zone').addEventListener('drop', e => {
+  e.preventDefault(); $('upload-zone').classList.remove('over');
+  const f = e.dataTransfer?.files?.[0];
+  if (f?.type.startsWith('image/')) loadImg(f);
+});
+
+$('img-opacity').oninput = e => {
+  ov.opacity = +e.target.value / 100;
+  $('img-opacity-val').textContent = e.target.value + '%';
+  if (ov.imgEl) ov.imgEl.style.opacity = ov.opacity;
+  saveOv();
+};
+
+$('img-rot').oninput = e => {
+  ov.rot = +e.target.value;
+  $('img-rot-val').textContent = e.target.value + '°';
+  if (ov.el && !ov.locked) ov.el.style.transform = `rotate(${ov.rot}deg)`;
+  saveOv();
+};
+
+$('btn-lock').onclick   = () => { if (ov.locked) unlockOverlay(); else lockOverlay(); };
+$('btn-remove').onclick = () => {
+  if (ov.el) ov.el.remove();
+  ov = { el:null, imgEl:null, src:null, x:0,y:0,w:0,h:0, rot:0, opacity:0.7, locked:false, geo:null };
+  $('img-rot').disabled = false;
+  localStorage.removeItem(OV_KEY);
+  $('upload-zone').style.display = ''; $('img-ctrls').style.display = 'none'; setLockBtn(false);
+};
+
+// ═══════════════════════════════════════════════════
+//  PICKER
+// ═══════════════════════════════════════════════════
+const PICKER_ICO = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>`;
+
+$('btn-picker').onclick = () => {
+  pickerOn = !pickerOn;
+  const btn = $('btn-picker'), mw = $('map-wrap');
+  if (pickerOn) {
+    btn.classList.add('on');
+    btn.innerHTML = PICKER_ICO + ' Disable Picker';
+    mw.classList.add('picking');
+  } else {
+    btn.classList.remove('on');
+    btn.innerHTML = PICKER_ICO + ' Enable Picker';
+    mw.classList.remove('picking');
+  }
+};
+
+function addCoord(lat, lng) {
+  const id = ++coordIdx;
+  coords.push({ id, lat, lng });
+
+  const empty = $('coord-empty');
+  if (empty) empty.remove();
+
+  const item = document.createElement('div');
+  item.className = 'ci'; item.id = `ci-${id}`;
+  item.innerHTML = `
+    <span class="ci-n">${id}</span>
+    <span class="ci-v">${lat.toFixed(6)},&thinsp;${lng.toFixed(6)}</span>
+    <button class="btn-icon" title="Copy" data-copy="${id}">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+    </button>
+    <button class="btn-icon" title="Delete" data-del="${id}" style="color:var(--danger)">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>`;
+
+  $('coord-list').appendChild(item);
+  $('coord-list').scrollTop = 99999;
+  $('btn-copy-all').disabled = false;
+  $('btn-clear').disabled    = false;
+}
+
+$('coord-list').addEventListener('click', e => {
+  const cpBtn  = e.target.closest('[data-copy]');
+  const delBtn = e.target.closest('[data-del]');
+  if (cpBtn) {
+    const c = coords.find(x => x.id === +cpBtn.dataset.copy);
+    if (c) { navigator.clipboard.writeText(`{"lat":${c.lat.toFixed(6)},"lng":${c.lng.toFixed(6)}}`); showToast('Coordinate copied!'); }
+  }
+  if (delBtn) {
+    const id = +delBtn.dataset.del;
+    coords = coords.filter(x => x.id !== id);
+    $(`ci-${id}`)?.remove();
+    if (coords.length === 0) resetCoordList();
+  }
+});
+
+$('btn-copy-all').onclick = () => {
+  navigator.clipboard.writeText(JSON.stringify(
+    coords.map(c => ({ lat: +c.lat.toFixed(6), lng: +c.lng.toFixed(6) })), null, 2
+  ));
+  showToast(`${coords.length} coordinate${coords.length !== 1 ? 's' : ''} copied as JSON`);
+};
+
+$('btn-clear').onclick = () => { coords = []; coordIdx = 0; resetCoordList(); };
+
+function resetCoordList() {
+  $('coord-list').innerHTML =
+    '<div class="coord-empty" id="coord-empty">No coordinates yet.<br>Enable picker then click on the map.</div>';
+  $('btn-copy-all').disabled = true;
+  $('btn-clear').disabled    = true;
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — state
+// ═══════════════════════════════════════════════════
+const ROWS_KEY   = 'vsm_rows';
+const HIER_KEY   = 'vsm_hierarchy';
+const ROW_COLORS = ['#4f8ef7','#22d07a','#f7a24f','#f07070','#c47af7','#f0f070','#70f0f7'];
+
+let rows        = [];
+let rowIdCtr    = 0;
+let selectedRid = null;
+let drawSt      = null;   // null | 'start' | 'end' | 'form'
+let drawPts     = {};     // { start, end }  (Leaflet LatLng)
+let editRid     = null;   // row id being edited (null = creating new)
+let drawTmp     = [];     // temp Leaflet layers during draw
+let editHandles = {};     // { startM, endM, ctrlM, ctrlLine }
+let groupHandles = {};    // { moveM | centerM, rotM, rotLine }
+let hierarchy   = { levels: 2, names: ['Section', 'Block'], options: {} };
+let metaRid     = null;
+let groups      = [];     // [{ id, name, collapsed, rowIds: [] }]
+let groupIdCtr  = 0;
+let selectedRowIds = new Set();
+let dragRowId = null;
+let splitState = null;    // { type:'row'|'group', rowId?|groupId?, p1?, marker1?, knifeLine? }
+const HISTORY_LIMIT = 10;
+let undoStack = [];
+let redoStack = [];
+let hierarchyCollapsed = false;
+
+function saveUIState() {
+  try {
+    localStorage.setItem(UI_KEY, JSON.stringify({
+      activeTab: $('tab-rows-btn').classList.contains('active') ? 'rows' : 'main',
+      hierarchyCollapsed: !!hierarchyCollapsed,
+    }));
+  } catch {}
+}
+
+function applyTab(tabName) {
+  const rowsOn = tabName === 'rows';
+  $('tab-main').classList.toggle('hidden', rowsOn);
+  $('tab-rows').classList.toggle('hidden', !rowsOn);
+  $('tab-rows-rows').classList.toggle('hidden', !rowsOn);
+  $('tab-main-btn').classList.toggle('active', !rowsOn);
+  $('tab-rows-btn').classList.toggle('active', rowsOn);
+}
+
+function applyHierarchyCollapseUI() {
+  $('hierarchy-body').style.display = hierarchyCollapsed ? 'none' : '';
+  $('btn-toggle-hierarchy').textContent = hierarchyCollapsed ? '▸' : '▾';
+}
+
+function loadUIState() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(UI_KEY) || 'null'); } catch {}
+  hierarchyCollapsed = !!data?.hierarchyCollapsed;
+  applyHierarchyCollapseUI();
+  applyTab(data?.activeTab === 'rows' ? 'rows' : 'main');
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — geo math (local Cartesian, Web Mercator)
+// ═══════════════════════════════════════════════════
+function ll2xy(lat, lng, rlat, rlng) {
+  const cos = Math.cos(rlat * Math.PI / 180);
+  return { x: (lng - rlng) * cos * 111320, y: (lat - rlat) * 111320 };
+}
+function xy2ll(x, y, rlat, rlng) {
+  const cos = Math.cos(rlat * Math.PI / 180);
+  return { lat: rlat + y / 111320, lng: rlng + x / (cos * 111320) };
+}
+
+// Quadratic Bezier point at parameter t
+function bezPt(p0, p1, p2, t) {
+  const u = 1 - t;
+  return { x: u*u*p0.x + 2*u*t*p1.x + t*t*p2.x,
+           y: u*u*p0.y + 2*u*t*p1.y + t*t*p2.y };
+}
+
+// n points evenly distributed by arc length along the Bezier
+function bezierEvenPts(p0, p1, p2, n) {
+  if (n <= 1) return [bezPt(p0, p1, p2, 0)];
+  const S = 1000;
+  const arc = [0];
+  let prev = bezPt(p0, p1, p2, 0);
+  for (let i = 1; i <= S; i++) {
+    const cur = bezPt(p0, p1, p2, i / S);
+    const dx = cur.x - prev.x, dy = cur.y - prev.y;
+    arc.push(arc[i - 1] + Math.sqrt(dx * dx + dy * dy));
+    prev = cur;
+  }
+  const total = arc[S];
+  const pts = [];
+  let si = 0;
+  for (let k = 0; k < n; k++) {
+    const target = (k / (n - 1)) * total;
+    while (si < S && arc[si] < target) si++;
+    if (si === 0) { pts.push(bezPt(p0, p1, p2, 0)); continue; }
+    if (si >= S)  { pts.push(bezPt(p0, p1, p2, 1)); continue; }
+    const frac = (target - arc[si - 1]) / (arc[si] - arc[si - 1]);
+    pts.push(bezPt(p0, p1, p2, (si - 1 + frac) / S));
+  }
+  return pts;
+}
+
+function bezierArcLen(p0, p1, p2) {
+  const S = 500; let len = 0, prev = p0;
+  for (let i = 1; i <= S; i++) {
+    const cur = bezPt(p0, p1, p2, i / S);
+    const dx = cur.x - prev.x, dy = cur.y - prev.y;
+    len += Math.sqrt(dx * dx + dy * dy);
+    prev = cur;
+  }
+  return len;
+}
+
+function rowLocalCoords(row) {
+  const rlat = (row.start.lat + row.end.lat) / 2;
+  const rlng = (row.start.lng + row.end.lng) / 2;
+  return {
+    p0: ll2xy(row.start.lat, row.start.lng, rlat, rlng),
+    p1: ll2xy(row.ctrl.lat,  row.ctrl.lng,  rlat, rlng),
+    p2: ll2xy(row.end.lat,   row.end.lng,   rlat, rlng),
+    rlat, rlng,
+  };
+}
+
+function computeSeats(row) {
+  const { p0, p1, p2, rlat, rlng } = rowLocalCoords(row);
+  let n = row.seatCount;
+  if (!n && row.spacingM) {
+    n = Math.max(2, Math.round(bezierArcLen(p0, p1, p2) / row.spacingM) + 1);
+  }
+  n = Math.max(2, Math.min(500, n || 10));
+  return bezierEvenPts(p0, p1, p2, n).map(pt => xy2ll(pt.x, pt.y, rlat, rlng));
+}
+
+function bezierCurveSamples(row, res = 64) {
+  const { p0, p1, p2, rlat, rlng } = rowLocalCoords(row);
+  const pts = [];
+  for (let i = 0; i <= res; i++)
+    pts.push(xy2ll(...Object.values(bezPt(p0, p1, p2, i / res)), rlat, rlng));
+  return pts;
+}
+
+function computeSeatNumbers(row, count) {
+  const start = Number.isFinite(row.meta?.startNumber) ? row.meta.startNumber : 1;
+  const dir = row.meta?.direction || 'start_to_end';
+  if (count <= 1) return [String(start)];
+  const vals = Array.from({ length: count }, (_, i) => start + i);
+  if (dir === 'end_to_start') vals.reverse();
+  return vals.map(String);
+}
+
+function lerpLL(a, b, t) {
+  return { lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t };
+}
+
+function splitRowGeometry(row, t) {
+  const p0 = row.start, p1 = row.ctrl, p2 = row.end;
+  const p01 = lerpLL(p0, p1, t);
+  const p12 = lerpLL(p1, p2, t);
+  const pm = lerpLL(p01, p12, t);
+  return {
+    left:  { start: { ...p0 },  ctrl: p01, end: pm },
+    right: { start: pm, ctrl: p12, end: { ...p2 } },
+  };
+}
+
+function estimateSeatSplitCounts(row, t) {
+  const total = Math.max(2, row._seats?.length || row.seatCount || 10);
+  let left = Math.max(2, Math.round((total - 1) * t) + 1);
+  let right = Math.max(2, total - left + 1);
+  if (left + right > total + 1) {
+    if (left > right) left = Math.max(2, left - 1);
+    else right = Math.max(2, right - 1);
+  }
+  return { left, right };
+}
+
+function bumpPlusOneText(value) {
+  const m = String(value || '').match(/^(.*?)(\d+)\s*$/);
+  if (!m) return `${value} 1`;
+  return `${m[1]}${parseInt(m[2], 10) + 1}`;
+}
+
+function splitRowAtT(row, t) {
+  const tt = Math.max(0.05, Math.min(0.95, t));
+  const geom = splitRowGeometry(row, tt);
+  const counts = estimateSeatSplitCounts(row, tt);
+  const srcStartNumber = Number.isFinite(row.meta?.startNumber) ? row.meta.startNumber : 1;
+  const srcDirection = row.meta?.direction || 'start_to_end';
+  const leftCount = row.seatCount ? counts.left : (computeSeats({ ...row, start: geom.left.start, ctrl: geom.left.ctrl, end: geom.left.end }).length || counts.left);
+  const rightCount = row.seatCount ? counts.right : (computeSeats({ ...row, start: geom.right.start, ctrl: geom.right.ctrl, end: geom.right.end }).length || counts.right);
+  row.start = geom.left.start;
+  row.ctrl = geom.left.ctrl;
+  row.end = geom.left.end;
+  if (row.seatCount) row.seatCount = counts.left;
+  const metaCopy = row.meta ? JSON.parse(JSON.stringify(row.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' };
+  const row2 = {
+    id: ++rowIdCtr,
+    name: bumpPlusOneText(row.name),
+    seatCount: row.seatCount ? counts.right : null,
+    spacingM: row.spacingM,
+    color: ROW_COLORS[rows.length % ROW_COLORS.length],
+    start: geom.right.start,
+    ctrl: geom.right.ctrl,
+    end: geom.right.end,
+    visible: row.visible !== false,
+    meta: metaCopy,
+    _group: null, _curve: null, _seats: [],
+  };
+  // Keep numbering continuous across both split parts.
+  if (!row.meta) row.meta = { hierarchy: {}, invalid: {}, startNumber: srcStartNumber, direction: srcDirection };
+  if (srcDirection === 'end_to_start') {
+    row.meta.startNumber = srcStartNumber + Math.max(0, rightCount - 1);
+    row2.meta.startNumber = srcStartNumber;
+  } else {
+    row.meta.startNumber = srcStartNumber;
+    row2.meta.startNumber = srcStartNumber + Math.max(0, leftCount - 1);
+  }
+  row2.meta.direction = srcDirection;
+  rows.push(row2);
+  const g = getGroupByRowId(row.id);
+  if (g) {
+    const idx = g.rowIds.indexOf(row.id);
+    if (idx >= 0) g.rowIds.splice(idx + 1, 0, row2.id);
+  }
+  renderRow(row);
+  renderRow(row2);
+  return row2;
+}
+
+function nearestTOnRow(row, clickLL) {
+  const sampleN = 180;
+  const pts = bezierCurveSamples(row, sampleN).map(p => map.latLngToContainerPoint([p.lat, p.lng]));
+  const cp = map.latLngToContainerPoint([clickLL.lat, clickLL.lng]);
+  let bestDist = Infinity;
+  let bestT = null;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1];
+    const abx = b.x - a.x, aby = b.y - a.y;
+    const apx = cp.x - a.x, apy = cp.y - a.y;
+    const den = abx * abx + aby * aby || 1;
+    const u = Math.max(0, Math.min(1, (apx * abx + apy * aby) / den));
+    const x = a.x + abx * u, y = a.y + aby * u;
+    const d = Math.hypot(cp.x - x, cp.y - y);
+    if (d < bestDist) {
+      bestDist = d;
+      bestT = (i + u) / sampleN;
+    }
+  }
+  return bestDist <= 20 ? bestT : null;
+}
+
+function beginSplitRow(id) {
+  const row = rows.find(r => r.id === id);
+  if (!row) return;
+  clearSplitUI();
+  clearGroupHandles();
+  clearEditHandles();
+  selectedRid = id;
+  splitState = { type: 'row', rowId: id };
+  $('map-wrap').classList.add('picking');
+  showToast('Split row: click the row line where you want to split');
+}
+
+function pointSide(p, a, b) {
+  return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+}
+
+function segmentIntersectionParam(a1, a2, b1, b2) {
+  const dax = a2.x - a1.x, day = a2.y - a1.y;
+  const dbx = b2.x - b1.x, dby = b2.y - b1.y;
+  const den = dax * dby - day * dbx;
+  if (Math.abs(den) < 1e-9) return null;
+  const s = ((b1.x - a1.x) * dby - (b1.y - a1.y) * dbx) / den;
+  const t = ((b1.x - a1.x) * day - (b1.y - a1.y) * dax) / den;
+  if (s < 0 || s > 1 || t < 0 || t > 1) return null;
+  return { s, t };
+}
+
+function findKnifeIntersectionT(row, aLL, bLL) {
+  const sampleN = 220;
+  const curve = bezierCurveSamples(row, sampleN).map(p => map.latLngToContainerPoint([p.lat, p.lng]));
+  const a = map.latLngToContainerPoint([aLL.lat, aLL.lng]);
+  const b = map.latLngToContainerPoint([bLL.lat, bLL.lng]);
+  for (let i = 0; i < curve.length - 1; i++) {
+    const hit = segmentIntersectionParam(curve[i], curve[i + 1], a, b);
+    if (hit) return (i + hit.s) / sampleN;
+  }
+  return null;
+}
+
+function rowCenterPoint(row) {
+  return map.latLngToContainerPoint([(row.start.lat + row.end.lat + row.ctrl.lat) / 3, (row.start.lng + row.end.lng + row.ctrl.lng) / 3]);
+}
+
+function beginSplitGroup(id) {
+  const group = groups.find(g => g.id === id);
+  if (!group) return;
+  clearSplitUI();
+  clearGroupHandles();
+  clearEditHandles();
+  splitState = { type: 'group', groupId: id, p1: null, marker1: null, knifeLine: null, previewLine: null };
+  $('map-wrap').classList.add('picking');
+  showToast('Group knife: click start and end points of knife line');
+}
+
+function handleSplitClick(e) {
+  if (!splitState) return false;
+  if (splitState.type === 'row') {
+    const row = rows.find(r => r.id === splitState.rowId);
+    if (!row) { clearSplitUI(); return true; }
+    const t = nearestTOnRow(row, e.latlng);
+    if (t === null) { showToast('Click closer to the row line'); return true; }
+    pushHistory();
+    const newRow = splitRowAtT(row, t);
+    selectRow(newRow.id);
+    openMetaEditor(newRow.id);
+    renderRowList();
+    saveRows();
+    clearSplitUI();
+    showToast('Row split complete');
+    return true;
+  }
+  if (splitState.type === 'group') {
+    if (!splitState.p1) {
+      splitState.p1 = e.latlng;
+      splitState.marker1 = L.circleMarker([e.latlng.lat, e.latlng.lng], {
+        radius: 5, color: '#f7a24f', fillColor: '#fff', fillOpacity: 1, weight: 2, interactive: false,
+      }).addTo(map);
+      splitState.previewLine = L.polyline([[e.latlng.lat, e.latlng.lng], [e.latlng.lat, e.latlng.lng]], {
+        color: '#f7a24f', weight: 1.8, dashArray: '6 4', opacity: 0.9, interactive: false,
+      }).addTo(map);
+      return true;
+    }
+    const p1 = splitState.p1;
+    const p2 = e.latlng;
+    splitState.knifeLine = L.polyline([[p1.lat, p1.lng], [p2.lat, p2.lng]], {
+      color: '#f7a24f', weight: 2, dashArray: '6 4', interactive: false,
+    }).addTo(map);
+    try { splitState.previewLine?.remove(); } catch {}
+    splitState.previewLine = null;
+    const group = groups.find(g => g.id === splitState.groupId);
+    if (!group) { clearSplitUI(); return true; }
+    pushHistory();
+    const newGroupIds = [];
+    const originalIds = [...group.rowIds];
+    originalIds.forEach(rid => {
+      const row = rows.find(r => r.id === rid);
+      if (!row) return;
+      const t = findKnifeIntersectionT(row, p1, p2);
+      if (t !== null && t > 0.05 && t < 0.95) {
+        const newRow = splitRowAtT(row, t);
+        const a = map.latLngToContainerPoint([p1.lat, p1.lng]);
+        const b = map.latLngToContainerPoint([p2.lat, p2.lng]);
+        const c1 = rowCenterPoint(row);
+        const c2 = rowCenterPoint(newRow);
+        const s1 = pointSide(c1, a, b);
+        const s2 = pointSide(c2, a, b);
+        let rightRow = null;
+        if (s1 < 0 && s2 >= 0) rightRow = row;
+        else if (s2 < 0 && s1 >= 0) rightRow = newRow;
+        else rightRow = newRow;
+        if (rightRow.id === row.id) {
+          group.rowIds = group.rowIds.filter(id => id !== row.id);
+          newGroupIds.push(row.id);
+        } else {
+          newGroupIds.push(newRow.id);
+        }
+      } else {
+        const a = map.latLngToContainerPoint([p1.lat, p1.lng]);
+        const b = map.latLngToContainerPoint([p2.lat, p2.lng]);
+        const c = rowCenterPoint(row);
+        if (pointSide(c, a, b) < 0) {
+          group.rowIds = group.rowIds.filter(id => id !== row.id);
+          newGroupIds.push(row.id);
+        }
+      }
+    });
+    if (newGroupIds.length) {
+      const gid = ++groupIdCtr;
+      groups.push({ id: gid, name: `${group.name} right`, collapsed: false, rowIds: newGroupIds });
+    }
+    normalizeGroups();
+    rows.forEach(r => renderRow(r));
+    renderRowList();
+    saveRows();
+    clearSplitUI();
+    showToast('Group split complete');
+    return true;
+  }
+  return false;
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — rendering
+// ═══════════════════════════════════════════════════
+function renderRow(row) {
+  // Clear existing curve + seats but keep handle markers
+  if (row._group) { row._group.clearLayers(); } else {
+    row._group = L.layerGroup().addTo(map);
+  }
+  if (row.visible === false) return;
+
+  const seats    = computeSeats(row);
+  row._seats     = seats;
+  const isSelected = selectedRid === row.id;
+
+  // Smooth curve line
+  const curvePts = bezierCurveSamples(row).map(p => [p.lat, p.lng]);
+  row._curve = L.polyline(curvePts, {
+    color: row.color, weight: 1,
+    opacity: isSelected ? 0.55 : 0.35,
+    dashArray: '5 4', interactive: false,
+  });
+  row._group.addLayer(row._curve);
+
+  // Seat markers
+  const style = {
+    radius: isSelected ? 4.5 : 3.5,
+    color: row.color, fillColor: row.color,
+    fillOpacity: isSelected ? 0.98 : 0.72,
+    weight: 1,
+  };
+  seats.forEach(s => {
+    L.circleMarker([s.lat, s.lng], { ...style, interactive: true })
+      .on('click', e => { L.DomEvent.stopPropagation(e); selectRow(row.id); })
+      .addTo(row._group);
+  });
+  if (isSelected) {
+    const nums = computeSeatNumbers(row, seats.length);
+    seats.forEach((s, i) => {
+      L.marker([s.lat, s.lng], {
+        interactive: false,
+        icon: L.divIcon({
+          className: '',
+          html: `<div style="font-size:10px;color:#fff;text-shadow:0 0 3px #000;padding-left:6px;white-space:nowrap">${nums[i]}</div>`,
+          iconSize: [1, 1],
+          iconAnchor: [-4, 0],
+        }),
+      }).addTo(row._group);
+    });
+  }
+}
+
+function clearRowLayers(row) {
+  if (row._group) { row._group.remove(); row._group = null; }
+  row._curve = null; row._seats = [];
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — edit handles (start / end / ctrl)
+// ═══════════════════════════════════════════════════
+function hdIcon(color, shape) {
+  const s = 10;
+  const inner = shape === 'diamond'
+    ? `<div style="width:${s}px;height:${s}px;background:${color};border:2px solid #fff;border-radius:2px;transform:rotate(45deg)"></div>`
+    : `<div style="width:${s}px;height:${s}px;background:#fff;border:2.5px solid ${color};border-radius:50%"></div>`;
+  return L.divIcon({ html: inner, className: '', iconSize: [s, s], iconAnchor: [s/2, s/2] });
+}
+
+function showEditHandles(row) {
+  clearEditHandles();
+
+  const startM = L.marker([row.start.lat, row.start.lng],
+    { icon: hdIcon(row.color, 'circle'), draggable: true, zIndexOffset: 900 }).addTo(map);
+  const endM = L.marker([row.end.lat, row.end.lng],
+    { icon: hdIcon(row.color, 'circle'), draggable: true, zIndexOffset: 900 }).addTo(map);
+  const ctrlM = L.marker([row.ctrl.lat, row.ctrl.lng],
+    { icon: hdIcon('#f7a24f', 'diamond'), draggable: true, zIndexOffset: 900 }).addTo(map);
+  const midM = L.marker([(row.start.lat + row.end.lat) / 2, (row.start.lng + row.end.lng) / 2],
+    { icon: hdIcon('#ffffff', 'diamond'), draggable: true, zIndexOffset: 880 }).addTo(map);
+
+  const ctrlLine = L.polyline(
+    [[row.ctrl.lat, row.ctrl.lng], [row.ctrl.lat, row.ctrl.lng]],
+    { color: '#f7a24f', weight: 1.2, dashArray: '3 3', opacity: 0.7, interactive: false }
+  ).addTo(map);
+
+  function updateCtrlLine() {
+    const mLat = (row.start.lat + row.end.lat) / 2;
+    const mLng = (row.start.lng + row.end.lng) / 2;
+    ctrlLine.setLatLngs([[mLat, mLng], [row.ctrl.lat, row.ctrl.lng]]);
+    midM.setLatLng([mLat, mLng]);
+  }
+  updateCtrlLine();
+
+  function onDrag() {
+    row.start = { lat: startM.getLatLng().lat, lng: startM.getLatLng().lng };
+    row.end   = { lat: endM.getLatLng().lat,   lng: endM.getLatLng().lng   };
+    row.ctrl  = { lat: ctrlM.getLatLng().lat,  lng: ctrlM.getLatLng().lng  };
+    updateCtrlLine();
+    renderRow(row);
+    renderRowList();
+  }
+
+  let lastMid = midM.getLatLng();
+  function onMidDrag() {
+    const cur = midM.getLatLng();
+    const dLat = cur.lat - lastMid.lat;
+    const dLng = cur.lng - lastMid.lng;
+    row.start = { lat: row.start.lat + dLat, lng: row.start.lng + dLng };
+    row.end = { lat: row.end.lat + dLat, lng: row.end.lng + dLng };
+    row.ctrl = { lat: row.ctrl.lat + dLat, lng: row.ctrl.lng + dLng };
+    startM.setLatLng([row.start.lat, row.start.lng]);
+    endM.setLatLng([row.end.lat, row.end.lng]);
+    ctrlM.setLatLng([row.ctrl.lat, row.ctrl.lng]);
+    lastMid = cur;
+    updateCtrlLine();
+    renderRow(row);
+    renderRowList();
+  }
+  midM.on('dragstart', () => { lastMid = midM.getLatLng(); });
+  midM.on('drag', onMidDrag);
+
+  startM.on('drag', onDrag);
+  endM.on('drag', onDrag);
+  ctrlM.on('drag', onDrag);
+  startM.on('dragend', saveRows); endM.on('dragend', saveRows); ctrlM.on('dragend', saveRows); midM.on('dragend', saveRows);
+
+  editHandles = { startM, endM, ctrlM, midM, ctrlLine };
+}
+
+function clearEditHandles() {
+  Object.values(editHandles).forEach(l => { try { l.remove(); } catch {} });
+  editHandles = {};
+}
+
+
+function clearGroupHandles() {
+  Object.values(groupHandles).forEach(l => { try { l.remove(); } catch {} });
+  groupHandles = {};
+}
+
+function clearSplitUI() {
+  if (!splitState) return;
+  try { splitState.marker1?.remove(); } catch {}
+  try { splitState.knifeLine?.remove(); } catch {}
+  try { splitState.previewLine?.remove(); } catch {}
+  splitState = null;
+  $('map-wrap').classList.remove('picking');
+}
+
+function getRowsSnapshot() {
+  return rows.map(r => ({
+    id: r.id, name: r.name, color: r.color,
+    start: { ...r.start }, end: { ...r.end }, ctrl: { ...r.ctrl },
+    seatCount: r.seatCount, spacingM: r.spacingM, visible: r.visible !== false,
+    meta: r.meta ? JSON.parse(JSON.stringify(r.meta)) : null,
+  }));
+}
+
+function applyRowsData(rowsData, opts = {}) {
+  rows.forEach(r => clearRowLayers(r));
+  rows = (rowsData || []).map(r => ({
+    ...r,
+    ctrl: r.ctrl ?? { lat: (r.start.lat + r.end.lat) / 2, lng: (r.start.lng + r.end.lng) / 2 },
+    visible: r.visible !== false,
+    meta: r.meta || { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
+    _group: null, _curve: null, _seats: [],
+  }));
+  rows.forEach(r => { r.meta.invalid = r.meta.invalid || {}; });
+  rowIdCtr = Math.max(0, ...rows.map(r => r.id));
+  if (Array.isArray(opts.groups)) groups = opts.groups.map(g => ({
+    id: g.id, name: g.name, collapsed: !!g.collapsed, rowIds: Array.isArray(g.rowIds) ? [...g.rowIds] : [],
+  }));
+  if (typeof opts.groupIdCtr === 'number') groupIdCtr = opts.groupIdCtr;
+  if (opts.selectedRowIds) selectedRowIds = new Set(opts.selectedRowIds);
+  normalizeGroups();
+  rows.forEach(r => renderRow(r));
+  if (selectedRid && !rows.some(r => r.id === selectedRid)) selectedRid = null;
+  if (!rows.length) { selectedRid = null; clearEditHandles(); closeMetaEditor(); }
+  renderRowList();
+}
+
+function getHistorySnapshot() {
+  return {
+    rows: getRowsSnapshot(),
+    groups: groups.map(g => ({ id: g.id, name: g.name, collapsed: !!g.collapsed, rowIds: [...g.rowIds] })),
+    rowIdCtr,
+    groupIdCtr,
+    selectedRowIds: [...selectedRowIds],
+    selectedRid,
+    metaRid,
+    hierarchy: JSON.parse(JSON.stringify(hierarchy)),
+  };
+}
+
+function restoreHistorySnapshot(snap) {
+  if (!snap) return;
+  clearEditHandles();
+  clearGroupHandles();
+  clearSplitUI();
+  selectedRid = snap.selectedRid ?? null;
+  metaRid = snap.metaRid ?? null;
+  if (snap.hierarchy) {
+    hierarchy = {
+      levels: Math.max(1, Math.min(8, Number(snap.hierarchy.levels) || 2)),
+      names: Array.isArray(snap.hierarchy.names) ? snap.hierarchy.names : ['Section', 'Block'],
+      options: typeof snap.hierarchy.options === 'object' && snap.hierarchy.options ? snap.hierarchy.options : {},
+    };
+    $('hier-level-count').value = hierarchy.levels;
+    $('hier-level-names').value = hierarchy.names.join(',');
+    renderHierarchyOptionsEditor();
+    validateHierarchyForm();
+    saveHierarchy();
+  }
+  applyRowsData(snap.rows, {
+    groups: snap.groups,
+    groupIdCtr: snap.groupIdCtr,
+    selectedRowIds: snap.selectedRowIds,
+  });
+  rowIdCtr = snap.rowIdCtr ?? rowIdCtr;
+  if (selectedRid) {
+    const row = rows.find(r => r.id === selectedRid);
+    if (row) showEditHandles(row);
+  }
+  if (metaRid !== null) {
+    if (rows.some(r => r.id === metaRid)) openMetaEditor(metaRid);
+    else closeMetaEditor();
+  }
+}
+
+function pushHistory() {
+  undoStack.push(getHistorySnapshot());
+  if (undoStack.length > HISTORY_LIMIT) undoStack = undoStack.slice(-HISTORY_LIMIT);
+  redoStack = [];
+}
+
+function undoAction() {
+  if (!undoStack.length) { showToast('Nothing to undo'); return; }
+  redoStack.push(getHistorySnapshot());
+  const snap = undoStack.pop();
+  restoreHistorySnapshot(snap);
+  saveRows();
+}
+
+function redoAction() {
+  if (!redoStack.length) { showToast('Nothing to redo'); return; }
+  undoStack.push(getHistorySnapshot());
+  const snap = redoStack.pop();
+  restoreHistorySnapshot(snap);
+  saveRows();
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — selection
+// ═══════════════════════════════════════════════════
+function selectRow(id) {
+  clearSplitUI();
+  clearGroupHandles();
+  selectedRid = id;
+  rows.forEach(r => renderRow(r));
+  const row = rows.find(r => r.id === id);
+  if (row) {
+    showEditHandles(row);
+    showRowForm(row);
+    if ($('row-meta-form').style.display !== 'none') openMetaEditor(id);
+  }
+  renderRowList();
+  // Keep selected row visible in the rows tab/list (also when selected from map).
+  applyTab('rows');
+  saveUIState();
+  const rowEl = $('row-list').querySelector(`.ri[data-rid="${id}"]`);
+  if (rowEl) rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function deselectRow() {
+  clearSplitUI();
+  clearEditHandles();
+  clearGroupHandles();
+  selectedRid = null;
+  rows.forEach(r => renderRow(r));
+  hideRowForm();
+  renderRowList();
+}
+
+function getGroupByRowId(rowId) {
+  return groups.find(g => g.rowIds.includes(rowId)) || null;
+}
+
+function normalizeGroups() {
+  const valid = new Set(rows.map(r => r.id));
+  const seen = new Set();
+  groups = groups
+    .map(g => ({
+      ...g,
+      name: (g.name || `Group ${g.id}`).toString(),
+      collapsed: !!g.collapsed,
+      rowIds: (Array.isArray(g.rowIds) ? g.rowIds : []).filter(id => valid.has(id) && !seen.has(id) && (seen.add(id), true)),
+    }))
+    .filter(g => g.rowIds.length);
+  groupIdCtr = Math.max(groupIdCtr, ...groups.map(g => g.id), 0);
+}
+
+function getGroupCenter(group) {
+  const inGroup = rows.filter(r => group.rowIds.includes(r.id));
+  if (!inGroup.length) return null;
+  let sumLat = 0, sumLng = 0, n = 0;
+  inGroup.forEach(r => {
+    [r.start, r.end, r.ctrl].forEach(p => {
+      sumLat += p.lat;
+      sumLng += p.lng;
+      n++;
+    });
+  });
+  return n ? { lat: sumLat / n, lng: sumLng / n } : null;
+}
+
+function shiftRowBy(row, dLat, dLng) {
+  row.start = { lat: row.start.lat + dLat, lng: row.start.lng + dLng };
+  row.end = { lat: row.end.lat + dLat, lng: row.end.lng + dLng };
+  row.ctrl = { lat: row.ctrl.lat + dLat, lng: row.ctrl.lng + dLng };
+}
+
+function moveGroup(groupId) {
+  const group = groups.find(g => g.id === groupId);
+  if (!group) return;
+  clearEditHandles();
+  clearGroupHandles();
+  selectedRid = null;
+  const center = getGroupCenter(group);
+  if (!center) return;
+  const moveM = L.marker([center.lat, center.lng], {
+    icon: hdIcon('#7bdfff', 'diamond'),
+    draggable: true,
+    zIndexOffset: 980,
+  }).addTo(map);
+  let last = moveM.getLatLng();
+  moveM.on('dragstart', () => { last = moveM.getLatLng(); });
+  moveM.on('drag', () => {
+    const cur = moveM.getLatLng();
+    const dLat = cur.lat - last.lat;
+    const dLng = cur.lng - last.lng;
+    rows.forEach(r => {
+      if (group.rowIds.includes(r.id)) {
+        shiftRowBy(r, dLat, dLng);
+        renderRow(r);
+      }
+    });
+    last = cur;
+    renderRowList();
+  });
+  moveM.on('dragend', saveRows);
+  groupHandles = { moveM };
+}
+
+function normalizeDeltaDeg(d) {
+  let out = d;
+  while (out > 180) out -= 360;
+  while (out < -180) out += 360;
+  return out;
+}
+
+function rotateLLAroundCenter(latlng, centerLL, deltaDeg) {
+  const p = map.latLngToContainerPoint(L.latLng(latlng.lat, latlng.lng));
+  const c = map.latLngToContainerPoint(L.latLng(centerLL.lat, centerLL.lng));
+  const rad = deltaDeg * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  const dx = p.x - c.x, dy = p.y - c.y;
+  const rx = dx * cos - dy * sin;
+  const ry = dx * sin + dy * cos;
+  const out = map.containerPointToLatLng(L.point(c.x + rx, c.y + ry));
+  return { lat: out.lat, lng: out.lng };
+}
+
+function rotateGroup(groupId) {
+  const group = groups.find(g => g.id === groupId);
+  if (!group) return;
+  clearEditHandles();
+  clearGroupHandles();
+  selectedRid = null;
+  const center = getGroupCenter(group);
+  if (!center) return;
+
+  const cPt = map.latLngToContainerPoint(L.latLng(center.lat, center.lng));
+  const rPt = L.point(cPt.x, cPt.y - 70);
+  const rLL = map.containerPointToLatLng(rPt);
+
+  const centerM = L.marker([center.lat, center.lng], {
+    icon: hdIcon('#ffffff', 'circle'),
+    draggable: false,
+    zIndexOffset: 975,
+    interactive: false,
+  }).addTo(map);
+  const rotM = L.marker([rLL.lat, rLL.lng], {
+    icon: hdIcon('#f7a24f', 'diamond'),
+    draggable: true,
+    zIndexOffset: 980,
+  }).addTo(map);
+  const rotLine = L.polyline(
+    [[center.lat, center.lng], [rLL.lat, rLL.lng]],
+    { color: '#f7a24f', weight: 1.2, dashArray: '3 3', opacity: 0.8, interactive: false }
+  ).addTo(map);
+
+  let lastAngle = 0;
+  const calcAngle = (ll) => {
+    const p = map.latLngToContainerPoint(L.latLng(ll.lat, ll.lng));
+    const c = map.latLngToContainerPoint(L.latLng(center.lat, center.lng));
+    return Math.atan2(p.y - c.y, p.x - c.x) * 180 / Math.PI;
+  };
+
+  rotM.on('dragstart', () => { lastAngle = calcAngle(rotM.getLatLng()); });
+  rotM.on('drag', () => {
+    const curAngle = calcAngle(rotM.getLatLng());
+    const delta = normalizeDeltaDeg(curAngle - lastAngle);
+    if (Math.abs(delta) < 0.001) return;
+    rows.forEach(r => {
+      if (!group.rowIds.includes(r.id)) return;
+      r.start = rotateLLAroundCenter(r.start, center, delta);
+      r.end = rotateLLAroundCenter(r.end, center, delta);
+      r.ctrl = rotateLLAroundCenter(r.ctrl, center, delta);
+      renderRow(r);
+    });
+    rotLine.setLatLngs([[center.lat, center.lng], [rotM.getLatLng().lat, rotM.getLatLng().lng]]);
+    lastAngle = curAngle;
+    renderRowList();
+  });
+  rotM.on('dragend', saveRows);
+
+  groupHandles = { centerM, rotM, rotLine };
+}
+
+function moveRowBetweenGroups(rowId, targetGroupId) {
+  const row = rows.find(r => r.id === rowId);
+  const target = groups.find(g => g.id === targetGroupId);
+  if (!row || !target) return false;
+  const current = getGroupByRowId(rowId);
+  if (current && current.id === targetGroupId) return false;
+  pushHistory();
+  if (current) current.rowIds = current.rowIds.filter(id => id !== rowId);
+  target.rowIds.push(rowId);
+  normalizeGroups();
+  return true;
+}
+
+function buildMetaHierarchyFields(row) {
+  const wrap = $('row-meta-hierarchy');
+  const values = row.meta?.hierarchy || {};
+  const invalid = row.meta?.invalid || {};
+  const link = row.meta?.link || {};
+  const linkHierarchy = link.hierarchy || {};
+  const linkInvalid = link.invalid || {};
+  const linkBtn = (kind, key, on) => `<button class="btn-icon meta-link-btn ${on ? 'on' : ''}" title="Link to group" data-link-toggle="${kind}" data-link-key="${key}">🔗</button>`;
+  const dynNames = hierarchy.names.slice(0, hierarchy.levels).map((n, i) => n || `Level ${i + 1}`);
+  wrap.innerHTML = dynNames.map((name, idx) => `
+    <div class="meta-field">
+      <label>${escHtml(name)}</label>
+      <div class="meta-input-row">
+      ${Array.isArray(hierarchy.options?.[idx]) && hierarchy.options[idx].length ? `
+      <select class="ctrl-input ${linkHierarchy[idx] ? 'linked-field' : ''}" data-hier-key="${idx}" ${invalid[idx] ? 'disabled' : ''}>
+        <option value="">Select ${escHtml(name)}</option>
+        ${hierarchy.options[idx].map(opt => `<option value="${escHtml(opt)}" ${values[idx] === opt ? 'selected' : ''}>${escHtml(opt)}</option>`).join('')}
+      </select>` :
+      `<input type="text" class="ctrl-input ${linkHierarchy[idx] ? 'linked-field' : ''}" data-hier-key="${idx}" value="${escHtml(values[idx] || '')}" ${invalid[idx] ? 'disabled' : ''}>`}
+      ${linkBtn('hierarchy', idx, !!linkHierarchy[idx])}
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:10px;color:var(--text3)">
+        <input type="checkbox" data-hier-invalid="${idx}" ${invalid[idx] ? 'checked' : ''}>
+        Not valid for this row
+        ${linkBtn('invalid', idx, !!linkInvalid[idx])}
+      </label>
+    </div>
+  `).join('') + `
+    <div class="meta-field">
+      <label>Row</label>
+      <div class="meta-input-row">
+      <input type="text" class="ctrl-input ${link.rowValue ? 'linked-field' : ''}" data-row-field value="${escHtml(row.meta?.rowValue || '')}">
+      ${linkBtn('rowValue', '', !!link.rowValue)}
+      </div>
+    </div>
+  `;
+}
+
+function rowHasFullMeta(row) {
+  const values = row.meta?.hierarchy || {};
+  const invalid = row.meta?.invalid || {};
+  const rowVal = String(row.meta?.rowValue ?? '').trim();
+  if (!rowVal) return false;
+  for (let i = 0; i < hierarchy.levels; i++) {
+    if (invalid[i]) continue;
+    if (!String(values[i] || '').trim()) return false;
+  }
+  return true;
+}
+
+function renderHierarchyOptionsEditor() {
+  const el = $('hier-options-editor');
+  const names = hierarchy.names.slice(0, hierarchy.levels).map((n, i) => n || `Level ${i + 1}`);
+  el.innerHTML = names.map((name, idx) => `
+    <div class="ctrl">
+      <span class="ctrl-lbl">${escHtml(name)}</span>
+      <input type="text" class="ctrl-input" id="hier-opts-${idx}" placeholder="Option1, Option2" value="${escHtml((hierarchy.options?.[idx] || []).join(', '))}">
+    </div>
+  `).join('');
+}
+
+function validateHierarchyForm() {
+  const levels = Math.max(1, Math.min(8, parseInt($('hier-level-count').value) || 1));
+  const names = $('hier-level-names').value.split(',').map(s => s.trim()).filter(Boolean);
+  const ok = names.length === levels;
+  $('hier-level-names').classList.toggle('invalid-hierarchy', !ok);
+  return { ok, levels, names };
+}
+
+function openMetaEditor(id) {
+  const row = rows.find(r => r.id === id);
+  if (!row) return;
+  metaRid = id;
+  row.meta = row.meta || { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' };
+  row.meta.invalid = row.meta.invalid || {};
+  row.meta.link = row.meta.link || { rowValue: false, startNumber: false, direction: false, hierarchy: {}, invalid: {} };
+  row.meta.link.hierarchy = row.meta.link.hierarchy || {};
+  row.meta.link.invalid = row.meta.link.invalid || {};
+  $('meta-row-name').value = row.name || '';
+  buildMetaHierarchyFields(row);
+  $('meta-start-num').value = row.meta.startNumber ?? 1;
+  $('meta-direction').value = row.meta.direction || 'start_to_end';
+  $('meta-start-num')?.classList.toggle('linked-field', !!row.meta.link?.startNumber);
+  $('meta-direction')?.classList.toggle('linked-field', !!row.meta.link?.direction);
+  $('meta-link-start')?.classList.toggle('on', !!row.meta.link?.startNumber);
+  $('meta-link-direction')?.classList.toggle('on', !!row.meta.link?.direction);
+  $('row-meta-form').style.display = '';
+}
+
+function closeMetaEditor() {
+  metaRid = null;
+  $('row-meta-form').style.display = 'none';
+}
+
+function withMetaDefaults(r) {
+  r.meta = r.meta || { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end', link: {} };
+  r.meta.hierarchy = r.meta.hierarchy || {};
+  r.meta.invalid = r.meta.invalid || {};
+  r.meta.link = r.meta.link || {};
+  r.meta.link.hierarchy = r.meta.link.hierarchy || {};
+  r.meta.link.invalid = r.meta.link.invalid || {};
+  r.meta.link.rowValue = !!r.meta.link.rowValue;
+  r.meta.link.startNumber = !!r.meta.link.startNumber;
+  r.meta.link.direction = !!r.meta.link.direction;
+  return r;
+}
+
+function getMetaGroupRows(row) {
+  const g = getGroupByRowId(row.id);
+  if (!g) return [row];
+  return g.rowIds.map(id => rows.find(x => x.id === id)).filter(Boolean);
+}
+
+function syncLinkedMetaAcrossGroup(sourceRow) {
+  withMetaDefaults(sourceRow);
+  const peers = getMetaGroupRows(sourceRow).map(withMetaDefaults);
+  peers.forEach(r => {
+    if (r.id === sourceRow.id) return;
+    if (sourceRow.meta.link.rowValue) r.meta.rowValue = sourceRow.meta.rowValue;
+    if (sourceRow.meta.link.startNumber) r.meta.startNumber = sourceRow.meta.startNumber;
+    if (sourceRow.meta.link.direction) r.meta.direction = sourceRow.meta.direction;
+    for (let i = 0; i < hierarchy.levels; i++) {
+      if (sourceRow.meta.link.hierarchy?.[i]) r.meta.hierarchy[i] = sourceRow.meta.hierarchy[i] || '';
+      if (sourceRow.meta.link.invalid?.[i]) r.meta.invalid[i] = !!sourceRow.meta.invalid[i];
+    }
+    renderRow(r);
+  });
+}
+
+function setGroupLinkState(row, kind, key, on) {
+  const peers = getMetaGroupRows(row).map(withMetaDefaults);
+  peers.forEach(r => {
+    if (kind === 'rowValue') r.meta.link.rowValue = on;
+    else if (kind === 'startNumber') r.meta.link.startNumber = on;
+    else if (kind === 'direction') r.meta.link.direction = on;
+    else if (kind === 'hierarchy') r.meta.link.hierarchy[key] = on;
+    else if (kind === 'invalid') r.meta.link.invalid[key] = on;
+  });
+}
+
+function toggleMetaLink(kind, key) {
+  const row = rows.find(r => r.id === metaRid);
+  if (!row) return;
+  withMetaDefaults(row);
+  const k = key !== '' ? Number(key) : key;
+  let curr = false;
+  if (kind === 'rowValue') curr = !!row.meta.link.rowValue;
+  else if (kind === 'startNumber') curr = !!row.meta.link.startNumber;
+  else if (kind === 'direction') curr = !!row.meta.link.direction;
+  else if (kind === 'hierarchy') curr = !!row.meta.link.hierarchy[k];
+  else if (kind === 'invalid') curr = !!row.meta.link.invalid[k];
+  pushHistory();
+  const next = !curr;
+  setGroupLinkState(row, kind, k, next);
+  if (next) syncLinkedMetaAcrossGroup(row);
+  renderRowList();
+  saveRows();
+  openMetaEditor(row.id);
+}
+
+function applyMetaFromUI() {
+  const row = rows.find(r => r.id === metaRid);
+  if (!row) return;
+  withMetaDefaults(row);
+  const hValues = {};
+  const hInvalid = {};
+  const rowField = $('row-meta-hierarchy').querySelector('[data-row-field]');
+  $('row-meta-hierarchy').querySelectorAll('[data-hier-key]').forEach(inp => {
+    hValues[inp.dataset.hierKey] = inp.value.trim();
+  });
+  $('row-meta-hierarchy').querySelectorAll('[data-hier-invalid]').forEach(inp => {
+    hInvalid[inp.dataset.hierInvalid] = !!inp.checked;
+  });
+  row.name = ($('meta-row-name').value || '').trim() || row.name;
+  row.meta.hierarchy = hValues;
+  row.meta.invalid = hInvalid;
+  row.meta.rowValue = rowField ? rowField.value.trim() : (row.meta?.rowValue || '');
+  row.meta.startNumber = parseInt($('meta-start-num').value) || 1;
+  row.meta.direction = $('meta-direction').value || 'start_to_end';
+  syncLinkedMetaAcrossGroup(row);
+  renderRow(row);
+  renderRowList();
+  saveRows();
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — draw state machine
+// ═══════════════════════════════════════════════════
+function setDrawSt(st) {
+  if (st) clearSplitUI();
+  drawSt = st;
+  $('row-add-ui').style.display  = st === null ? '' : 'none';
+  $('draw-status').style.display = (st === 'start' || st === 'end') ? '' : 'none';
+  $('row-form').style.display    = st === 'form' ? '' : 'none';
+
+  if (st === 'start') {
+    $('draw-hint').textContent = '1/2 — Click the start point on map';
+    $('map-wrap').classList.add('picking');
+  } else if (st === 'end') {
+    $('draw-hint').textContent = '2/2 — Click the end point on map';
+  } else {
+    $('map-wrap').classList.remove('picking');
+  }
+  if (st === null) clearDrawTmp();
+}
+
+function clearDrawTmp() {
+  drawTmp.forEach(l => { try { l.remove(); } catch {} });
+  drawTmp = [];
+}
+
+// Returns true if the click was consumed by draw mode
+function handleDrawClick(e) {
+  if (drawSt === 'start') {
+    drawPts.start = e.latlng;
+    drawTmp.push(L.circleMarker([e.latlng.lat, e.latlng.lng], {
+      radius: 5, color: '#4f8ef7', fillColor: '#fff', fillOpacity: 1,
+      weight: 2, interactive: false,
+    }).addTo(map));
+    setDrawSt('end');
+    return true;
+  }
+  if (drawSt === 'end') {
+    drawPts.end = e.latlng;
+    drawTmp.push(L.circleMarker([e.latlng.lat, e.latlng.lng], {
+      radius: 5, color: '#4f8ef7', fillColor: '#fff', fillOpacity: 1,
+      weight: 2, interactive: false,
+    }).addTo(map));
+    // Pre-fill name
+    const letter = String.fromCharCode(65 + (rows.length % 26));
+    $('row-name').value = `Row ${letter}`;
+    $('btn-create-row').textContent = 'Create Row';
+    editRid = null;
+    setDrawSt('form');
+    return true;
+  }
+  return false;
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — form (create / edit)
+// ═══════════════════════════════════════════════════
+function showRowForm(row) {
+  if (row) {
+    $('row-name').value = row.name;
+    const useSpacing = !!row.spacingM;
+    document.querySelector(`input[name="row-mode"][value="${useSpacing ? 'spacing' : 'count'}"]`).checked = true;
+    $('row-count-ctrl').style.display   = useSpacing ? 'none' : '';
+    $('row-spacing-ctrl').style.display = useSpacing ? ''     : 'none';
+    if (useSpacing) $('row-spacing').value = row.spacingM;
+    else            $('row-seats').value   = row.seatCount || 10;
+    $('btn-create-row').textContent = 'Update';
+    editRid = row.id;
+  }
+  $('row-form').style.display    = '';
+  $('row-add-ui').style.display  = 'none';
+  $('draw-status').style.display = 'none';
+}
+
+function hideRowForm() {
+  if (drawSt === 'form') { setDrawSt(null); return; }
+  $('row-form').style.display   = 'none';
+  $('row-add-ui').style.display = '';
+  $('btn-create-row').textContent = 'Create Row';
+  editRid = null;
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — CRUD
+// ═══════════════════════════════════════════════════
+function createOrUpdateRow() {
+  pushHistory();
+  const name      = $('row-name').value.trim() || `Row ${rows.length + 1}`;
+  const mode      = document.querySelector('input[name="row-mode"]:checked').value;
+  const seatCount = mode === 'count'   ? Math.max(2, parseInt($('row-seats').value)   || 10)  : null;
+  const spacingM  = mode === 'spacing' ? Math.max(0.1, parseFloat($('row-spacing').value) || 1) : null;
+
+  if (editRid !== null) {
+    const row = rows.find(r => r.id === editRid);
+    if (row) { row.name = name; row.seatCount = seatCount; row.spacingM = spacingM; renderRow(row); }
+    hideRowForm();
+    if (row) showEditHandles(row);
+    selectedRid = editRid;
+    editRid = null;
+  } else {
+    if (!drawPts.start || !drawPts.end) return;
+    const rlat = (drawPts.start.lat + drawPts.end.lat) / 2;
+    const rlng = (drawPts.start.lng + drawPts.end.lng) / 2;
+    const row = {
+      id: ++rowIdCtr, name, seatCount, spacingM,
+      color: ROW_COLORS[rows.length % ROW_COLORS.length],
+      start: { lat: drawPts.start.lat, lng: drawPts.start.lng },
+      end:   { lat: drawPts.end.lat,   lng: drawPts.end.lng   },
+      ctrl:  { lat: rlat,              lng: rlng               },
+      meta: { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
+      _group: null, _curve: null, _seats: [],
+    };
+    rows.push(row);
+    clearDrawTmp();
+    setDrawSt(null);
+    renderRow(row);
+    selectRow(row.id);
+  }
+  renderRowList();
+  saveRows();
+}
+
+function deleteRow(id) {
+  const row = rows.find(r => r.id === id);
+  if (!row) return;
+  if (!confirm(`Do you really want to delete "${row.name}"?`)) return;
+  pushHistory();
+  clearRowLayers(row);
+  rows = rows.filter(r => r.id !== id);
+  selectedRowIds.delete(id);
+  normalizeGroups();
+  if (selectedRid === id) { selectedRid = null; clearEditHandles(); hideRowForm(); }
+  renderRowList();
+  saveRows();
+}
+
+function duplicateRow(id) {
+  const src = rows.find(r => r.id === id);
+  if (!src) return;
+  pushHistory();
+  const off = 0.00008;
+  const row = {
+    id: ++rowIdCtr, name: bumpPlusOneText(src.name),
+    seatCount: src.seatCount, spacingM: src.spacingM,
+    color: ROW_COLORS[rows.length % ROW_COLORS.length],
+    start: { lat: src.start.lat + off, lng: src.start.lng + off },
+    end:   { lat: src.end.lat   + off, lng: src.end.lng   + off },
+    ctrl:  { lat: src.ctrl.lat  + off, lng: src.ctrl.lng  + off },
+    visible: src.visible !== false,
+    meta: src.meta ? JSON.parse(JSON.stringify(src.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
+    _group: null, _curve: null, _seats: [],
+  };
+  if (row.meta) {
+    row.meta.rowValue = bumpPlusOneText(row.meta.rowValue || src.name || '');
+  }
+  rows.push(row);
+  const group = getGroupByRowId(src.id);
+  if (group) {
+    const idx = group.rowIds.indexOf(src.id);
+    if (idx >= 0) group.rowIds.splice(idx + 1, 0, row.id);
+    else group.rowIds.push(row.id);
+  }
+  renderRow(row);
+  selectRow(row.id);
+  openMetaEditor(row.id);
+  renderRowList();
+  saveRows();
+}
+
+function groupSelectedRows() {
+  const ids = [...selectedRowIds].filter(id => rows.some(r => r.id === id));
+  if (ids.length < 2) {
+    showToast('Select at least 2 rows to group');
+    return;
+  }
+  pushHistory();
+  ids.forEach(id => {
+    const g = getGroupByRowId(id);
+    if (g) g.rowIds = g.rowIds.filter(x => x !== id);
+  });
+  groups = groups.filter(g => g.rowIds.length);
+  const gid = ++groupIdCtr;
+  groups.push({ id: gid, name: `Group ${gid}`, collapsed: false, rowIds: ids });
+  normalizeGroups();
+  renderRowList();
+  saveRows();
+}
+
+function duplicateGroup(id) {
+  const group = groups.find(g => g.id === id);
+  if (!group) return;
+  pushHistory();
+  const off = 0.00008;
+  const newIds = [];
+  group.rowIds.forEach(rid => {
+    const src = rows.find(r => r.id === rid);
+    if (!src) return;
+    const m = String(src.name || '').match(/^(.*?)(\d+)\s*$/);
+    const name = m ? `${m[1]}${parseInt(m[2], 10) + 1}` : `${src.name} 1`;
+    const row = {
+      id: ++rowIdCtr, name,
+      seatCount: src.seatCount, spacingM: src.spacingM,
+      color: ROW_COLORS[rows.length % ROW_COLORS.length],
+      start: { lat: src.start.lat + off, lng: src.start.lng + off },
+      end:   { lat: src.end.lat   + off, lng: src.end.lng   + off },
+      ctrl:  { lat: src.ctrl.lat  + off, lng: src.ctrl.lng  + off },
+      visible: src.visible !== false,
+      meta: src.meta ? JSON.parse(JSON.stringify(src.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
+      _group: null, _curve: null, _seats: [],
+    };
+    rows.push(row);
+    renderRow(row);
+    newIds.push(row.id);
+  });
+  const gid = ++groupIdCtr;
+  groups.push({ id: gid, name: `${group.name} copy`, collapsed: false, rowIds: newIds });
+  normalizeGroups();
+  renderRowList();
+  saveRows();
+}
+
+function deleteGroup(id) {
+  const group = groups.find(g => g.id === id);
+  if (!group) return;
+  if (!confirm(`Do you really want to delete group "${group.name}" and all its rows?`)) return;
+  pushHistory();
+  group.rowIds.forEach(rid => {
+    const row = rows.find(r => r.id === rid);
+    if (row) clearRowLayers(row);
+    selectedRowIds.delete(rid);
+    if (selectedRid === rid) selectedRid = null;
+  });
+  rows = rows.filter(r => !group.rowIds.includes(r.id));
+  groups = groups.filter(g => g.id !== id);
+  clearEditHandles();
+  clearGroupHandles();
+  hideRowForm();
+  renderRowList();
+  saveRows();
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — list render
+// ═══════════════════════════════════════════════════
+function renderRowList() {
+  const list = $('row-list');
+  normalizeGroups();
+  if (!rows.length) {
+    list.innerHTML = '<div class="row-empty">No rows yet. Click "Add Row".</div>';
+    return;
+  }
+  const groupedIds = new Set(groups.flatMap(g => g.rowIds));
+  const renderRowItem = (r) => {
+    const n   = r._seats?.length || '—';
+    const sel = selectedRid === r.id ? ' selected' : '';
+    const doneCls = rowHasFullMeta(r) ? ' complete' : '';
+    const visIcon = r.visible === false ? '🙈' : '👁';
+    const visTitle = r.visible === false ? 'Show row' : 'Hide row';
+    return `<div class="ri${sel}" data-rid="${r.id}" draggable="true">
+      <input type="checkbox" class="ri-select" data-multi="${r.id}" ${selectedRowIds.has(r.id) ? 'checked' : ''} title="Select for grouping">
+      <span class="ri-dot" style="background:${r.color}"></span>
+      <span class="ri-name${doneCls}">${escHtml(r.name)}</span>
+      <span class="ri-cnt">${n}</span>
+      <div class="ri-btns" onclick="event.stopPropagation()">
+        <button class="btn-icon" title="${visTitle}" data-vis="${r.id}">${visIcon}</button>
+        <button class="btn-icon" title="Rename"    data-rename="${r.id}">✎</button>
+        <button class="btn-icon" title="Edit shape" data-edit="${r.id}">✏</button>
+        <button class="btn-icon" title="Meta data" data-meta="${r.id}">⚙</button>
+        <button class="btn-icon" title="Split row" data-split="${r.id}">✂</button>
+        <button class="btn-icon" title="Duplicate" data-dup="${r.id}">⧉</button>
+        <button class="btn-icon" title="Copy seats as JSON" data-exp="${r.id}">↓</button>
+        <button class="btn-icon" title="Delete"    data-del="${r.id}" style="color:var(--danger)">✕</button>
+      </div>
+    </div>`;
+  };
+
+  const ungroupedHtml = rows.filter(r => !groupedIds.has(r.id)).map(renderRowItem).join('');
+  const groupedHtml = groups.map(g => {
+    const gRows = g.rowIds.map(id => rows.find(r => r.id === id)).filter(Boolean);
+    const cnt = gRows.reduce((a, r) => a + (r._seats?.length || 0), 0);
+    const rowsHtml = g.collapsed ? '' : `<div class="ri-group-rows">${gRows.map(renderRowItem).join('')}</div>`;
+    return `<div class="ri-group" data-gid="${g.id}">
+      <div class="ri-group-h ${g.collapsed ? 'collapsed' : ''}">
+        <button class="btn-icon" title="${g.collapsed ? 'Expand' : 'Collapse'}" data-g-toggle="${g.id}">${g.collapsed ? '▸' : '▾'}</button>
+        <span class="ri-group-name">${escHtml(g.name)}</span>
+        <span class="ri-group-cnt">${cnt}</span>
+        <div class="ri-btns" onclick="event.stopPropagation()">
+          <button class="btn-icon" title="Rename group" data-g-rename="${g.id}">✎</button>
+          <button class="btn-icon" title="Move group" data-g-move="${g.id}">⇄</button>
+          <button class="btn-icon" title="Rotate group" data-g-rot="${g.id}">↻</button>
+          <button class="btn-icon" title="Knife split group" data-g-split="${g.id}">✂</button>
+          <button class="btn-icon" title="Duplicate group" data-g-dup="${g.id}">⧉</button>
+          <button class="btn-icon" title="Delete group" data-g-del="${g.id}" style="color:var(--danger)">✕</button>
+        </div>
+      </div>
+      ${rowsHtml}
+    </div>`;
+  }).join('');
+  list.innerHTML = `${ungroupedHtml}${groupedHtml}`;
+
+  list.querySelectorAll('.ri').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = +el.dataset.rid;
+      if (selectedRid === id) deselectRow(); else selectRow(id);
+    });
+    el.addEventListener('dblclick', () => {
+      const id = +el.dataset.rid;
+      if (selectedRid !== id) selectRow(id);
+      openMetaEditor(id);
+    });
+    el.addEventListener('dragstart', e => {
+      dragRowId = +el.dataset.rid;
+      el.classList.add('dragging');
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(dragRowId));
+      }
+    });
+    el.addEventListener('dragend', () => {
+      dragRowId = null;
+      el.classList.remove('dragging');
+      list.querySelectorAll('.ri-group.drop-target').forEach(g => g.classList.remove('drop-target'));
+    });
+  });
+  list.querySelectorAll('[data-multi]').forEach(chk => {
+    chk.addEventListener('click', e => e.stopPropagation());
+    chk.addEventListener('dblclick', e => e.stopPropagation());
+    chk.addEventListener('change', e => {
+    const id = +chk.dataset.multi;
+    if (e.target.checked) selectedRowIds.add(id);
+    else selectedRowIds.delete(id);
+    saveRows();
+    });
+  });
+  list.querySelectorAll('[data-rename]').forEach(b => b.addEventListener('click', () => {
+    const row = rows.find(r => r.id === +b.dataset.rename);
+    if (!row) return;
+    const val = prompt('Rename row', row.name);
+    if (!val) return;
+    pushHistory();
+    row.name = val.trim() || row.name;
+    renderRowList();
+    saveRows();
+  }));
+  list.querySelectorAll('[data-vis]').forEach(b => b.addEventListener('click', () => {
+    const row = rows.find(r => r.id === +b.dataset.vis);
+    if (!row) return;
+    pushHistory();
+    row.visible = row.visible === false ? true : false;
+    renderRow(row);
+    renderRowList();
+    saveRows();
+  }));
+  list.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => selectRow(+b.dataset.edit)));
+  list.querySelectorAll('[data-meta]').forEach(b => b.addEventListener('click', () => {
+    const id = +b.dataset.meta;
+    selectRow(id);
+    openMetaEditor(id);
+  }));
+  list.querySelectorAll('[data-split]').forEach(b => b.addEventListener('click', () => beginSplitRow(+b.dataset.split)));
+  list.querySelectorAll('[data-dup]').forEach(b  => b.addEventListener('click', () => duplicateRow(+b.dataset.dup)));
+  list.querySelectorAll('[data-del]').forEach(b  => b.addEventListener('click', () => deleteRow(+b.dataset.del)));
+  list.querySelectorAll('[data-g-toggle]').forEach(b => b.addEventListener('click', () => {
+    const g = groups.find(x => x.id === +b.dataset.gToggle);
+    if (!g) return;
+    g.collapsed = !g.collapsed;
+    renderRowList();
+    saveRows();
+  }));
+  list.querySelectorAll('[data-g-rename]').forEach(b => b.addEventListener('click', () => {
+    const g = groups.find(x => x.id === +b.dataset.gRename);
+    if (!g) return;
+    const val = prompt('Rename group', g.name);
+    if (!val) return;
+    pushHistory();
+    g.name = val.trim() || g.name;
+    renderRowList();
+    saveRows();
+  }));
+  list.querySelectorAll('[data-g-move]').forEach(b => b.addEventListener('click', () => moveGroup(+b.dataset.gMove)));
+  list.querySelectorAll('[data-g-rot]').forEach(b => b.addEventListener('click', () => rotateGroup(+b.dataset.gRot)));
+  list.querySelectorAll('[data-g-split]').forEach(b => b.addEventListener('click', () => beginSplitGroup(+b.dataset.gSplit)));
+  list.querySelectorAll('[data-g-dup]').forEach(b => b.addEventListener('click', () => duplicateGroup(+b.dataset.gDup)));
+  list.querySelectorAll('[data-g-del]').forEach(b => b.addEventListener('click', () => deleteGroup(+b.dataset.gDel)));
+  list.querySelectorAll('.ri-group').forEach(gEl => {
+    gEl.addEventListener('dragover', e => {
+      if (dragRowId === null) return;
+      e.preventDefault();
+      gEl.classList.add('drop-target');
+    });
+    gEl.addEventListener('dragleave', e => {
+      if (!gEl.contains(e.relatedTarget)) gEl.classList.remove('drop-target');
+    });
+    gEl.addEventListener('drop', e => {
+      if (dragRowId === null) return;
+      e.preventDefault();
+      const gid = +gEl.dataset.gid;
+      gEl.classList.remove('drop-target');
+      if (moveRowBetweenGroups(dragRowId, gid)) {
+        renderRowList();
+        saveRows();
+        const group = groups.find(x => x.id === gid);
+        if (group) showToast(`Moved row to "${group.name}"`);
+      }
+    });
+  });
+  list.querySelectorAll('[data-exp]').forEach(b  => b.addEventListener('click', () => {
+    const row = rows.find(r => r.id === +b.dataset.exp);
+    if (!row?._seats?.length) return;
+    navigator.clipboard.writeText(
+      JSON.stringify(row._seats.map(s => ({ lat: +s.lat.toFixed(6), lng: +s.lng.toFixed(6) })), null, 2)
+    );
+    showToast(`${row._seats.length} seats from "${row.name}" copied as JSON`);
+  }));
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — persist
+// ═══════════════════════════════════════════════════
+function saveRows() {
+  try {
+    localStorage.setItem(ROWS_KEY, JSON.stringify({
+      rows: rows.map(r => ({ id: r.id, name: r.name, color: r.color,
+        start: r.start, end: r.end, ctrl: r.ctrl,
+        seatCount: r.seatCount, spacingM: r.spacingM, visible: r.visible !== false, meta: r.meta || null })),
+      groups,
+      groupIdCtr,
+      selectedRowIds: [...selectedRowIds],
+    }));
+  } catch { /* ignore */ }
+}
+
+function loadRows() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(ROWS_KEY) || 'null'); } catch { return; }
+  const rowsData = Array.isArray(data) ? data : data?.rows;
+  if (!rowsData) return;
+  applyRowsData(rowsData, {
+    groups: Array.isArray(data?.groups) ? data.groups : [],
+    groupIdCtr: Number(data?.groupIdCtr) || 0,
+    selectedRowIds: Array.isArray(data?.selectedRowIds) ? data.selectedRowIds : [],
+  });
+}
+
+function saveHierarchy() {
+  try { localStorage.setItem(HIER_KEY, JSON.stringify(hierarchy)); } catch {}
+}
+
+function loadHierarchy() {
+  try {
+    const h = JSON.parse(localStorage.getItem(HIER_KEY) || 'null');
+    if (!h) return;
+    hierarchy.levels = Math.max(1, Math.min(8, Number(h.levels) || 2));
+    hierarchy.names = Array.isArray(h.names) ? h.names : hierarchy.names;
+    hierarchy.options = typeof h.options === 'object' && h.options ? h.options : {};
+  } catch {}
+  $('hier-level-count').value = hierarchy.levels;
+  $('hier-level-names').value = hierarchy.names.join(',');
+  renderHierarchyOptionsEditor();
+  validateHierarchyForm();
+}
+
+function getVenueSnapshot() {
+  const c = map.getCenter();
+  return {
+    map: {
+      lat: c.lat,
+      lng: c.lng,
+      zoom: map.getZoom(),
+      bearing: map.getBearing ? map.getBearing() : 0,
+      opacity: Number($('map-opacity').value || 100),
+    },
+    overlay: {
+      src: ov.src,
+      ar,
+      x: ov.x, y: ov.y, w: ov.w, h: ov.h,
+      rot: ov.rot, opacity: ov.opacity,
+      locked: ov.locked,
+      geo: ov.geo,
+    },
+    hierarchy: JSON.parse(JSON.stringify(hierarchy)),
+    rowsState: {
+      rows: getRowsSnapshot(),
+      groups: groups.map(g => ({ id: g.id, name: g.name, collapsed: !!g.collapsed, rowIds: [...g.rowIds] })),
+      rowIdCtr,
+      groupIdCtr,
+      selectedRowIds: [...selectedRowIds],
+    },
+  };
+}
+
+function downloadJsonFile(name, text) {
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function applyVenueSnapshot(data) {
+  if (!data || typeof data !== 'object') return false;
+  if (data.map) {
+    map.setView([Number(data.map.lat) || 0, Number(data.map.lng) || 0], Number(data.map.zoom) || map.getZoom());
+    if (map.setBearing) map.setBearing(Number(data.map.bearing) || 0);
+    $('map-opacity').value = Math.max(0, Math.min(100, Number(data.map.opacity) || 100));
+    $('map-opacity').dispatchEvent(new Event('input'));
+  }
+  if (data.overlay && data.overlay.src) {
+    try { ov.el?.remove(); } catch {}
+    ov = {
+      el: null,
+      imgEl: null,
+      src: data.overlay.src || null,
+      x: Number(data.overlay.x) || 0,
+      y: Number(data.overlay.y) || 0,
+      w: Number(data.overlay.w) || 0,
+      h: Number(data.overlay.h) || 0,
+      rot: Number(data.overlay.rot) || 0,
+      opacity: data.overlay.opacity != null ? Number(data.overlay.opacity) : 0.7,
+      locked: !!data.overlay.locked,
+      geo: data.overlay.geo || null,
+    };
+    ar = Number(data.overlay.ar) || (ov.w && ov.h ? ov.w / ov.h : 4 / 3);
+    buildOverlay();
+    $('upload-zone').style.display = 'none';
+    $('img-ctrls').style.display = 'block';
+    if (ov.locked) lockOverlay();
+    else unlockOverlay();
+    syncGeo();
+    saveOv();
+  }
+  if (data.hierarchy) {
+    hierarchy.levels = Math.max(1, Math.min(8, Number(data.hierarchy.levels) || hierarchy.levels));
+    hierarchy.names = Array.isArray(data.hierarchy.names) ? data.hierarchy.names : hierarchy.names;
+    hierarchy.options = typeof data.hierarchy.options === 'object' && data.hierarchy.options ? data.hierarchy.options : {};
+    $('hier-level-count').value = hierarchy.levels;
+    $('hier-level-names').value = hierarchy.names.join(',');
+    renderHierarchyOptionsEditor();
+    validateHierarchyForm();
+    saveHierarchy();
+  }
+  const rs = data.rowsState || {};
+  applyRowsData(Array.isArray(rs.rows) ? rs.rows : [], {
+    groups: Array.isArray(rs.groups) ? rs.groups : [],
+    groupIdCtr: Number(rs.groupIdCtr) || 0,
+    selectedRowIds: Array.isArray(rs.selectedRowIds) ? rs.selectedRowIds : [],
+  });
+  rowIdCtr = Number(rs.rowIdCtr) || rowIdCtr;
+  saveRows();
+  saveMapView();
+  return true;
+}
+
+// ═══════════════════════════════════════════════════
+//  ROWS — button events
+// ═══════════════════════════════════════════════════
+$('btn-add-row').onclick = () => { deselectRow(); setDrawSt('start'); };
+
+$('btn-cancel-draw').onclick  = () => setDrawSt(null);
+$('btn-cancel-draw2').onclick = () => { clearDrawTmp(); setDrawSt(null); hideRowForm(); };
+$('btn-create-row').onclick   = createOrUpdateRow;
+
+document.querySelectorAll('input[name="row-mode"]').forEach(r => {
+  r.addEventListener('change', e => {
+    $('row-count-ctrl').style.display   = e.target.value === 'count'   ? '' : 'none';
+    $('row-spacing-ctrl').style.display = e.target.value === 'spacing' ? '' : 'none';
+  });
+});
+
+$('btn-close-meta').onclick = closeMetaEditor;
+$('meta-row-name').addEventListener('input', applyMetaFromUI);
+$('meta-start-num').addEventListener('input', applyMetaFromUI);
+$('meta-direction').addEventListener('change', applyMetaFromUI);
+$('row-meta-hierarchy').addEventListener('input', e => {
+  if (!e.target) return;
+  if (e.target.matches('[data-hier-key]')) applyMetaFromUI();
+  if (e.target.matches('[data-row-field]')) applyMetaFromUI();
+});
+$('row-meta-hierarchy').addEventListener('change', e => {
+  if (e.target && e.target.matches('[data-hier-invalid]')) {
+    applyMetaFromUI();
+    if (metaRid !== null) openMetaEditor(metaRid);
+  }
+});
+$('row-meta-hierarchy').addEventListener('click', e => {
+  const b = e.target.closest('[data-link-toggle]');
+  if (!b) return;
+  e.preventDefault();
+  toggleMetaLink(b.dataset.linkToggle, b.dataset.linkKey ?? '');
+});
+$('meta-link-start').addEventListener('click', () => toggleMetaLink('startNumber', ''));
+$('meta-link-direction').addEventListener('click', () => toggleMetaLink('direction', ''));
+$('btn-toggle-hierarchy').onclick = () => {
+  hierarchyCollapsed = !hierarchyCollapsed;
+  applyHierarchyCollapseUI();
+  saveUIState();
+};
+
+$('btn-save-hierarchy').onclick = () => {
+  const { ok, levels, names } = validateHierarchyForm();
+  if (!ok) {
+    showToast('Level Names count must match Levels');
+    return;
+  }
+  pushHistory();
+  hierarchy.levels = levels;
+  hierarchy.names = names.length ? names : ['Section', 'Block'];
+  const nextOptions = {};
+  for (let i = 0; i < hierarchy.levels; i++) {
+    const raw = $(`hier-opts-${i}`)?.value || '';
+    const opts = raw.split(',').map(s => s.trim()).filter(Boolean);
+    if (opts.length) nextOptions[i] = opts;
+  }
+  hierarchy.options = nextOptions;
+  $('hier-level-count').value = hierarchy.levels;
+  $('hier-level-names').value = hierarchy.names.join(',');
+  renderHierarchyOptionsEditor();
+  saveHierarchy();
+  if (metaRid !== null) openMetaEditor(metaRid);
+  renderRowList();
+  showToast('Hierarchy saved');
+};
+
+$('hier-level-count').addEventListener('input', () => {
+  const levels = Math.max(1, Math.min(8, parseInt($('hier-level-count').value) || 1));
+  hierarchy.levels = levels;
+  renderHierarchyOptionsEditor();
+  validateHierarchyForm();
+});
+$('hier-level-names').addEventListener('input', validateHierarchyForm);
+
+$('btn-sort-rows-name').onclick = () => {
+  pushHistory();
+  const byName = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base', numeric: true });
+  rows.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base', numeric: true }));
+  groups.forEach(g => {
+    g.rowIds.sort((aId, bId) => {
+      const a = rows.find(r => r.id === aId);
+      const b = rows.find(r => r.id === bId);
+      if (!a && !b) return 0;
+      if (!a) return 1;
+      if (!b) return -1;
+      return byName(a, b);
+    });
+  });
+  renderRowList();
+  saveRows();
+};
+$('btn-group-selected').onclick = groupSelectedRows;
+$('btn-clear-row-selection').onclick = () => {
+  pushHistory();
+  selectedRowIds.clear();
+  renderRowList();
+  saveRows();
+};
+$('btn-undo').onclick = undoAction;
+$('btn-redo').onclick = redoAction;
+const saveVenueHandler = () => {
+  const text = JSON.stringify(getVenueSnapshot(), null, 2);
+  downloadJsonFile('venue-settings.json', text);
+  showToast('Venue settings saved');
+};
+const loadVenueHandler = () => $('venue-file-input').click();
+$('btn-save-venue-top').onclick = saveVenueHandler;
+$('btn-load-venue-top').onclick = loadVenueHandler;
+$('venue-file-input').addEventListener('change', async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    pushHistory();
+    if (applyVenueSnapshot(data)) showToast('Venue settings restored');
+    else showToast('Invalid venue settings file');
+  } catch {
+    showToast('Failed to load venue settings file');
+  } finally {
+    e.target.value = '';
+  }
+});
+
+$('btn-export-rows-json').onclick = () => {
+  const incomplete = rows.filter(r => !rowHasFullMeta(r));
+  if (incomplete.length) {
+    const names = incomplete.map(r => r.name || `Row ${r.id}`);
+    const preview = names.slice(0, 4).join(', ');
+    const more = names.length > 4 ? ` +${names.length - 4} more` : '';
+    showToast(`Cannot export. Incomplete rows: ${preview}${more}`);
+    return;
+  }
+  const toMaybeNumber = (v) => {
+    const s = String(v ?? '').trim();
+    if (!s) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : s;
+  };
+  const toNumberOnly = (v) => {
+    const s = String(v ?? '').trim();
+    if (!s) return null;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : null;
+  };
+  const normName = (s) => String(s || '').toLowerCase().replace(/[\s_\-]/g, '').trim();
+  const levelNames = hierarchy.names.slice(0, hierarchy.levels).map(normName);
+  const pickHierarchyValueByAliases = (metaHierarchy, aliases, fallbackIdx = null) => {
+    const set = new Set(aliases.map(normName));
+    const idx = levelNames.findIndex(n => set.has(n));
+    if (idx >= 0) return { value: metaHierarchy?.[idx] ?? null, idx };
+    if (fallbackIdx !== null) return { value: metaHierarchy?.[fallbackIdx] ?? null, idx: fallbackIdx };
+    return { value: null, idx: null };
+  };
+
+  const seat_map = [];
+  rows.forEach(r => {
+    const seats = r._seats || computeSeats(r);
+    const nums = computeSeatNumbers(r, seats.length);
+    const metaHierarchy = r.meta?.hierarchy || {};
+    const invalid = r.meta?.invalid || {};
+    const sectionPick = pickHierarchyValueByAliases(
+      metaHierarchy,
+      ['section', 'sec', 'אזור', 'מתחם', 'בלוק'],
+      0
+    );
+    const standTypePick = pickHierarchyValueByAliases(
+      metaHierarchy,
+      ['stand_type', 'standtype', 'stand', 'type', 'סוג', 'יציע'],
+      hierarchy.levels > 1 ? 1 : 0
+    );
+    const rowRaw = (r.meta?.rowValue ?? r.name ?? '').toString().trim();
+    const rowValue = toMaybeNumber(rowRaw);
+    const sectionValue = toNumberOnly(sectionPick.value);
+
+    seats.forEach((s, i) => {
+      const seatNumber = Number(nums[i]);
+      const seatItem = {
+        row: rowValue,
+        seat: Number.isFinite(seatNumber) ? seatNumber : i + 1,
+        lat: s.lat,
+        lng: s.lng,
+      };
+      if (standTypePick.idx === null || !invalid[standTypePick.idx]) {
+        const st = standTypePick.value;
+        if (st !== null && st !== undefined && String(st).trim() !== '') seatItem.stand_type = st;
+      }
+      if (sectionPick.idx === null || !invalid[sectionPick.idx]) {
+        if (sectionValue !== null) seatItem.section = sectionValue;
+      }
+      seat_map.push(seatItem);
+    });
+  });
+
+  const jsonText = `"seat_map": ${JSON.stringify(seat_map, null, 2)}`;
+  navigator.clipboard.writeText(jsonText);
+  const blob = new Blob([jsonText], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rows-seat-map.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${seat_map.length} seat(s) to clipboard and file`);
+};
+
+$('tab-main-btn').onclick = () => {
+  applyTab('main');
+  saveUIState();
+};
+$('tab-rows-btn').onclick = () => {
+  applyTab('rows');
+  saveUIState();
+};
+
+window.addEventListener('keydown', e => {
+  const target = e.target;
+  const typing = target && (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.tagName === 'SELECT' ||
+    target.isContentEditable
+  );
+
+  const key = String(e.key || '').toLowerCase();
+  const mod = e.ctrlKey || e.metaKey;
+
+  if (mod && key === 'z') {
+    e.preventDefault();
+    undoAction();
+    return;
+  }
+  if (mod && key === 'y') {
+    e.preventDefault();
+    redoAction();
+    return;
+  }
+
+  if (typing || selectedRid === null) return;
+  if (key === 's') {
+    e.preventDefault();
+    beginSplitRow(selectedRid);
+  } else if (key === 'd') {
+    e.preventDefault();
+    duplicateRow(selectedRid);
+  } else if (key === 'm') {
+    e.preventDefault();
+    openMetaEditor(selectedRid);
+  }
+});
+
+// ═══════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════
+initPanelSplitter();
+initMap();
+loadOv();
+loadHierarchy();
+loadRows();
+loadUIState();
+</script>
+</body>
+</html>

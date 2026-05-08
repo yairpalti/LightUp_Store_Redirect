@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /venue-mapper/
 
 Sitemap: https://lightupcrowd.com/sitemap.xml
