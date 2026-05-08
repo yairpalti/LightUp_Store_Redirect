@@ -346,6 +346,58 @@
     .ri-btns .btn-icon { padding: 2px; font-size: 11px; }
     .ri-select { margin-right: 1px; accent-color: var(--accent); }
     .hidden { display: none !important; }
+    .pb.rows-mode {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    #tab-rows-rows { display:flex; flex-direction:column; min-height: 320px; }
+    .pb.rows-mode > #tab-rows-rows { flex: 1; min-height: 0; }
+    #rows-layout { display:flex; flex-direction:column; flex:1; min-height:0; }
+    .rows-frame {
+      min-height: 110px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: var(--bg2);
+      padding: 8px;
+      overflow: auto;
+    }
+    #rows-list-frame { flex: 1 1 auto; }
+    #rows-meta-frame { flex: 0 0 180px; }
+    #rows-splitter {
+      height: 10px;
+      cursor: row-resize;
+      flex-shrink: 0;
+      position: relative;
+      margin: 4px 0;
+    }
+    #rows-splitter::after {
+      content:'';
+      position:absolute;
+      left:50%; top:50%;
+      transform:translate(-50%, -50%);
+      width: 52px; height:2px;
+      border-radius: 2px;
+      background: var(--border2);
+    }
+    #rows-splitter.dragging::after { background: var(--accent); }
+    #rows-meta-splitter {
+      height: 10px;
+      cursor: row-resize;
+      flex-shrink: 0;
+      position: relative;
+      margin-top: 4px;
+    }
+    #rows-meta-splitter::after {
+      content:'';
+      position:absolute;
+      left:50%; top:50%;
+      transform:translate(-50%, -50%);
+      width: 52px; height:2px;
+      border-radius: 2px;
+      background: var(--border2);
+    }
+    #rows-meta-splitter.dragging::after { background: var(--accent); }
     .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .meta-field { margin-top: 6px; }
     .meta-field label { display: block; font-size: 10px; color: var(--text3); margin-bottom: 3px; }
@@ -518,70 +570,65 @@
 
       <div class="sec hidden" id="tab-rows-rows">
         <div class="sec-title">Seat Rows</div>
+        <div id="rows-layout">
+          <div class="rows-frame" id="rows-list-frame">
+            <!-- Normal: add button -->
+            <div id="row-add-ui">
+              <button class="btn btn-sub" style="width:100%" id="btn-add-row">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Add Row
+              </button>
+            </div>
 
-        <!-- Normal: add button -->
-        <div id="row-add-ui">
-          <button class="btn btn-sub" style="width:100%" id="btn-add-row">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Add Row
-          </button>
-        </div>
+            <!-- Drawing status hint -->
+            <div id="draw-status" style="display:none">
+              <div class="draw-hint" id="draw-hint">Click start point on map</div>
+              <button class="btn btn-sub" style="width:100%" id="btn-cancel-draw">✖ Cancel</button>
+            </div>
 
-        <!-- Drawing status hint -->
-        <div id="draw-status" style="display:none">
-          <div class="draw-hint" id="draw-hint">Click start point on map</div>
-          <button class="btn btn-sub" style="width:100%" id="btn-cancel-draw">✖ Cancel</button>
-        </div>
-
-        <!-- Row config form (create / edit) -->
-        <div id="row-form" style="display:none">
-          <div class="ctrl">
-            <span class="ctrl-lbl">Name</span>
-            <input type="text" id="row-name" class="ctrl-input" placeholder="Row A">
+            <!-- Row list -->
+            <div class="row-2" style="margin-top:8px">
+              <button class="btn btn-sub" id="btn-sort-rows-name">🔤 Sort A→Z</button>
+              <button class="btn btn-sub" id="btn-export-rows-json">📤 Export Rows JSON</button>
+            </div>
+            <div class="row-2 row-tools">
+              <button class="btn btn-sub" id="btn-undo">↶ Undo</button>
+              <button class="btn btn-sub" id="btn-redo">↷ Redo</button>
+            </div>
+            <div class="row-2 row-tools">
+              <button class="btn btn-sub" id="btn-group-selected">🧩 Group Selected</button>
+              <button class="btn btn-sub" id="btn-clear-row-selection">🧹 Clear Selection</button>
+            </div>
+            <input type="file" id="venue-file-input" accept="application/json" style="display:none">
+            <div id="row-list">
+              <div class="row-empty">No rows yet. Click "Add Row".</div>
+            </div>
           </div>
-          <div class="row-mode-row">
-            <label><input type="radio" name="row-mode" value="count" checked> Count</label>
-            <label><input type="radio" name="row-mode" value="spacing"> Spacing</label>
-          </div>
-          <div class="ctrl" id="row-count-ctrl">
-            <span class="ctrl-lbl">Seats</span>
-            <input type="number" id="row-seats" class="ctrl-input" value="10" min="2" max="500">
-          </div>
-          <div class="ctrl" id="row-spacing-ctrl" style="display:none">
-            <span class="ctrl-lbl">Spacing</span>
-            <input type="number" id="row-spacing" class="ctrl-input" value="1.0" min="0.1" step="0.1">
-            <span class="ctrl-val">m</span>
-          </div>
-          <div class="row-2" style="margin-top:2px">
-            <button class="btn btn-primary" id="btn-create-row">✅ Create Row</button>
-            <button class="btn btn-sub"     id="btn-cancel-draw2">✖ Cancel</button>
-          </div>
-        </div>
-
-        <!-- Row list -->
-        <div class="row-2" style="margin-top:8px">
-          <button class="btn btn-sub" id="btn-sort-rows-name">🔤 Sort A→Z</button>
-          <button class="btn btn-sub" id="btn-export-rows-json">📤 Export Rows JSON</button>
-        </div>
-        <div class="row-2 row-tools">
-          <button class="btn btn-sub" id="btn-undo">↶ Undo</button>
-          <button class="btn btn-sub" id="btn-redo">↷ Redo</button>
-        </div>
-        <div class="row-2 row-tools">
-          <button class="btn btn-sub" id="btn-group-selected">🧩 Group Selected</button>
-          <button class="btn btn-sub" id="btn-clear-row-selection">🧹 Clear Selection</button>
-        </div>
-        <input type="file" id="venue-file-input" accept="application/json" style="display:none">
-        <div id="row-list">
-          <div class="row-empty">No rows yet. Click "Add Row".</div>
-        </div>
-
-        <div id="row-meta-form" style="display:none;margin-top:10px">
+          <div id="rows-splitter" title="Drag to resize panes"></div>
+          <div class="rows-frame" id="rows-meta-frame">
+            <div class="small-note" id="row-meta-empty">Select a row to edit its metadata.</div>
+            <!-- Row config form (create / edit) -->
+            <div id="row-form" style="display:none;margin-bottom:8px">
+              <div class="ctrl">
+                <span class="ctrl-lbl">Name</span>
+                <input type="text" id="row-name" class="ctrl-input" placeholder="Row A">
+              </div>
+              <div class="row-mode-row">
+                <label><input type="radio" name="row-mode" value="count" checked> Count</label>
+                <label><input type="radio" name="row-mode" value="spacing"> Spacing</label>
+              </div>
+              <div class="ctrl" id="row-count-ctrl">
+                <span class="ctrl-lbl">Seats</span>
+                <input type="number" id="row-seats" class="ctrl-input" value="10" min="2" max="500">
+              </div>
+              <div class="ctrl" id="row-spacing-ctrl" style="display:none">
+                <span class="ctrl-lbl">Spacing</span>
+                <input type="number" id="row-spacing" class="ctrl-input" value="1.0" min="0.1" step="0.1">
+                <span class="ctrl-val">m</span>
+              </div>
+            </div>
+            <div id="row-meta-form" style="display:none;margin-top:0">
           <div class="sec-title" style="margin-top:8px;margin-bottom:6px">Row Metadata</div>
-          <div class="meta-field">
-            <label>Row name</label>
-            <input type="text" id="meta-row-name" class="ctrl-input" placeholder="Row A">
-          </div>
           <div id="row-meta-hierarchy"></div>
           <div class="meta-grid">
             <div class="meta-field">
@@ -602,9 +649,9 @@
               <button class="btn-icon meta-link-btn" id="meta-link-direction" title="Link to group">🔗</button>
             </div>
           </div>
-          <div class="meta-actions">
-            <button class="btn btn-sub" id="btn-close-meta">✖ Close</button>
+            </div>
           </div>
+          <div id="rows-meta-splitter" title="Drag to resize metadata frame"></div>
         </div>
       </div>
 
@@ -1364,17 +1411,21 @@ function saveUIState() {
     localStorage.setItem(UI_KEY, JSON.stringify({
       activeTab: $('tab-rows-btn').classList.contains('active') ? 'rows' : 'main',
       hierarchyCollapsed: !!hierarchyCollapsed,
+      rowsTopH: Math.round($('rows-list-frame')?.getBoundingClientRect().height || 0),
+      rowsMetaH: Math.round($('rows-meta-frame')?.getBoundingClientRect().height || 0),
     }));
   } catch {}
 }
 
 function applyTab(tabName) {
   const rowsOn = tabName === 'rows';
+  const pb = document.querySelector('.pb');
   $('tab-main').classList.toggle('hidden', rowsOn);
   $('tab-rows').classList.toggle('hidden', !rowsOn);
   $('tab-rows-rows').classList.toggle('hidden', !rowsOn);
   $('tab-main-btn').classList.toggle('active', !rowsOn);
   $('tab-rows-btn').classList.toggle('active', rowsOn);
+  if (pb) pb.classList.toggle('rows-mode', rowsOn);
 }
 
 function applyHierarchyCollapseUI() {
@@ -1388,6 +1439,75 @@ function loadUIState() {
   hierarchyCollapsed = !!data?.hierarchyCollapsed;
   applyHierarchyCollapseUI();
   applyTab(data?.activeTab === 'rows' ? 'rows' : 'main');
+  const topH = Number(data?.rowsTopH);
+  if (Number.isFinite(topH) && topH > 0) {
+    const top = $('rows-list-frame');
+    if (top) top.style.flex = `0 0 ${Math.max(120, Math.min(600, topH))}px`;
+  }
+  const metaH = Number(data?.rowsMetaH);
+  if (Number.isFinite(metaH) && metaH > 0) {
+    const meta = $('rows-meta-frame');
+    if (meta) meta.style.flex = `0 0 ${Math.max(120, Math.min(700, metaH))}px`;
+  }
+}
+
+function initRowsSplitter() {
+  const split = $('rows-splitter');
+  const wrap = $('rows-layout');
+  const top = $('rows-list-frame');
+  if (!split || !wrap || !top) return;
+  let dragging = false;
+  split.addEventListener('mousedown', e => {
+    e.preventDefault();
+    dragging = true;
+    split.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const r = wrap.getBoundingClientRect();
+    const splitH = split.getBoundingClientRect().height || 10;
+    const minTop = 120;
+    const minBottom = 120;
+    const topH = Math.max(minTop, Math.min(r.height - minBottom - splitH, e.clientY - r.top));
+    top.style.flex = `0 0 ${Math.round(topH)}px`;
+  });
+  window.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    split.classList.remove('dragging');
+    saveUIState();
+  });
+}
+
+function initRowsMetaSplitter() {
+  const split = $('rows-meta-splitter');
+  const wrap = $('rows-layout');
+  const top = $('rows-list-frame');
+  const meta = $('rows-meta-frame');
+  const splitTop = $('rows-splitter');
+  if (!split || !wrap || !top || !meta || !splitTop) return;
+  let dragging = false;
+  split.addEventListener('mousedown', e => {
+    e.preventDefault();
+    dragging = true;
+    split.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const r = wrap.getBoundingClientRect();
+    const topH = top.getBoundingClientRect().height;
+    const s1H = splitTop.getBoundingClientRect().height || 10;
+    const minMeta = 120;
+    const maxMeta = Math.max(minMeta, r.height - topH - s1H - 20);
+    const desired = Math.max(minMeta, Math.min(maxMeta, e.clientY - (r.top + topH + s1H)));
+    meta.style.flex = `0 0 ${Math.round(desired)}px`;
+  });
+  window.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    split.classList.remove('dragging');
+    saveUIState();
+  });
 }
 
 // ═══════════════════════════════════════════════════
@@ -1990,7 +2110,7 @@ function selectRow(id) {
   if (row) {
     showEditHandles(row);
     showRowForm(row);
-    if ($('row-meta-form').style.display !== 'none') openMetaEditor(id);
+    openMetaEditor(id);
   }
   renderRowList();
   // Keep selected row visible in the rows tab/list (also when selected from map).
@@ -2274,7 +2394,6 @@ function openMetaEditor(id) {
   row.meta.link = row.meta.link || { rowValue: false, startNumber: false, direction: false, hierarchy: {}, invalid: {} };
   row.meta.link.hierarchy = row.meta.link.hierarchy || {};
   row.meta.link.invalid = row.meta.link.invalid || {};
-  $('meta-row-name').value = row.name || '';
   buildMetaHierarchyFields(row);
   $('meta-start-num').value = row.meta.startNumber ?? 1;
   $('meta-direction').value = row.meta.direction || 'start_to_end';
@@ -2282,12 +2401,14 @@ function openMetaEditor(id) {
   $('meta-direction')?.classList.toggle('linked-field', !!row.meta.link?.direction);
   $('meta-link-start')?.classList.toggle('on', !!row.meta.link?.startNumber);
   $('meta-link-direction')?.classList.toggle('on', !!row.meta.link?.direction);
+  $('row-meta-empty').style.display = 'none';
   $('row-meta-form').style.display = '';
 }
 
 function closeMetaEditor() {
   metaRid = null;
   $('row-meta-form').style.display = 'none';
+  if ($('row-form').style.display === 'none') $('row-meta-empty').style.display = '';
 }
 
 function withMetaDefaults(r) {
@@ -2369,7 +2490,6 @@ function applyMetaFromUI() {
   $('row-meta-hierarchy').querySelectorAll('[data-hier-invalid]').forEach(inp => {
     hInvalid[inp.dataset.hierInvalid] = !!inp.checked;
   });
-  row.name = ($('meta-row-name').value || '').trim() || row.name;
   row.meta.hierarchy = hValues;
   row.meta.invalid = hInvalid;
   row.meta.rowValue = rowField ? rowField.value.trim() : (row.meta?.rowValue || '');
@@ -2427,9 +2547,8 @@ function handleDrawClick(e) {
     // Pre-fill name
     const letter = String.fromCharCode(65 + (rows.length % 26));
     $('row-name').value = `Row ${letter}`;
-    $('btn-create-row').textContent = 'Create Row';
     editRid = null;
-    setDrawSt('form');
+    createOrUpdateRow();
     return true;
   }
   return false;
@@ -2447,20 +2566,20 @@ function showRowForm(row) {
     $('row-spacing-ctrl').style.display = useSpacing ? ''     : 'none';
     if (useSpacing) $('row-spacing').value = row.spacingM;
     else            $('row-seats').value   = row.seatCount || 10;
-    $('btn-create-row').textContent = 'Update';
     editRid = row.id;
   }
   $('row-form').style.display    = '';
   $('row-add-ui').style.display  = 'none';
   $('draw-status').style.display = 'none';
+  $('row-meta-empty').style.display = 'none';
 }
 
 function hideRowForm() {
   if (drawSt === 'form') { setDrawSt(null); return; }
   $('row-form').style.display   = 'none';
   $('row-add-ui').style.display = '';
-  $('btn-create-row').textContent = 'Create Row';
   editRid = null;
+  if ($('row-meta-form').style.display === 'none') $('row-meta-empty').style.display = '';
 }
 
 // ═══════════════════════════════════════════════════
@@ -2944,18 +3063,41 @@ function applyVenueSnapshot(data) {
 $('btn-add-row').onclick = () => { deselectRow(); setDrawSt('start'); };
 
 $('btn-cancel-draw').onclick  = () => setDrawSt(null);
-$('btn-cancel-draw2').onclick = () => { clearDrawTmp(); setDrawSt(null); hideRowForm(); };
-$('btn-create-row').onclick   = createOrUpdateRow;
+$('btn-cancel-draw2')?.addEventListener('click', () => { clearDrawTmp(); setDrawSt(null); hideRowForm(); });
+$('btn-create-row')?.addEventListener('click', createOrUpdateRow);
+
+function applyRowFormToSelected() {
+  if (selectedRid === null) return;
+  const row = rows.find(r => r.id === selectedRid);
+  if (!row) return;
+  const name = $('row-name').value.trim();
+  const mode = document.querySelector('input[name="row-mode"]:checked')?.value || 'count';
+  row.name = name || row.name;
+  if (mode === 'count') {
+    row.seatCount = Math.max(2, parseInt($('row-seats').value) || row.seatCount || 10);
+    row.spacingM = null;
+  } else {
+    row.spacingM = Math.max(0.1, parseFloat($('row-spacing').value) || row.spacingM || 1);
+    row.seatCount = null;
+  }
+  renderRow(row);
+  renderRowList();
+  saveRows();
+}
+
+$('row-name').addEventListener('input', applyRowFormToSelected);
+$('row-seats').addEventListener('input', applyRowFormToSelected);
+$('row-spacing').addEventListener('input', applyRowFormToSelected);
 
 document.querySelectorAll('input[name="row-mode"]').forEach(r => {
   r.addEventListener('change', e => {
     $('row-count-ctrl').style.display   = e.target.value === 'count'   ? '' : 'none';
     $('row-spacing-ctrl').style.display = e.target.value === 'spacing' ? '' : 'none';
+    applyRowFormToSelected();
   });
 });
 
-$('btn-close-meta').onclick = closeMetaEditor;
-$('meta-row-name').addEventListener('input', applyMetaFromUI);
+$('btn-close-meta')?.addEventListener('click', closeMetaEditor);
 $('meta-start-num').addEventListener('input', applyMetaFromUI);
 $('meta-direction').addEventListener('change', applyMetaFromUI);
 $('row-meta-hierarchy').addEventListener('input', e => {
@@ -3197,6 +3339,9 @@ window.addEventListener('keydown', e => {
   } else if (key === 'm') {
     e.preventDefault();
     openMetaEditor(selectedRid);
+  } else if (key === 'delete') {
+    e.preventDefault();
+    deleteRow(selectedRid);
   }
 });
 
@@ -3220,6 +3365,8 @@ loadOv();
 loadHierarchy();
 loadRows();
 loadUIState();
+initRowsSplitter();
+initRowsMetaSplitter();
 </script>
 </body>
 </html>
