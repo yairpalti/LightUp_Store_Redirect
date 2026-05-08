@@ -1983,6 +1983,8 @@ function selectRow(id) {
   clearSplitUI();
   clearGroupHandles();
   selectedRid = id;
+  const parentGroup = getGroupByRowId(id);
+  if (parentGroup && parentGroup.collapsed) parentGroup.collapsed = false;
   rows.forEach(r => renderRow(r));
   const row = rows.find(r => r.id === id);
   if (row) {
@@ -1996,6 +1998,33 @@ function selectRow(id) {
   saveUIState();
   const rowEl = $('row-list').querySelector(`.ri[data-rid="${id}"]`);
   if (rowEl) rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function cancelActiveToolOrSelection() {
+  let acted = false;
+  if (drawSt !== null) {
+    clearDrawTmp();
+    setDrawSt(null);
+    hideRowForm();
+    acted = true;
+  }
+  if (splitState) {
+    clearSplitUI();
+    acted = true;
+  }
+  if (Object.keys(groupHandles).length) {
+    clearGroupHandles();
+    acted = true;
+  }
+  if (metaRid !== null || $('row-meta-form').style.display !== 'none') {
+    closeMetaEditor();
+    acted = true;
+  }
+  if (selectedRid !== null) {
+    deselectRow();
+    acted = true;
+  }
+  return acted;
 }
 
 function deselectRow() {
@@ -3141,6 +3170,11 @@ window.addEventListener('keydown', e => {
 
   const key = String(e.key || '').toLowerCase();
   const mod = e.ctrlKey || e.metaKey;
+
+  if (key === 'escape') {
+    if (cancelActiveToolOrSelection()) e.preventDefault();
+    return;
+  }
 
   if (mod && key === 'z') {
     e.preventDefault();
