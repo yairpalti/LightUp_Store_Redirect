@@ -1522,11 +1522,19 @@ function xy2ll(x, y, rlat, rlng) {
   return { lat: rlat + y / 111320, lng: rlng + x / (cos * 111320) };
 }
 
-// Quadratic Bezier point at parameter t
+// Quadratic / cubic Bezier point at parameter t
 function bezPt(p0, p1, p2, t) {
   const u = 1 - t;
   return { x: u*u*p0.x + 2*u*t*p1.x + t*t*p2.x,
            y: u*u*p0.y + 2*u*t*p1.y + t*t*p2.y };
+}
+function bezPtCubic(p0, p1, p2, p3, t) {
+  const u = 1 - t;
+  const uu = u * u, tt = t * t;
+  return {
+    x: p0.x * uu * u + 3 * p1.x * uu * t + 3 * p2.x * u * tt + p3.x * tt * t,
+    y: p0.y * uu * u + 3 * p1.y * uu * t + 3 * p2.y * u * tt + p3.y * tt * t,
+  };
 }
 
 // n points evenly distributed by arc length along the Bezier
@@ -1573,26 +1581,68 @@ function rowLocalCoords(row) {
     p0: ll2xy(row.start.lat, row.start.lng, rlat, rlng),
     p1: ll2xy(row.ctrl.lat,  row.ctrl.lng,  rlat, rlng),
     p2: ll2xy(row.end.lat,   row.end.lng,   rlat, rlng),
+    p3: row.ctrl2 ? ll2xy(row.ctrl2.lat, row.ctrl2.lng, rlat, rlng) : null,
     rlat, rlng,
   };
 }
 
 function computeSeats(row) {
-  const { p0, p1, p2, rlat, rlng } = rowLocalCoords(row);
+  const { p0, p1, p2, p3, rlat, rlng } = rowLocalCoords(row);
   let n = row.seatCount;
   if (!n && row.spacingM) {
-    n = Math.max(2, Math.round(bezierArcLen(p0, p1, p2) / row.spacingM) + 1);
+    const len = p3 ? bezierArcLenCubic(p0, p1, p3, p2) : bezierArcLen(p0, p1, p2);
+    n = Math.max(2, Math.round(len / row.spacingM) + 1);
   }
   n = Math.max(2, Math.min(500, n || 10));
-  return bezierEvenPts(p0, p1, p2, n).map(pt => xy2ll(pt.x, pt.y, rlat, rlng));
+  const pts = p3 ? bezierEvenPtsCubic(p0, p1, p3, p2, n) : bezierEvenPts(p0, p1, p2, n);
+  return pts.map(pt => xy2ll(pt.x, pt.y, rlat, rlng));
 }
 
 function bezierCurveSamples(row, res = 64) {
-  const { p0, p1, p2, rlat, rlng } = rowLocalCoords(row);
+  const { p0, p1, p2, p3, rlat, rlng } = rowLocalCoords(row);
   const pts = [];
-  for (let i = 0; i <= res; i++)
-    pts.push(xy2ll(...Object.values(bezPt(p0, p1, p2, i / res)), rlat, rlng));
+  for (let i = 0; i <= res; i++) {
+    const t = i / res;
+    const pt = p3 ? bezPtCubic(p0, p1, p3, p2, t) : bezPt(p0, p1, p2, t);
+    pts.push(xy2ll(pt.x, pt.y, rlat, rlng));
+  }
   return pts;
+}
+
+function bezierEvenPtsCubic(p0, p1, p2, p3, n) {
+  if (n <= 1) return [bezPtCubic(p0, p1, p2, p3, 0)];
+  const S = 1000;
+  const arc = [0];
+  let prev = bezPtCubic(p0, p1, p2, p3, 0);
+  for (let i = 1; i <= S; i++) {
+    const cur = bezPtCubic(p0, p1, p2, p3, i / S);
+    const dx = cur.x - prev.x, dy = cur.y - prev.y;
+    arc.push(arc[i - 1] + Math.hypot(dx, dy));
+    prev = cur;
+  }
+  const total = arc[S];
+  const out = [];
+  let si = 0;
+  for (let k = 0; k < n; k++) {
+    const target = (k / (n - 1)) * total;
+    while (si < S && arc[si] < target) si++;
+    if (si === 0) { out.push(bezPtCubic(p0, p1, p2, p3, 0)); continue; }
+    if (si >= S) { out.push(bezPtCubic(p0, p1, p2, p3, 1)); continue; }
+    const frac = (target - arc[si - 1]) / (arc[si] - arc[si - 1]);
+    out.push(bezPtCubic(p0, p1, p2, p3, (si - 1 + frac) / S));
+  }
+  return out;
+}
+
+function bezierArcLenCubic(p0, p1, p2, p3) {
+  const S = 500; let len = 0, prev = p0;
+  for (let i = 1; i <= S; i++) {
+    const cur = bezPtCubic(p0, p1, p2, p3, i / S);
+    const dx = cur.x - prev.x, dy = cur.y - prev.y;
+    len += Math.hypot(dx, dy);
+    prev = cur;
+  }
+  return len;
 }
 
 function computeSeatNumbers(row, count) {
@@ -1609,14 +1659,28 @@ function lerpLL(a, b, t) {
 }
 
 function splitRowGeometry(row, t) {
-  const p0 = row.start, p1 = row.ctrl, p2 = row.end;
-  const p01 = lerpLL(p0, p1, t);
-  const p12 = lerpLL(p1, p2, t);
-  const pm = lerpLL(p01, p12, t);
-  return {
-    left:  { start: { ...p0 },  ctrl: p01, end: pm },
-    right: { start: pm, ctrl: p12, end: { ...p2 } },
-  };
+  if (row.ctrl2) {
+    const p0 = row.start, p1 = row.ctrl, p2 = row.ctrl2, p3 = row.end;
+    const a = lerpLL(p0, p1, t);
+    const b = lerpLL(p1, p2, t);
+    const c = lerpLL(p2, p3, t);
+    const d = lerpLL(a, b, t);
+    const e = lerpLL(b, c, t);
+    const f = lerpLL(d, e, t);
+    return {
+      left:  { start: { ...p0 }, ctrl: a, ctrl2: d, end: f },
+      right: { start: f, ctrl: e, ctrl2: c, end: { ...p3 } },
+    };
+  } else {
+    const p0 = row.start, p1 = row.ctrl, p2 = row.end;
+    const p01 = lerpLL(p0, p1, t);
+    const p12 = lerpLL(p1, p2, t);
+    const pm = lerpLL(p01, p12, t);
+    return {
+      left:  { start: { ...p0 },  ctrl: p01, end: pm },
+      right: { start: pm, ctrl: p12, end: { ...p2 } },
+    };
+  }
 }
 
 function estimateSeatSplitCounts(row, t) {
@@ -1642,10 +1706,11 @@ function splitRowAtT(row, t) {
   const counts = estimateSeatSplitCounts(row, tt);
   const srcStartNumber = Number.isFinite(row.meta?.startNumber) ? row.meta.startNumber : 1;
   const srcDirection = row.meta?.direction || 'start_to_end';
-  const leftCount = row.seatCount ? counts.left : (computeSeats({ ...row, start: geom.left.start, ctrl: geom.left.ctrl, end: geom.left.end }).length || counts.left);
-  const rightCount = row.seatCount ? counts.right : (computeSeats({ ...row, start: geom.right.start, ctrl: geom.right.ctrl, end: geom.right.end }).length || counts.right);
+  const leftCount = row.seatCount ? counts.left : (computeSeats({ ...row, start: geom.left.start, ctrl: geom.left.ctrl, ctrl2: geom.left.ctrl2, end: geom.left.end }).length || counts.left);
+  const rightCount = row.seatCount ? counts.right : (computeSeats({ ...row, start: geom.right.start, ctrl: geom.right.ctrl, ctrl2: geom.right.ctrl2, end: geom.right.end }).length || counts.right);
   row.start = geom.left.start;
   row.ctrl = geom.left.ctrl;
+  row.ctrl2 = geom.left.ctrl2 || null;
   row.end = geom.left.end;
   if (row.seatCount) row.seatCount = counts.left;
   const metaCopy = row.meta ? JSON.parse(JSON.stringify(row.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' };
@@ -1657,6 +1722,7 @@ function splitRowAtT(row, t) {
     color: ROW_COLORS[rows.length % ROW_COLORS.length],
     start: geom.right.start,
     ctrl: geom.right.ctrl,
+    ctrl2: geom.right.ctrl2 || null,
     end: geom.right.end,
     visible: row.visible !== false,
     meta: metaCopy,
@@ -1745,7 +1811,11 @@ function findKnifeIntersectionT(row, aLL, bLL) {
 }
 
 function rowCenterPoint(row) {
-  return map.latLngToContainerPoint([(row.start.lat + row.end.lat + row.ctrl.lat) / 3, (row.start.lng + row.end.lng + row.ctrl.lng) / 3]);
+  const pts = [row.start, row.end, row.ctrl];
+  if (row.ctrl2) pts.push(row.ctrl2);
+  const lat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
+  const lng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
+  return map.latLngToContainerPoint([lat, lng]);
 }
 
 function beginSplitGroup(id) {
@@ -1922,6 +1992,9 @@ function showEditHandles(row) {
     { icon: hdIcon(row.color, 'circle'), draggable: true, zIndexOffset: 900 }).addTo(map);
   const ctrlM = L.marker([row.ctrl.lat, row.ctrl.lng],
     { icon: hdIcon('#f7a24f', 'diamond'), draggable: true, zIndexOffset: 900 }).addTo(map);
+  const ctrl2M = row.ctrl2
+    ? L.marker([row.ctrl2.lat, row.ctrl2.lng], { icon: hdIcon('#ff7fd4', 'diamond'), draggable: true, zIndexOffset: 900 }).addTo(map)
+    : null;
   const midM = L.marker([(row.start.lat + row.end.lat) / 2, (row.start.lng + row.end.lng) / 2],
     { icon: hdIcon('#ffffff', 'diamond'), draggable: true, zIndexOffset: 880 }).addTo(map);
 
@@ -1929,11 +2002,16 @@ function showEditHandles(row) {
     [[row.ctrl.lat, row.ctrl.lng], [row.ctrl.lat, row.ctrl.lng]],
     { color: '#f7a24f', weight: 1.2, dashArray: '3 3', opacity: 0.7, interactive: false }
   ).addTo(map);
+  const ctrl2Line = ctrl2M ? L.polyline(
+    [[row.ctrl2.lat, row.ctrl2.lng], [row.ctrl2.lat, row.ctrl2.lng]],
+    { color: '#ff7fd4', weight: 1.2, dashArray: '3 3', opacity: 0.7, interactive: false }
+  ).addTo(map) : null;
 
   function updateCtrlLine() {
     const mLat = (row.start.lat + row.end.lat) / 2;
     const mLng = (row.start.lng + row.end.lng) / 2;
     ctrlLine.setLatLngs([[mLat, mLng], [row.ctrl.lat, row.ctrl.lng]]);
+    if (row.ctrl2 && ctrl2Line) ctrl2Line.setLatLngs([[mLat, mLng], [row.ctrl2.lat, row.ctrl2.lng]]);
     midM.setLatLng([mLat, mLng]);
   }
   updateCtrlLine();
@@ -1942,6 +2020,7 @@ function showEditHandles(row) {
     row.start = { lat: startM.getLatLng().lat, lng: startM.getLatLng().lng };
     row.end   = { lat: endM.getLatLng().lat,   lng: endM.getLatLng().lng   };
     row.ctrl  = { lat: ctrlM.getLatLng().lat,  lng: ctrlM.getLatLng().lng  };
+    if (ctrl2M) row.ctrl2 = { lat: ctrl2M.getLatLng().lat, lng: ctrl2M.getLatLng().lng };
     updateCtrlLine();
     renderRow(row);
     renderRowList();
@@ -1955,9 +2034,11 @@ function showEditHandles(row) {
     row.start = { lat: row.start.lat + dLat, lng: row.start.lng + dLng };
     row.end = { lat: row.end.lat + dLat, lng: row.end.lng + dLng };
     row.ctrl = { lat: row.ctrl.lat + dLat, lng: row.ctrl.lng + dLng };
+    if (row.ctrl2) row.ctrl2 = { lat: row.ctrl2.lat + dLat, lng: row.ctrl2.lng + dLng };
     startM.setLatLng([row.start.lat, row.start.lng]);
     endM.setLatLng([row.end.lat, row.end.lng]);
     ctrlM.setLatLng([row.ctrl.lat, row.ctrl.lng]);
+    if (ctrl2M && row.ctrl2) ctrl2M.setLatLng([row.ctrl2.lat, row.ctrl2.lng]);
     lastMid = cur;
     updateCtrlLine();
     renderRow(row);
@@ -1969,9 +2050,10 @@ function showEditHandles(row) {
   startM.on('drag', onDrag);
   endM.on('drag', onDrag);
   ctrlM.on('drag', onDrag);
-  startM.on('dragend', saveRows); endM.on('dragend', saveRows); ctrlM.on('dragend', saveRows); midM.on('dragend', saveRows);
+  if (ctrl2M) ctrl2M.on('drag', onDrag);
+  startM.on('dragend', saveRows); endM.on('dragend', saveRows); ctrlM.on('dragend', saveRows); if (ctrl2M) ctrl2M.on('dragend', saveRows); midM.on('dragend', saveRows);
 
-  editHandles = { startM, endM, ctrlM, midM, ctrlLine };
+  editHandles = { startM, endM, ctrlM, ctrl2M, midM, ctrlLine, ctrl2Line };
 }
 
 function clearEditHandles() {
@@ -1997,7 +2079,7 @@ function clearSplitUI() {
 function getRowsSnapshot() {
   return rows.map(r => ({
     id: r.id, name: r.name, color: r.color,
-    start: { ...r.start }, end: { ...r.end }, ctrl: { ...r.ctrl },
+    start: { ...r.start }, end: { ...r.end }, ctrl: { ...r.ctrl }, ctrl2: r.ctrl2 ? { ...r.ctrl2 } : null,
     seatCount: r.seatCount, spacingM: r.spacingM, visible: r.visible !== false,
     meta: r.meta ? JSON.parse(JSON.stringify(r.meta)) : null,
   }));
@@ -2008,6 +2090,7 @@ function applyRowsData(rowsData, opts = {}) {
   rows = (rowsData || []).map(r => ({
     ...r,
     ctrl: r.ctrl ?? { lat: (r.start.lat + r.end.lat) / 2, lng: (r.start.lng + r.end.lng) / 2 },
+    ctrl2: r.ctrl2 || null,
     visible: r.visible !== false,
     meta: r.meta || { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
     _group: null, _curve: null, _seats: [],
@@ -2185,6 +2268,11 @@ function getGroupCenter(group) {
       sumLng += p.lng;
       n++;
     });
+    if (r.ctrl2) {
+      sumLat += r.ctrl2.lat;
+      sumLng += r.ctrl2.lng;
+      n++;
+    }
   });
   return n ? { lat: sumLat / n, lng: sumLng / n } : null;
 }
@@ -2193,6 +2281,7 @@ function shiftRowBy(row, dLat, dLng) {
   row.start = { lat: row.start.lat + dLat, lng: row.start.lng + dLng };
   row.end = { lat: row.end.lat + dLat, lng: row.end.lng + dLng };
   row.ctrl = { lat: row.ctrl.lat + dLat, lng: row.ctrl.lng + dLng };
+  if (row.ctrl2) row.ctrl2 = { lat: row.ctrl2.lat + dLat, lng: row.ctrl2.lng + dLng };
 }
 
 function moveGroup(groupId) {
@@ -2292,6 +2381,7 @@ function rotateGroup(groupId) {
       r.start = rotateLLAroundCenter(r.start, center, delta);
       r.end = rotateLLAroundCenter(r.end, center, delta);
       r.ctrl = rotateLLAroundCenter(r.ctrl, center, delta);
+      if (r.ctrl2) r.ctrl2 = rotateLLAroundCenter(r.ctrl2, center, delta);
       renderRow(r);
     });
     rotLine.setLatLngs([[center.lat, center.lng], [rotM.getLatLng().lat, rotM.getLatLng().lng]]);
@@ -2314,6 +2404,42 @@ function moveRowBetweenGroups(rowId, targetGroupId) {
   target.rowIds.push(rowId);
   normalizeGroups();
   return true;
+}
+
+function toggleSecondBendHandle(id) {
+  const row = rows.find(r => r.id === id);
+  if (!row) return;
+  pushHistory();
+  if (row.ctrl2) {
+    // Degree reduction cubic->quadratic; preserves shape for elevated curves
+    // and keeps a stable approximation otherwise.
+    const { p0, p1, p2, p3, rlat, rlng } = rowLocalCoords(row);
+    if (p3) {
+      const q1x = (3 * p1.x - p0.x) / 2;
+      const q1y = (3 * p1.y - p0.y) / 2;
+      const q2x = (3 * p2.x - p3.x) / 2;
+      const q2y = (3 * p2.y - p3.y) / 2;
+      const qx = (q1x + q2x) / 2;
+      const qy = (q1y + q2y) / 2;
+      row.ctrl = xy2ll(qx, qy, rlat, rlng);
+    }
+    row.ctrl2 = null;
+  } else {
+    // Degree elevation quadratic->cubic (exactly shape-preserving).
+    const q = { ...row.ctrl };
+    row.ctrl = {
+      lat: row.start.lat + (2 / 3) * (q.lat - row.start.lat),
+      lng: row.start.lng + (2 / 3) * (q.lng - row.start.lng),
+    };
+    row.ctrl2 = {
+      lat: row.end.lat + (2 / 3) * (q.lat - row.end.lat),
+      lng: row.end.lng + (2 / 3) * (q.lng - row.end.lng),
+    };
+  }
+  renderRow(row);
+  if (selectedRid === id) showEditHandles(row);
+  renderRowList();
+  saveRows();
 }
 
 function buildMetaHierarchyFields(row) {
@@ -2648,6 +2774,7 @@ function duplicateRow(id) {
     start: { lat: src.start.lat + off, lng: src.start.lng + off },
     end:   { lat: src.end.lat   + off, lng: src.end.lng   + off },
     ctrl:  { lat: src.ctrl.lat  + off, lng: src.ctrl.lng  + off },
+    ctrl2: src.ctrl2 ? { lat: src.ctrl2.lat + off, lng: src.ctrl2.lng + off } : null,
     visible: src.visible !== false,
     meta: src.meta ? JSON.parse(JSON.stringify(src.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
     _group: null, _curve: null, _seats: [],
@@ -2706,6 +2833,7 @@ function duplicateGroup(id) {
       start: { lat: src.start.lat + off, lng: src.start.lng + off },
       end:   { lat: src.end.lat   + off, lng: src.end.lng   + off },
       ctrl:  { lat: src.ctrl.lat  + off, lng: src.ctrl.lng  + off },
+      ctrl2: src.ctrl2 ? { lat: src.ctrl2.lat + off, lng: src.ctrl2.lng + off } : null,
       visible: src.visible !== false,
       meta: src.meta ? JSON.parse(JSON.stringify(src.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
       _group: null, _curve: null, _seats: [],
@@ -2768,6 +2896,7 @@ function renderRowList() {
         <button class="btn-icon" title="Rename"    data-rename="${r.id}">✎</button>
         <button class="btn-icon" title="Edit shape" data-edit="${r.id}">✏</button>
         <button class="btn-icon" title="Meta data" data-meta="${r.id}">⚙</button>
+        <button class="btn-icon" title="Toggle 2nd bend handle" data-b2="${r.id}">${r.ctrl2 ? '◉' : '◎'}</button>
         <button class="btn-icon" title="Split row" data-split="${r.id}">✂</button>
         <button class="btn-icon" title="Duplicate" data-dup="${r.id}">⧉</button>
         <button class="btn-icon" title="Copy seats as JSON" data-exp="${r.id}">↓</button>
@@ -2859,6 +2988,7 @@ function renderRowList() {
     selectRow(id);
     openMetaEditor(id);
   }));
+  list.querySelectorAll('[data-b2]').forEach(b => b.addEventListener('click', () => toggleSecondBendHandle(+b.dataset.b2)));
   list.querySelectorAll('[data-split]').forEach(b => b.addEventListener('click', () => beginSplitRow(+b.dataset.split)));
   list.querySelectorAll('[data-dup]').forEach(b  => b.addEventListener('click', () => duplicateRow(+b.dataset.dup)));
   list.querySelectorAll('[data-del]').forEach(b  => b.addEventListener('click', () => deleteRow(+b.dataset.del)));
@@ -2923,7 +3053,7 @@ function saveRows() {
   try {
     localStorage.setItem(ROWS_KEY, JSON.stringify({
       rows: rows.map(r => ({ id: r.id, name: r.name, color: r.color,
-        start: r.start, end: r.end, ctrl: r.ctrl,
+        start: r.start, end: r.end, ctrl: r.ctrl, ctrl2: r.ctrl2 || null,
         seatCount: r.seatCount, spacingM: r.spacingM, visible: r.visible !== false, meta: r.meta || null })),
       groups,
       groupIdCtr,
