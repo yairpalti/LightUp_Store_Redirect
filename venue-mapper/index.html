@@ -433,6 +433,26 @@
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
+    #dup-modal {
+      position: fixed; inset: 0; z-index: 12000;
+      background: rgba(0,0,0,0.55);
+      display: none; align-items: center; justify-content: center;
+    }
+    #dup-modal.show { display: flex; }
+    .dup-card {
+      width: min(420px, calc(100vw - 24px));
+      max-height: calc(100vh - 24px);
+      overflow: auto;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .dup-title { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+    .dup-list { display: grid; gap: 6px; margin: 8px 0; }
+    .dup-list label { display:flex; align-items:center; gap:7px; font-size: 11px; color: var(--text2); }
+    .dup-actions { display:flex; gap:6px; margin-top:10px; }
+    .dup-actions .btn { flex:1; }
   </style>
 </head>
 <body>
@@ -562,6 +582,14 @@
           <span class="ctrl-lbl">Level Names</span>
           <input type="text" id="hier-level-names" class="ctrl-input" value="Section,Block" placeholder="Section,Block">
         </div>
+        <div class="ctrl">
+          <span class="ctrl-lbl">Row name convention</span>
+          <div class="row-mode-row" style="margin:0">
+            <label><input type="radio" name="row-name-conv-mode" value="manual" checked> Manual</label>
+            <label><input type="radio" name="row-name-conv-mode" value="auto"> Auto</label>
+          </div>
+        </div>
+        <div id="hier-row-convention-parts" class="small-note" style="margin-top:4px"></div>
         <div id="hier-options-editor"></div>
         <button class="btn btn-sub" style="width:100%;margin-top:4px" id="btn-save-hierarchy">💾 Save Hierarchy</button>
         <div class="small-note">Set names and optional predefined options per level (comma-separated).</div>
@@ -671,6 +699,16 @@
 </div>
 
 <div id="toast"></div>
+<div id="dup-modal">
+  <div class="dup-card">
+    <div class="dup-title">Duplicate Options</div>
+    <div class="dup-list" id="dup-options-list"></div>
+    <div class="dup-actions">
+      <button class="btn btn-sub" id="dup-cancel">Cancel</button>
+      <button class="btn btn-primary" id="dup-apply">Duplicate</button>
+    </div>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -1394,17 +1432,19 @@ let editRid     = null;   // row id being edited (null = creating new)
 let drawTmp     = [];     // temp Leaflet layers during draw
 let editHandles = {};     // { startM, endM, ctrlM, ctrlLine }
 let groupHandles = {};    // { moveM | centerM, rotM, rotLine }
-let hierarchy   = { levels: 2, names: ['Section', 'Block'], options: {} };
+let hierarchy   = { levels: 2, names: ['Section', 'Block'], options: {}, rowNameConvention: { mode: 'manual', parts: ['row'] } };
 let metaRid     = null;
 let groups      = [];     // [{ id, name, collapsed, rowIds: [] }]
 let groupIdCtr  = 0;
 let selectedRowIds = new Set();
 let dragRowId = null;
+let seatLinkState = null; // { targetId }
 let splitState = null;    // { type:'row'|'group', rowId?|groupId?, p1?, marker1?, knifeLine? }
 const HISTORY_LIMIT = 10;
 let undoStack = [];
 let redoStack = [];
 let hierarchyCollapsed = false;
+let dupDialogCtx = null;
 
 function saveUIState() {
   try {
@@ -1449,6 +1489,56 @@ function loadUIState() {
     const meta = $('rows-meta-frame');
     if (meta) meta.style.flex = `0 0 ${Math.max(120, Math.min(700, metaH))}px`;
   }
+}
+
+function isNumericText(v) {
+  const s = String(v ?? '').trim();
+  if (!s) return false;
+  const n = Number(s);
+  return Number.isFinite(n);
+}
+
+function incrementByRules(value, levelIdx = null) {
+  const s = String(value ?? '').trim();
+  if (!s) return s;
+  if (levelIdx !== null && Array.isArray(hierarchy.options?.[levelIdx]) && hierarchy.options[levelIdx].length) {
+    const opts = hierarchy.options[levelIdx];
+    const i = opts.findIndex(x => String(x) === s);
+    if (i >= 0 && i < opts.length - 1) return opts[i + 1];
+    return s;
+  }
+  if (isNumericText(s)) return String(Number(s) + 1);
+  return s;
+}
+
+function getDuplicateConfigFromUI() {
+  const list = $('dup-options-list');
+  const levelSet = {};
+  list.querySelectorAll('[data-dup-level]').forEach(chk => {
+    if (chk.checked) levelSet[chk.dataset.dupLevel] = true;
+  });
+  return {
+    incRow: !!list.querySelector('[data-dup-row]')?.checked,
+    incSeatStart: !!list.querySelector('[data-dup-seat]')?.checked,
+    incLevels: levelSet,
+  };
+}
+
+function showDuplicateOptionsDialog(onApply) {
+  const list = $('dup-options-list');
+  const levelNames = hierarchy.names.slice(0, hierarchy.levels).map((n, i) => n || `Level ${i + 1}`);
+  list.innerHTML = `
+    <label><input type="checkbox" data-dup-row> Increment Row value</label>
+    <label><input type="checkbox" data-dup-seat> Increment Seat start (end + 1)</label>
+    ${levelNames.map((n, i) => `<label><input type="checkbox" data-dup-level="${i}"> Increment ${escHtml(n)}</label>`).join('')}
+  `;
+  dupDialogCtx = { onApply };
+  $('dup-modal').classList.add('show');
+}
+
+function hideDuplicateOptionsDialog() {
+  dupDialogCtx = null;
+  $('dup-modal').classList.remove('show');
 }
 
 function initRowsSplitter() {
@@ -2063,8 +2153,15 @@ function clearEditHandles() {
 
 
 function clearGroupHandles() {
-  Object.values(groupHandles).forEach(l => { try { l.remove(); } catch {} });
+  Object.values(groupHandles).forEach(l => {
+    try { if (l && typeof l.remove === 'function') l.remove(); } catch {}
+  });
   groupHandles = {};
+}
+
+function prepareGroupHandles(groupId) {
+  if (groupHandles._gid && groupHandles._gid !== groupId) clearGroupHandles();
+  groupHandles._gid = groupId;
 }
 
 function clearSplitUI() {
@@ -2183,6 +2280,10 @@ function redoAction() {
 //  ROWS — selection
 // ═══════════════════════════════════════════════════
 function selectRow(id) {
+  if (seatLinkState && id !== seatLinkState.targetId) {
+    applySeatLinkFromSource(id);
+    return;
+  }
   clearSplitUI();
   clearGroupHandles();
   selectedRid = id;
@@ -2205,6 +2306,11 @@ function selectRow(id) {
 
 function cancelActiveToolOrSelection() {
   let acted = false;
+  if (seatLinkState) {
+    seatLinkState = null;
+    showToast('Seat link cancelled');
+    acted = true;
+  }
   if (drawSt !== null) {
     clearDrawTmp();
     setDrawSt(null);
@@ -2288,10 +2394,11 @@ function moveGroup(groupId) {
   const group = groups.find(g => g.id === groupId);
   if (!group) return;
   clearEditHandles();
-  clearGroupHandles();
+  prepareGroupHandles(groupId);
   selectedRid = null;
   const center = getGroupCenter(group);
   if (!center) return;
+  try { groupHandles.moveM?.remove(); } catch {}
   const moveM = L.marker([center.lat, center.lng], {
     icon: hdIcon('#7bdfff', 'diamond'),
     draggable: true,
@@ -2309,11 +2416,24 @@ function moveGroup(groupId) {
         renderRow(r);
       }
     });
+    if (groupHandles.centerM) {
+      const c = groupHandles.centerM.getLatLng();
+      groupHandles.centerM.setLatLng([c.lat + dLat, c.lng + dLng]);
+    }
+    if (groupHandles.rotM) {
+      const rll = groupHandles.rotM.getLatLng();
+      groupHandles.rotM.setLatLng([rll.lat + dLat, rll.lng + dLng]);
+    }
+    if (groupHandles.rotLine && groupHandles.centerM && groupHandles.rotM) {
+      const c = groupHandles.centerM.getLatLng();
+      const rll = groupHandles.rotM.getLatLng();
+      groupHandles.rotLine.setLatLngs([[c.lat, c.lng], [rll.lat, rll.lng]]);
+    }
     last = cur;
     renderRowList();
   });
   moveM.on('dragend', saveRows);
-  groupHandles = { moveM };
+  groupHandles = { ...groupHandles, _gid: groupId, moveM };
 }
 
 function normalizeDeltaDeg(d) {
@@ -2324,25 +2444,27 @@ function normalizeDeltaDeg(d) {
 }
 
 function rotateLLAroundCenter(latlng, centerLL, deltaDeg) {
-  const p = map.latLngToContainerPoint(L.latLng(latlng.lat, latlng.lng));
-  const c = map.latLngToContainerPoint(L.latLng(centerLL.lat, centerLL.lng));
+  // Rotate in a stable local geo plane (meters), not screen pixels,
+  // to preserve row-to-row geometry even for large groups/zoom levels.
+  const p = ll2xy(latlng.lat, latlng.lng, centerLL.lat, centerLL.lng);
   const rad = deltaDeg * Math.PI / 180;
   const cos = Math.cos(rad), sin = Math.sin(rad);
-  const dx = p.x - c.x, dy = p.y - c.y;
-  const rx = dx * cos - dy * sin;
-  const ry = dx * sin + dy * cos;
-  const out = map.containerPointToLatLng(L.point(c.x + rx, c.y + ry));
-  return { lat: out.lat, lng: out.lng };
+  const rx = p.x * cos - p.y * sin;
+  const ry = p.x * sin + p.y * cos;
+  return xy2ll(rx, ry, centerLL.lat, centerLL.lng);
 }
 
 function rotateGroup(groupId) {
   const group = groups.find(g => g.id === groupId);
   if (!group) return;
   clearEditHandles();
-  clearGroupHandles();
+  prepareGroupHandles(groupId);
   selectedRid = null;
   const center = getGroupCenter(group);
   if (!center) return;
+  try { groupHandles.centerM?.remove(); } catch {}
+  try { groupHandles.rotM?.remove(); } catch {}
+  try { groupHandles.rotLine?.remove(); } catch {}
 
   const cPt = map.latLngToContainerPoint(L.latLng(center.lat, center.lng));
   const rPt = L.point(cPt.x, cPt.y - 70);
@@ -2390,7 +2512,7 @@ function rotateGroup(groupId) {
   });
   rotM.on('dragend', saveRows);
 
-  groupHandles = { centerM, rotM, rotLine };
+  groupHandles = { ...groupHandles, _gid: groupId, centerM, rotM, rotLine };
 }
 
 function moveRowBetweenGroups(rowId, targetGroupId) {
@@ -2440,6 +2562,40 @@ function toggleSecondBendHandle(id) {
   if (selectedRid === id) showEditHandles(row);
   renderRowList();
   saveRows();
+}
+
+function setRowStartFromAnotherRow(targetId) {
+  const target = rows.find(r => r.id === targetId);
+  if (!target) return;
+  seatLinkState = { targetId };
+  showToast(`Pick source row for "${target.name}" (map or list)`);
+}
+
+function applySeatLinkFromSource(sourceId) {
+  if (!seatLinkState) return false;
+  const target = rows.find(r => r.id === seatLinkState.targetId);
+  const src = rows.find(r => r.id === sourceId);
+  seatLinkState = null;
+  if (!target || !src || target.id === src.id) {
+    showToast('Invalid source row');
+    return true;
+  }
+  if (!src) {
+    showToast('Invalid row ID');
+    return true;
+  }
+  pushHistory();
+  const seats = src._seats?.length ? src._seats : computeSeats(src);
+  const nums = computeSeatNumbers(src, seats.length).map(v => Number(v));
+  const endSeat = Number.isFinite(nums[nums.length - 1]) ? nums[nums.length - 1] : ((Number(src.meta?.startNumber) || 1) + Math.max(0, seats.length - 1));
+  target.meta = target.meta || { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' };
+  target.meta.startNumber = endSeat + 1;
+  renderRow(target);
+  if (metaRid === target.id) openMetaEditor(target.id);
+  renderRowList();
+  saveRows();
+  showToast(`"${target.name}" now starts from ${target.meta.startNumber}`);
+  return true;
 }
 
 function buildMetaHierarchyFields(row) {
@@ -2501,6 +2657,44 @@ function renderHierarchyOptionsEditor() {
       <input type="text" class="ctrl-input" id="hier-opts-${idx}" placeholder="Option1, Option2" value="${escHtml((hierarchy.options?.[idx] || []).join(', '))}">
     </div>
   `).join('');
+}
+
+function normalizeRowNameConvention() {
+  hierarchy.rowNameConvention = hierarchy.rowNameConvention || { mode: 'manual', parts: ['row'] };
+  hierarchy.rowNameConvention.mode = hierarchy.rowNameConvention.mode === 'auto' ? 'auto' : 'manual';
+  const validParts = new Set(['row', ...Array.from({ length: hierarchy.levels }, (_, i) => `level:${i}`)]);
+  hierarchy.rowNameConvention.parts = (hierarchy.rowNameConvention.parts || []).filter(p => validParts.has(p));
+  if (!hierarchy.rowNameConvention.parts.length) hierarchy.rowNameConvention.parts = ['row'];
+}
+
+function renderRowNameConventionEditor() {
+  normalizeRowNameConvention();
+  document.querySelectorAll('input[name="row-name-conv-mode"]').forEach(r => {
+    r.checked = r.value === hierarchy.rowNameConvention.mode;
+  });
+  const names = hierarchy.names.slice(0, hierarchy.levels).map((n, i) => n || `Level ${i + 1}`);
+  const selected = new Set(hierarchy.rowNameConvention.parts);
+  $('hier-row-convention-parts').innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <label><input type="checkbox" data-conv-part="row" ${selected.has('row') ? 'checked' : ''}> Row</label>
+      ${names.map((n, i) => `<label><input type="checkbox" data-conv-part="level:${i}" ${selected.has(`level:${i}`) ? 'checked' : ''}> ${escHtml(n)}</label>`).join('')}
+    </div>
+  `;
+  $('hier-row-convention-parts').style.display = hierarchy.rowNameConvention.mode === 'auto' ? '' : 'none';
+}
+
+function getRowDisplayName(row) {
+  normalizeRowNameConvention();
+  if (hierarchy.rowNameConvention.mode !== 'auto') return row.name;
+  const parts = hierarchy.rowNameConvention.parts.map(p => {
+    if (p === 'row') return String(row.meta?.rowValue || '').trim();
+    if (p.startsWith('level:')) {
+      const idx = Number(p.split(':')[1]);
+      return String(row.meta?.hierarchy?.[idx] || '').trim();
+    }
+    return '';
+  }).filter(Boolean);
+  return parts.length ? parts.join(' - ') : row.name;
 }
 
 function validateHierarchyForm() {
@@ -2762,13 +2956,13 @@ function deleteRow(id) {
   saveRows();
 }
 
-function duplicateRow(id) {
+function duplicateRow(id, dupCfg = { incRow: false, incSeatStart: false, incLevels: {} }) {
   const src = rows.find(r => r.id === id);
   if (!src) return;
   pushHistory();
   const off = 0.00008;
   const row = {
-    id: ++rowIdCtr, name: bumpPlusOneText(src.name),
+    id: ++rowIdCtr, name: src.name,
     seatCount: src.seatCount, spacingM: src.spacingM,
     color: ROW_COLORS[rows.length % ROW_COLORS.length],
     start: { lat: src.start.lat + off, lng: src.start.lng + off },
@@ -2780,7 +2974,19 @@ function duplicateRow(id) {
     _group: null, _curve: null, _seats: [],
   };
   if (row.meta) {
-    row.meta.rowValue = bumpPlusOneText(row.meta.rowValue || src.name || '');
+    row.meta.rowValue = String(row.meta.rowValue || '');
+    if (dupCfg.incRow) row.meta.rowValue = incrementByRules(row.meta.rowValue, null);
+    Object.keys(dupCfg.incLevels || {}).forEach(k => {
+      if (!dupCfg.incLevels[k]) return;
+      const idx = Number(k);
+      row.meta.hierarchy = row.meta.hierarchy || {};
+      row.meta.hierarchy[idx] = incrementByRules(row.meta.hierarchy[idx] || '', idx);
+    });
+    if (dupCfg.incSeatStart) {
+      const seats = src._seats?.length ? src._seats : computeSeats(src);
+      const last = Number(src.meta?.startNumber || 1) + Math.max(0, seats.length - 1);
+      row.meta.startNumber = last + 1;
+    }
   }
   rows.push(row);
   const group = getGroupByRowId(src.id);
@@ -2815,7 +3021,7 @@ function groupSelectedRows() {
   saveRows();
 }
 
-function duplicateGroup(id) {
+function duplicateGroup(id, dupCfg = { incRow: false, incSeatStart: false, incLevels: {} }) {
   const group = groups.find(g => g.id === id);
   if (!group) return;
   pushHistory();
@@ -2824,8 +3030,7 @@ function duplicateGroup(id) {
   group.rowIds.forEach(rid => {
     const src = rows.find(r => r.id === rid);
     if (!src) return;
-    const m = String(src.name || '').match(/^(.*?)(\d+)\s*$/);
-    const name = m ? `${m[1]}${parseInt(m[2], 10) + 1}` : `${src.name} 1`;
+    const name = src.name;
     const row = {
       id: ++rowIdCtr, name,
       seatCount: src.seatCount, spacingM: src.spacingM,
@@ -2838,6 +3043,21 @@ function duplicateGroup(id) {
       meta: src.meta ? JSON.parse(JSON.stringify(src.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
       _group: null, _curve: null, _seats: [],
     };
+    if (row.meta) {
+      row.meta.rowValue = String(row.meta.rowValue || '');
+      if (dupCfg.incRow) row.meta.rowValue = incrementByRules(row.meta.rowValue, null);
+      Object.keys(dupCfg.incLevels || {}).forEach(k => {
+        if (!dupCfg.incLevels[k]) return;
+        const idx = Number(k);
+        row.meta.hierarchy = row.meta.hierarchy || {};
+        row.meta.hierarchy[idx] = incrementByRules(row.meta.hierarchy[idx] || '', idx);
+      });
+      if (dupCfg.incSeatStart) {
+        const seats = src._seats?.length ? src._seats : computeSeats(src);
+        const last = Number(src.meta?.startNumber || 1) + Math.max(0, seats.length - 1);
+        row.meta.startNumber = last + 1;
+      }
+    }
     rows.push(row);
     renderRow(row);
     newIds.push(row.id);
@@ -2884,12 +3104,13 @@ function renderRowList() {
     const n   = r._seats?.length || '—';
     const sel = selectedRid === r.id ? ' selected' : '';
     const doneCls = rowHasFullMeta(r) ? ' complete' : '';
+    const displayName = getRowDisplayName(r);
     const visIcon = r.visible === false ? '🙈' : '👁';
     const visTitle = r.visible === false ? 'Show row' : 'Hide row';
     return `<div class="ri${sel}" data-rid="${r.id}" draggable="true">
       <input type="checkbox" class="ri-select" data-multi="${r.id}" ${selectedRowIds.has(r.id) ? 'checked' : ''} title="Select for grouping">
       <span class="ri-dot" style="background:${r.color}"></span>
-      <span class="ri-name${doneCls}">${escHtml(r.name)}</span>
+      <span class="ri-name${doneCls}">${escHtml(displayName)}</span>
       <span class="ri-cnt">${n}</span>
       <div class="ri-btns" onclick="event.stopPropagation()">
         <button class="btn-icon" title="${visTitle}" data-vis="${r.id}">${visIcon}</button>
@@ -2897,6 +3118,7 @@ function renderRowList() {
         <button class="btn-icon" title="Edit shape" data-edit="${r.id}">✏</button>
         <button class="btn-icon" title="Meta data" data-meta="${r.id}">⚙</button>
         <button class="btn-icon" title="Toggle 2nd bend handle" data-b2="${r.id}">${r.ctrl2 ? '◉' : '◎'}</button>
+        <button class="btn-icon" title="Start seat from another row end + 1" data-seat-link="${r.id}">⇢</button>
         <button class="btn-icon" title="Split row" data-split="${r.id}">✂</button>
         <button class="btn-icon" title="Duplicate" data-dup="${r.id}">⧉</button>
         <button class="btn-icon" title="Copy seats as JSON" data-exp="${r.id}">↓</button>
@@ -2917,8 +3139,7 @@ function renderRowList() {
         <span class="ri-group-cnt">${cnt}</span>
         <div class="ri-btns" onclick="event.stopPropagation()">
           <button class="btn-icon" title="Rename group" data-g-rename="${g.id}">✎</button>
-          <button class="btn-icon" title="Move group" data-g-move="${g.id}">⇄</button>
-          <button class="btn-icon" title="Rotate group" data-g-rot="${g.id}">↻</button>
+          <button class="btn-icon" title="Transform group (move + rotate)" data-g-xform="${g.id}">⤧</button>
           <button class="btn-icon" title="Knife split group" data-g-split="${g.id}">✂</button>
           <button class="btn-icon" title="Duplicate group" data-g-dup="${g.id}">⧉</button>
           <button class="btn-icon" title="Delete group" data-g-del="${g.id}" style="color:var(--danger)">✕</button>
@@ -2989,8 +3210,12 @@ function renderRowList() {
     openMetaEditor(id);
   }));
   list.querySelectorAll('[data-b2]').forEach(b => b.addEventListener('click', () => toggleSecondBendHandle(+b.dataset.b2)));
+  list.querySelectorAll('[data-seat-link]').forEach(b => b.addEventListener('click', () => setRowStartFromAnotherRow(+b.dataset.seatLink)));
   list.querySelectorAll('[data-split]').forEach(b => b.addEventListener('click', () => beginSplitRow(+b.dataset.split)));
-  list.querySelectorAll('[data-dup]').forEach(b  => b.addEventListener('click', () => duplicateRow(+b.dataset.dup)));
+  list.querySelectorAll('[data-dup]').forEach(b  => b.addEventListener('click', () => {
+    const id = +b.dataset.dup;
+    showDuplicateOptionsDialog(cfg => duplicateRow(id, cfg));
+  }));
   list.querySelectorAll('[data-del]').forEach(b  => b.addEventListener('click', () => deleteRow(+b.dataset.del)));
   list.querySelectorAll('[data-g-toggle]').forEach(b => b.addEventListener('click', () => {
     const g = groups.find(x => x.id === +b.dataset.gToggle);
@@ -3009,10 +3234,16 @@ function renderRowList() {
     renderRowList();
     saveRows();
   }));
-  list.querySelectorAll('[data-g-move]').forEach(b => b.addEventListener('click', () => moveGroup(+b.dataset.gMove)));
-  list.querySelectorAll('[data-g-rot]').forEach(b => b.addEventListener('click', () => rotateGroup(+b.dataset.gRot)));
+  list.querySelectorAll('[data-g-xform]').forEach(b => b.addEventListener('click', () => {
+    const gid = +b.dataset.gXform;
+    moveGroup(gid);
+    rotateGroup(gid);
+  }));
   list.querySelectorAll('[data-g-split]').forEach(b => b.addEventListener('click', () => beginSplitGroup(+b.dataset.gSplit)));
-  list.querySelectorAll('[data-g-dup]').forEach(b => b.addEventListener('click', () => duplicateGroup(+b.dataset.gDup)));
+  list.querySelectorAll('[data-g-dup]').forEach(b => b.addEventListener('click', () => {
+    const id = +b.dataset.gDup;
+    showDuplicateOptionsDialog(cfg => duplicateGroup(id, cfg));
+  }));
   list.querySelectorAll('[data-g-del]').forEach(b => b.addEventListener('click', () => deleteGroup(+b.dataset.gDel)));
   list.querySelectorAll('.ri-group').forEach(gEl => {
     gEl.addEventListener('dragover', e => {
@@ -3085,10 +3316,12 @@ function loadHierarchy() {
     hierarchy.levels = Math.max(1, Math.min(8, Number(h.levels) || 2));
     hierarchy.names = Array.isArray(h.names) ? h.names : hierarchy.names;
     hierarchy.options = typeof h.options === 'object' && h.options ? h.options : {};
+    hierarchy.rowNameConvention = typeof h.rowNameConvention === 'object' && h.rowNameConvention ? h.rowNameConvention : hierarchy.rowNameConvention;
   } catch {}
   $('hier-level-count').value = hierarchy.levels;
   $('hier-level-names').value = hierarchy.names.join(',');
   renderHierarchyOptionsEditor();
+  renderRowNameConventionEditor();
   validateHierarchyForm();
 }
 
@@ -3271,9 +3504,14 @@ $('btn-save-hierarchy').onclick = () => {
     if (opts.length) nextOptions[i] = opts;
   }
   hierarchy.options = nextOptions;
+  const mode = document.querySelector('input[name="row-name-conv-mode"]:checked')?.value || 'manual';
+  const parts = [...$('hier-row-convention-parts').querySelectorAll('[data-conv-part]:checked')].map(x => x.dataset.convPart);
+  hierarchy.rowNameConvention = { mode: mode === 'auto' ? 'auto' : 'manual', parts: parts.length ? parts : ['row'] };
+  normalizeRowNameConvention();
   $('hier-level-count').value = hierarchy.levels;
   $('hier-level-names').value = hierarchy.names.join(',');
   renderHierarchyOptionsEditor();
+  renderRowNameConventionEditor();
   saveHierarchy();
   if (metaRid !== null) openMetaEditor(metaRid);
   renderRowList();
@@ -3284,9 +3522,28 @@ $('hier-level-count').addEventListener('input', () => {
   const levels = Math.max(1, Math.min(8, parseInt($('hier-level-count').value) || 1));
   hierarchy.levels = levels;
   renderHierarchyOptionsEditor();
+  renderRowNameConventionEditor();
   validateHierarchyForm();
 });
-$('hier-level-names').addEventListener('input', validateHierarchyForm);
+$('hier-level-names').addEventListener('input', () => { validateHierarchyForm(); renderRowNameConventionEditor(); });
+document.querySelectorAll('input[name="row-name-conv-mode"]').forEach(r => {
+  r.addEventListener('change', () => {
+    hierarchy.rowNameConvention = hierarchy.rowNameConvention || { mode: 'manual', parts: ['row'] };
+    hierarchy.rowNameConvention.mode = r.value;
+    renderRowNameConventionEditor();
+    normalizeRowNameConvention();
+    saveHierarchy();
+    renderRowList();
+  });
+});
+$('hier-row-convention-parts').addEventListener('change', () => {
+  const parts = [...$('hier-row-convention-parts').querySelectorAll('[data-conv-part]:checked')].map(x => x.dataset.convPart);
+  hierarchy.rowNameConvention = hierarchy.rowNameConvention || { mode: 'manual', parts: ['row'] };
+  hierarchy.rowNameConvention.parts = parts.length ? parts : ['row'];
+  normalizeRowNameConvention();
+  saveHierarchy();
+  renderRowList();
+});
 
 $('btn-sort-rows-name').onclick = () => {
   pushHistory();
@@ -3322,6 +3579,16 @@ const saveVenueHandler = () => {
 const loadVenueHandler = () => $('venue-file-input').click();
 $('btn-save-venue-top').onclick = saveVenueHandler;
 $('btn-load-venue-top').onclick = loadVenueHandler;
+$('dup-cancel').onclick = hideDuplicateOptionsDialog;
+$('dup-modal').addEventListener('click', e => {
+  if (e.target === $('dup-modal')) hideDuplicateOptionsDialog();
+});
+$('dup-apply').onclick = () => {
+  const ctx = dupDialogCtx;
+  const cfg = getDuplicateConfigFromUI();
+  hideDuplicateOptionsDialog();
+  if (ctx?.onApply) ctx.onApply(cfg);
+};
 $('venue-file-input').addEventListener('change', async e => {
   const file = e.target.files?.[0];
   if (!file) return;
