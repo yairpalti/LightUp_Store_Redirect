@@ -264,7 +264,10 @@
     /* ── Picking cursor ──────────────────────────────── */
     #map-wrap.picking,
     #map-wrap.picking .leaflet-container,
-    #map-wrap.picking .leaflet-grab { cursor: crosshair !important; }
+    #map-wrap.picking .leaflet-grab,
+    #map-wrap.measuring,
+    #map-wrap.measuring .leaflet-container,
+    #map-wrap.measuring .leaflet-grab { cursor: crosshair !important; }
 
     /* ── Leaflet overrides ───────────────────────────── */
     .leaflet-control-zoom a {
@@ -598,6 +601,16 @@
           <button class="btn btn-sub" id="btn-clear" disabled>🗑️ Clear</button>
         </div>
       </div>
+
+      <!-- Distance measure -->
+      <div class="sec">
+        <div class="sec-title">Distance Measure</div>
+        <button class="btn btn-sub picker-btn" id="btn-measure">📏 Measure Distance</button>
+        <div id="measure-readout" class="small-note" style="min-height:2.6em;line-height:1.5;margin-top:4px"></div>
+        <div class="ca" style="margin-top:6px">
+          <button class="btn btn-sub" id="btn-measure-clear" disabled>🗑️ Clear</button>
+        </div>
+      </div>
       </div>
 
       <!-- Seat Rows -->
@@ -766,6 +779,15 @@ let map = null;
 let pickerOn = false;
 let coords   = [];
 let coordIdx = 0;
+
+let measureOn = false;
+let measureA = null;
+let measureB = null;
+let measureLayerGroup = null;
+let measurePreviewLine = null;
+let measureLine = null;
+let measureM1 = null;
+let measureM2 = null;
 let ar       = 4 / 3;
 
 let ov = {
@@ -1015,12 +1037,16 @@ function initMap() {
   map.on('click', e => {
     if (typeof handleSplitClick === 'function' && handleSplitClick(e)) return;
     if (typeof handleDrawClick === 'function' && handleDrawClick(e)) return;
+    if (typeof handleMeasureClick === 'function' && handleMeasureClick(e)) return;
     if (!pickerOn) return;
     addCoord(e.latlng.lat, e.latlng.lng);
   });
   map.on('mousemove', e => {
-    if (!splitState || splitState.type !== 'group' || !splitState.p1 || !splitState.previewLine) return;
-    splitState.previewLine.setLatLngs([[splitState.p1.lat, splitState.p1.lng], [e.latlng.lat, e.latlng.lng]]);
+    if (splitState && splitState.type === 'group' && splitState.p1 && splitState.previewLine) {
+      splitState.previewLine.setLatLngs([[splitState.p1.lat, splitState.p1.lng], [e.latlng.lat, e.latlng.lng]]);
+      return;
+    }
+    if (typeof updateMeasurePreview === 'function') updateMeasurePreview(e);
   });
 
   // ── Drag-drop image onto map ──────────────────────
@@ -1391,11 +1417,150 @@ $('btn-remove').onclick = () => {
 //  PICKER
 // ═══════════════════════════════════════════════════
 const PICKER_ICO = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>`;
+const MEASURE_BTN_BASE = '📏 Measure Distance';
+
+function clearMeasureMapLayers() {
+  try { measureLayerGroup?.remove(); } catch { /* ignore */ }
+  measureLayerGroup = null;
+  measurePreviewLine = null;
+  measureLine = null;
+  measureM1 = null;
+  measureM2 = null;
+}
+
+function clearMeasureFull() {
+  measureA = null;
+  measureB = null;
+  clearMeasureMapLayers();
+  const ro = $('measure-readout');
+  if (ro) ro.textContent = '';
+  const bc = $('btn-measure-clear');
+  if (bc) bc.disabled = true;
+}
+
+function syncMeasureReadout() {
+  const ro = $('measure-readout');
+  const bc = $('btn-measure-clear');
+  if (!ro) return;
+  if (!measureOn) {
+    ro.textContent = '';
+    if (bc) bc.disabled = true;
+    return;
+  }
+  if (bc) bc.disabled = !measureA;
+  if (!measureA) {
+    ro.textContent = 'Click the map for the first point, then the second.';
+    return;
+  }
+  if (!measureB) {
+    ro.textContent = 'First point set — click for the second point.';
+    return;
+  }
+  const m = geoDistMeters(measureA.lat, measureA.lng, measureB.lat, measureB.lng);
+  const ft = m * 3.280839895;
+  ro.textContent = m >= 1000
+    ? `${(m / 1000).toFixed(3)} km · ${m.toFixed(1)} m · ${ft.toFixed(0)} ft`
+    : `${m.toFixed(2)} m · ${ft.toFixed(2)} ft`;
+}
+
+function ensureMeasureLayerGroup() {
+  if (!map) return null;
+  if (!measureLayerGroup || !map.hasLayer(measureLayerGroup)) {
+    measureLayerGroup = L.layerGroup().addTo(map);
+  }
+  return measureLayerGroup;
+}
+
+function handleMeasureClick(e) {
+  if (!measureOn) return false;
+  const ll = e.latlng;
+  const g = ensureMeasureLayerGroup();
+  if (!g) return true;
+
+  if (!measureA) {
+    measureA = { lat: ll.lat, lng: ll.lng };
+    measureM1 = L.circleMarker([ll.lat, ll.lng], {
+      radius: 5, color: '#c47af7', fillColor: '#c47af7', fillOpacity: 0.95, weight: 1, interactive: false,
+    }).addTo(g);
+    measurePreviewLine = L.polyline([[ll.lat, ll.lng], [ll.lat, ll.lng]], {
+      color: '#c47af7', weight: 2, dashArray: '5 6', opacity: 0.8, interactive: false,
+    }).addTo(g);
+    syncMeasureReadout();
+    return true;
+  }
+  if (!measureB) {
+    measureB = { lat: ll.lat, lng: ll.lng };
+    if (measurePreviewLine) { try { measurePreviewLine.remove(); } catch { /* ignore */ } measurePreviewLine = null; }
+    measureM2 = L.circleMarker([ll.lat, ll.lng], {
+      radius: 5, color: '#f07070', fillColor: '#f07070', fillOpacity: 0.95, weight: 1, interactive: false,
+    }).addTo(g);
+    measureLine = L.polyline([[measureA.lat, measureA.lng], [ll.lat, ll.lng]], {
+      color: '#f0e040', weight: 2.5, opacity: 0.95, interactive: false,
+    }).addTo(g);
+    const m = geoDistMeters(measureA.lat, measureA.lng, measureB.lat, measureB.lng);
+    showToast(m >= 1000 ? `Distance: ${(m / 1000).toFixed(3)} km` : `Distance: ${m.toFixed(2)} m`);
+    syncMeasureReadout();
+    return true;
+  }
+  clearMeasureMapLayers();
+  measureA = { lat: ll.lat, lng: ll.lng };
+  measureB = null;
+  const g2 = ensureMeasureLayerGroup();
+  if (!g2) return true;
+  measureM1 = L.circleMarker([ll.lat, ll.lng], {
+    radius: 5, color: '#c47af7', fillColor: '#c47af7', fillOpacity: 0.95, weight: 1, interactive: false,
+  }).addTo(g2);
+  measurePreviewLine = L.polyline([[ll.lat, ll.lng], [ll.lat, ll.lng]], {
+    color: '#c47af7', weight: 2, dashArray: '5 6', opacity: 0.8, interactive: false,
+  }).addTo(g2);
+  syncMeasureReadout();
+  return true;
+}
+
+function updateMeasurePreview(e) {
+  if (!measureOn || !measurePreviewLine || !measureA || measureB) return;
+  measurePreviewLine.setLatLngs([[measureA.lat, measureA.lng], [e.latlng.lat, e.latlng.lng]]);
+}
+
+$('btn-measure').onclick = () => {
+  measureOn = !measureOn;
+  const btn = $('btn-measure'), mw = $('map-wrap');
+  if (measureOn) {
+    if (pickerOn) {
+      pickerOn = false;
+      $('btn-picker').classList.remove('on');
+      $('btn-picker').innerHTML = PICKER_ICO + ' Enable Picker';
+      mw.classList.remove('picking');
+    }
+    btn.classList.add('on');
+    btn.textContent = '📏 Disable Measure';
+    mw.classList.add('measuring');
+    syncMeasureReadout();
+  } else {
+    btn.classList.remove('on');
+    btn.textContent = MEASURE_BTN_BASE;
+    mw.classList.remove('measuring');
+    clearMeasureFull();
+  }
+};
+
+$('btn-measure-clear').onclick = () => {
+  if (!measureOn) return;
+  clearMeasureFull();
+  syncMeasureReadout();
+};
 
 $('btn-picker').onclick = () => {
   pickerOn = !pickerOn;
   const btn = $('btn-picker'), mw = $('map-wrap');
   if (pickerOn) {
+    if (measureOn) {
+      measureOn = false;
+      $('btn-measure').classList.remove('on');
+      $('btn-measure').textContent = MEASURE_BTN_BASE;
+      mw.classList.remove('measuring');
+      clearMeasureFull();
+    }
     btn.classList.add('on');
     btn.innerHTML = PICKER_ICO + ' Disable Picker';
     mw.classList.add('picking');
@@ -1681,6 +1846,16 @@ function ll2xy(lat, lng, rlat, rlng) {
   const cos = Math.cos(rlat * Math.PI / 180);
   return { x: (lng - rlng) * cos * 111320, y: (lat - rlat) * 111320 };
 }
+
+/** Ground distance (m) between two lat/lng in the same local plane as row curves (see ll2xy). */
+function geoDistMeters(lat1, lng1, lat2, lng2) {
+  const rlat = (lat1 + lat2) / 2;
+  const rlng = (lng1 + lng2) / 2;
+  const p1 = ll2xy(lat1, lng1, rlat, rlng);
+  const p2 = ll2xy(lat2, lng2, rlat, rlng);
+  return Math.hypot(p2.x - p1.x, p2.y - p1.y);
+}
+
 function xy2ll(x, y, rlat, rlng) {
   const cos = Math.cos(rlat * Math.PI / 180);
   return { lat: rlat + y / 111320, lng: rlng + x / (cos * 111320) };
