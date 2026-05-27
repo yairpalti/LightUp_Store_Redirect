@@ -264,10 +264,7 @@
     /* ── Picking cursor ──────────────────────────────── */
     #map-wrap.picking,
     #map-wrap.picking .leaflet-container,
-    #map-wrap.picking .leaflet-grab,
-    #map-wrap.measuring,
-    #map-wrap.measuring .leaflet-container,
-    #map-wrap.measuring .leaflet-grab { cursor: crosshair !important; }
+    #map-wrap.picking .leaflet-grab { cursor: crosshair !important; }
 
     /* ── Leaflet overrides ───────────────────────────── */
     .leaflet-control-zoom a {
@@ -349,58 +346,40 @@
     .ri-btns .btn-icon { padding: 2px; font-size: 11px; }
     .ri-select { margin-right: 1px; accent-color: var(--accent); }
     .hidden { display: none !important; }
-    .pb.rows-mode {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
+    #tab-rows-rows { display:flex; flex-direction:column; height: 62vh; min-height: 320px; }
+    #rows-split { display:flex; flex-direction:column; gap:0; min-height:0; flex:1; }
+    #rows-top-pane, #rows-bottom-pane { min-height:0; overflow:auto; }
+    #rows-top-pane { flex: 1 1 auto; padding-bottom: 8px; }
+    #rows-bottom-pane {
+      flex: 0 1 auto;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
     }
-    #tab-rows-rows { display:flex; flex-direction:column; min-height: 320px; }
-    .pb.rows-mode > #tab-rows-rows { flex: 1; min-height: 0; }
-    #rows-layout { display:flex; flex-direction:column; flex:1; min-height:0; }
-    .rows-frame {
-      min-height: 110px;
+    #rows-inner-splitter {
+      height: 8px;
+      cursor: row-resize;
+      position: relative;
+      flex-shrink: 0;
+      margin: 2px 0;
+    }
+    #rows-inner-splitter::after {
+      content:'';
+      position:absolute;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:50px; height:2px; border-radius:2px;
+      background: var(--border2);
+    }
+    #rows-inner-splitter.dragging::after { background: var(--accent); }
+    .row-selected-summary {
+      margin-bottom: 8px;
       border: 1px solid var(--border);
-      border-radius: var(--r);
       background: var(--bg2);
+      border-radius: var(--r);
       padding: 8px;
-      overflow: auto;
+      font-size: 11px;
     }
-    #rows-list-frame { flex: 1 1 auto; }
-    #rows-meta-frame { flex: 0 0 180px; }
-    #rows-splitter {
-      height: 10px;
-      cursor: row-resize;
-      flex-shrink: 0;
-      position: relative;
-      margin: 4px 0;
-    }
-    #rows-splitter::after {
-      content:'';
-      position:absolute;
-      left:50%; top:50%;
-      transform:translate(-50%, -50%);
-      width: 52px; height:2px;
-      border-radius: 2px;
-      background: var(--border2);
-    }
-    #rows-splitter.dragging::after { background: var(--accent); }
-    #rows-meta-splitter {
-      height: 10px;
-      cursor: row-resize;
-      flex-shrink: 0;
-      position: relative;
-      margin-top: 4px;
-    }
-    #rows-meta-splitter::after {
-      content:'';
-      position:absolute;
-      left:50%; top:50%;
-      transform:translate(-50%, -50%);
-      width: 52px; height:2px;
-      border-radius: 2px;
-      background: var(--border2);
-    }
-    #rows-meta-splitter.dragging::after { background: var(--accent); }
+    .row-selected-summary .muted { color: var(--text2); }
     .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .meta-field { margin-top: 6px; }
     .meta-field label { display: block; font-size: 10px; color: var(--text3); margin-bottom: 3px; }
@@ -436,59 +415,6 @@
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
-    #dup-modal {
-      position: fixed; inset: 0; z-index: 12000;
-      background: rgba(0,0,0,0.55);
-      display: none; align-items: center; justify-content: center;
-    }
-    #dup-modal.show { display: flex; }
-    .dup-card {
-      width: min(420px, calc(100vw - 24px));
-      max-height: calc(100vh - 24px);
-      overflow: auto;
-      background: var(--bg2);
-      border: 1px solid var(--border2);
-      border-radius: 8px;
-      padding: 12px;
-    }
-    .dup-title { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
-    .dup-list { display: grid; gap: 6px; margin: 8px 0; }
-    .dup-list label { display:flex; align-items:center; gap:7px; font-size: 11px; color: var(--text2); }
-    .dup-actions { display:flex; gap:6px; margin-top:10px; }
-    .dup-actions .btn { flex:1; }
-    #error-modal {
-      position: fixed; inset: 0; z-index: 12001;
-      background: rgba(0,0,0,0.55);
-      display: none; align-items: center; justify-content: center;
-    }
-    #error-modal.show { display: flex; }
-    .err-card {
-      width: min(680px, calc(100vw - 24px));
-      max-height: calc(100vh - 24px);
-      overflow: auto;
-      background: var(--bg2);
-      border: 1px solid var(--border2);
-      border-radius: 8px;
-      padding: 12px;
-    }
-    .err-title { font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--danger); }
-    #error-modal-text {
-      width: 100%;
-      min-height: 220px;
-      resize: vertical;
-      background: #0e1118;
-      color: var(--text);
-      border: 1px solid var(--border2);
-      border-radius: 6px;
-      padding: 8px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      line-height: 1.4;
-    }
-    .err-actions { display:flex; gap:6px; margin-top:10px; }
-    .err-actions .btn { flex:1; }
-    #error-reveal-wrap { margin-top: 8px; }
-    #error-reveal-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
   </style>
 </head>
 <body>
@@ -598,19 +524,7 @@
 
         <div class="ca">
           <button class="btn btn-sub" id="btn-copy-all" disabled>📋 Copy JSON</button>
-          <button class="btn btn-sub" id="btn-load-coords-json">📂 Load JSON</button>
           <button class="btn btn-sub" id="btn-clear" disabled>🗑️ Clear</button>
-        </div>
-        <input type="file" id="coord-json-input" accept="application/json,.json" style="display:none">
-      </div>
-
-      <!-- Distance measure -->
-      <div class="sec">
-        <div class="sec-title">Distance Measure</div>
-        <button class="btn btn-sub picker-btn" id="btn-measure">📏 Measure Distance</button>
-        <div id="measure-readout" class="small-note" style="min-height:2.6em;line-height:1.5;margin-top:4px"></div>
-        <div class="ca" style="margin-top:6px">
-          <button class="btn btn-sub" id="btn-measure-clear" disabled>🗑️ Clear</button>
         </div>
       </div>
       </div>
@@ -630,14 +544,6 @@
           <span class="ctrl-lbl">Level Names</span>
           <input type="text" id="hier-level-names" class="ctrl-input" value="Section,Block" placeholder="Section,Block">
         </div>
-        <div class="ctrl">
-          <span class="ctrl-lbl">Row name convention</span>
-          <div class="row-mode-row" style="margin:0">
-            <label><input type="radio" name="row-name-conv-mode" value="manual" checked> Manual</label>
-            <label><input type="radio" name="row-name-conv-mode" value="auto"> Auto</label>
-          </div>
-        </div>
-        <div id="hier-row-convention-parts" class="small-note" style="margin-top:4px"></div>
         <div id="hier-options-editor"></div>
         <button class="btn btn-sub" style="width:100%;margin-top:4px" id="btn-save-hierarchy">💾 Save Hierarchy</button>
         <div class="small-note">Set names and optional predefined options per level (comma-separated).</div>
@@ -646,8 +552,8 @@
 
       <div class="sec hidden" id="tab-rows-rows">
         <div class="sec-title">Seat Rows</div>
-        <div id="rows-layout">
-          <div class="rows-frame" id="rows-list-frame">
+        <div id="rows-split">
+          <div id="rows-top-pane">
             <!-- Normal: add button -->
             <div id="row-add-ui">
               <button class="btn btn-sub" style="width:100%" id="btn-add-row">
@@ -675,21 +581,20 @@
               <button class="btn btn-sub" id="btn-group-selected">🧩 Group Selected</button>
               <button class="btn btn-sub" id="btn-clear-row-selection">🧹 Clear Selection</button>
             </div>
-            <div class="row-2 row-tools">
-              <button class="btn btn-danger" id="btn-delete-all-rows">🗑️ Remove All Rows</button>
-            </div>
             <input type="file" id="venue-file-input" accept="application/json" style="display:none">
             <div id="row-list">
               <div class="row-empty">No rows yet. Click "Add Row".</div>
             </div>
           </div>
-          <div id="rows-splitter" title="Drag to resize panes"></div>
-          <div class="rows-frame" id="rows-meta-frame">
-            <div class="small-note" id="row-meta-empty">Select a row to edit its metadata.</div>
+          <div id="rows-inner-splitter" title="Drag to resize sections"></div>
+          <div id="rows-bottom-pane">
+            <div class="row-selected-summary" id="row-selected-summary">
+              <div class="muted">No row selected.</div>
+            </div>
             <!-- Row config form (create / edit) -->
-            <div id="row-form" style="display:none;margin-bottom:8px">
+            <div id="row-form" style="display:none">
               <div class="ctrl">
-                <span class="ctrl-lbl">Row Name</span>
+                <span class="ctrl-lbl">Name</span>
                 <input type="text" id="row-name" class="ctrl-input" placeholder="Row A">
               </div>
               <div class="row-mode-row">
@@ -705,31 +610,43 @@
                 <input type="number" id="row-spacing" class="ctrl-input" value="1.0" min="0.1" step="0.1">
                 <span class="ctrl-val">m</span>
               </div>
+              <div class="row-2" style="margin-top:2px">
+                <button class="btn btn-primary" id="btn-create-row">✅ Create Row</button>
+                <button class="btn btn-sub"     id="btn-cancel-draw2">✖ Cancel</button>
+              </div>
             </div>
-            <div id="row-meta-form" style="display:none;margin-top:0">
-          <div id="row-meta-hierarchy"></div>
-          <div class="meta-grid">
-            <div class="meta-field">
-              <label>Start number</label>
-              <div class="meta-input-row">
-              <input type="number" id="meta-start-num" class="ctrl-input" value="1">
-              <button class="btn-icon meta-link-btn" id="meta-link-start" title="Link to group">🔗</button>
+
+            <div id="row-meta-form" style="display:none;margin-top:10px">
+              <div class="sec-title" style="margin-top:8px;margin-bottom:6px">Row Metadata</div>
+              <div class="meta-field">
+                <label>Row name</label>
+                <input type="text" id="meta-row-name" class="ctrl-input" placeholder="Row A">
+              </div>
+              <div id="row-meta-hierarchy"></div>
+              <div class="meta-grid">
+                <div class="meta-field">
+                  <label>Start number</label>
+                  <div class="meta-input-row">
+                  <input type="number" id="meta-start-num" class="ctrl-input" value="1">
+                  <button class="btn-icon meta-link-btn" id="meta-link-start" title="Link to group">🔗</button>
+                  </div>
+                </div>
+              </div>
+              <div class="meta-field">
+                <label>Direction</label>
+                <div class="meta-input-row">
+                  <select id="meta-direction" class="ctrl-input">
+                    <option value="start_to_end">Start → End</option>
+                    <option value="end_to_start">End → Start</option>
+                  </select>
+                  <button class="btn-icon meta-link-btn" id="meta-link-direction" title="Link to group">🔗</button>
+                </div>
+              </div>
+              <div class="meta-actions">
+                <button class="btn btn-sub" id="btn-close-meta">✖ Close</button>
               </div>
             </div>
           </div>
-          <div class="meta-field">
-            <label>Direction</label>
-            <div class="meta-input-row">
-              <select id="meta-direction" class="ctrl-input">
-                <option value="start_to_end">Start → End</option>
-                <option value="end_to_start">End → Start</option>
-              </select>
-              <button class="btn-icon meta-link-btn" id="meta-link-direction" title="Link to group">🔗</button>
-            </div>
-          </div>
-            </div>
-          </div>
-          <div id="rows-meta-splitter" title="Drag to resize metadata frame"></div>
         </div>
       </div>
 
@@ -749,30 +666,6 @@
 </div>
 
 <div id="toast"></div>
-<div id="dup-modal">
-  <div class="dup-card">
-    <div class="dup-title">Duplicate Options</div>
-    <div class="dup-list" id="dup-options-list"></div>
-    <div class="dup-actions">
-      <button class="btn btn-sub" id="dup-cancel">Cancel</button>
-      <button class="btn btn-primary" id="dup-apply">Duplicate</button>
-    </div>
-  </div>
-</div>
-<div id="error-modal">
-  <div class="err-card">
-    <div class="err-title">Export Error</div>
-    <textarea id="error-modal-text" readonly></textarea>
-    <div id="error-reveal-wrap" style="display:none">
-      <div class="small-note">Reveal row by id:</div>
-      <div id="error-reveal-list"></div>
-    </div>
-    <div class="err-actions">
-      <button class="btn btn-sub" id="error-copy">📋 Copy</button>
-      <button class="btn btn-primary" id="error-close">OK</button>
-    </div>
-  </div>
-</div>
 
 <script>
 'use strict';
@@ -784,17 +677,6 @@ let map = null;
 let pickerOn = false;
 let coords   = [];
 let coordIdx = 0;
-let coordMarkers = new Map(); // id -> Leaflet layer (marker + label)
-let coordLayerGroup = null;
-
-let measureOn = false;
-let measureA = null;
-let measureB = null;
-let measureLayerGroup = null;
-let measurePreviewLine = null;
-let measureLine = null;
-let measureM1 = null;
-let measureM2 = null;
 let ar       = 4 / 3;
 
 let ov = {
@@ -1044,16 +926,12 @@ function initMap() {
   map.on('click', e => {
     if (typeof handleSplitClick === 'function' && handleSplitClick(e)) return;
     if (typeof handleDrawClick === 'function' && handleDrawClick(e)) return;
-    if (typeof handleMeasureClick === 'function' && handleMeasureClick(e)) return;
     if (!pickerOn) return;
     addCoord(e.latlng.lat, e.latlng.lng);
   });
   map.on('mousemove', e => {
-    if (splitState && splitState.type === 'group' && splitState.p1 && splitState.previewLine) {
-      splitState.previewLine.setLatLngs([[splitState.p1.lat, splitState.p1.lng], [e.latlng.lat, e.latlng.lng]]);
-      return;
-    }
-    if (typeof updateMeasurePreview === 'function') updateMeasurePreview(e);
+    if (!splitState || splitState.type !== 'group' || !splitState.p1 || !splitState.previewLine) return;
+    splitState.previewLine.setLatLngs([[splitState.p1.lat, splitState.p1.lng], [e.latlng.lat, e.latlng.lng]]);
   });
 
   // ── Drag-drop image onto map ──────────────────────
@@ -1424,150 +1302,11 @@ $('btn-remove').onclick = () => {
 //  PICKER
 // ═══════════════════════════════════════════════════
 const PICKER_ICO = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>`;
-const MEASURE_BTN_BASE = '📏 Measure Distance';
-
-function clearMeasureMapLayers() {
-  try { measureLayerGroup?.remove(); } catch { /* ignore */ }
-  measureLayerGroup = null;
-  measurePreviewLine = null;
-  measureLine = null;
-  measureM1 = null;
-  measureM2 = null;
-}
-
-function clearMeasureFull() {
-  measureA = null;
-  measureB = null;
-  clearMeasureMapLayers();
-  const ro = $('measure-readout');
-  if (ro) ro.textContent = '';
-  const bc = $('btn-measure-clear');
-  if (bc) bc.disabled = true;
-}
-
-function syncMeasureReadout() {
-  const ro = $('measure-readout');
-  const bc = $('btn-measure-clear');
-  if (!ro) return;
-  if (!measureOn) {
-    ro.textContent = '';
-    if (bc) bc.disabled = true;
-    return;
-  }
-  if (bc) bc.disabled = !measureA;
-  if (!measureA) {
-    ro.textContent = 'Click the map for the first point, then the second.';
-    return;
-  }
-  if (!measureB) {
-    ro.textContent = 'First point set — click for the second point.';
-    return;
-  }
-  const m = geoDistMeters(measureA.lat, measureA.lng, measureB.lat, measureB.lng);
-  const ft = m * 3.280839895;
-  ro.textContent = m >= 1000
-    ? `${(m / 1000).toFixed(3)} km · ${m.toFixed(1)} m · ${ft.toFixed(0)} ft`
-    : `${m.toFixed(2)} m · ${ft.toFixed(2)} ft`;
-}
-
-function ensureMeasureLayerGroup() {
-  if (!map) return null;
-  if (!measureLayerGroup || !map.hasLayer(measureLayerGroup)) {
-    measureLayerGroup = L.layerGroup().addTo(map);
-  }
-  return measureLayerGroup;
-}
-
-function handleMeasureClick(e) {
-  if (!measureOn) return false;
-  const ll = e.latlng;
-  const g = ensureMeasureLayerGroup();
-  if (!g) return true;
-
-  if (!measureA) {
-    measureA = { lat: ll.lat, lng: ll.lng };
-    measureM1 = L.circleMarker([ll.lat, ll.lng], {
-      radius: 5, color: '#c47af7', fillColor: '#c47af7', fillOpacity: 0.95, weight: 1, interactive: false,
-    }).addTo(g);
-    measurePreviewLine = L.polyline([[ll.lat, ll.lng], [ll.lat, ll.lng]], {
-      color: '#c47af7', weight: 2, dashArray: '5 6', opacity: 0.8, interactive: false,
-    }).addTo(g);
-    syncMeasureReadout();
-    return true;
-  }
-  if (!measureB) {
-    measureB = { lat: ll.lat, lng: ll.lng };
-    if (measurePreviewLine) { try { measurePreviewLine.remove(); } catch { /* ignore */ } measurePreviewLine = null; }
-    measureM2 = L.circleMarker([ll.lat, ll.lng], {
-      radius: 5, color: '#f07070', fillColor: '#f07070', fillOpacity: 0.95, weight: 1, interactive: false,
-    }).addTo(g);
-    measureLine = L.polyline([[measureA.lat, measureA.lng], [ll.lat, ll.lng]], {
-      color: '#f0e040', weight: 2.5, opacity: 0.95, interactive: false,
-    }).addTo(g);
-    const m = geoDistMeters(measureA.lat, measureA.lng, measureB.lat, measureB.lng);
-    showToast(m >= 1000 ? `Distance: ${(m / 1000).toFixed(3)} km` : `Distance: ${m.toFixed(2)} m`);
-    syncMeasureReadout();
-    return true;
-  }
-  clearMeasureMapLayers();
-  measureA = { lat: ll.lat, lng: ll.lng };
-  measureB = null;
-  const g2 = ensureMeasureLayerGroup();
-  if (!g2) return true;
-  measureM1 = L.circleMarker([ll.lat, ll.lng], {
-    radius: 5, color: '#c47af7', fillColor: '#c47af7', fillOpacity: 0.95, weight: 1, interactive: false,
-  }).addTo(g2);
-  measurePreviewLine = L.polyline([[ll.lat, ll.lng], [ll.lat, ll.lng]], {
-    color: '#c47af7', weight: 2, dashArray: '5 6', opacity: 0.8, interactive: false,
-  }).addTo(g2);
-  syncMeasureReadout();
-  return true;
-}
-
-function updateMeasurePreview(e) {
-  if (!measureOn || !measurePreviewLine || !measureA || measureB) return;
-  measurePreviewLine.setLatLngs([[measureA.lat, measureA.lng], [e.latlng.lat, e.latlng.lng]]);
-}
-
-$('btn-measure').onclick = () => {
-  measureOn = !measureOn;
-  const btn = $('btn-measure'), mw = $('map-wrap');
-  if (measureOn) {
-    if (pickerOn) {
-      pickerOn = false;
-      $('btn-picker').classList.remove('on');
-      $('btn-picker').innerHTML = PICKER_ICO + ' Enable Picker';
-      mw.classList.remove('picking');
-    }
-    btn.classList.add('on');
-    btn.textContent = '📏 Disable Measure';
-    mw.classList.add('measuring');
-    syncMeasureReadout();
-  } else {
-    btn.classList.remove('on');
-    btn.textContent = MEASURE_BTN_BASE;
-    mw.classList.remove('measuring');
-    clearMeasureFull();
-  }
-};
-
-$('btn-measure-clear').onclick = () => {
-  if (!measureOn) return;
-  clearMeasureFull();
-  syncMeasureReadout();
-};
 
 $('btn-picker').onclick = () => {
   pickerOn = !pickerOn;
   const btn = $('btn-picker'), mw = $('map-wrap');
   if (pickerOn) {
-    if (measureOn) {
-      measureOn = false;
-      $('btn-measure').classList.remove('on');
-      $('btn-measure').textContent = MEASURE_BTN_BASE;
-      mw.classList.remove('measuring');
-      clearMeasureFull();
-    }
     btn.classList.add('on');
     btn.innerHTML = PICKER_ICO + ' Disable Picker';
     mw.classList.add('picking');
@@ -1581,32 +1320,6 @@ $('btn-picker').onclick = () => {
 function addCoord(lat, lng) {
   const id = ++coordIdx;
   coords.push({ id, lat, lng });
-
-  if (map && (!coordLayerGroup || !map.hasLayer(coordLayerGroup))) {
-    coordLayerGroup = L.layerGroup().addTo(map);
-  }
-  if (coordLayerGroup) {
-    const marker = L.circleMarker([lat, lng], {
-      radius: 5,
-      color: '#22d07a',
-      fillColor: '#22d07a',
-      fillOpacity: 0.95,
-      weight: 1.5,
-      interactive: false,
-    });
-    const label = L.marker([lat, lng], {
-      interactive: false,
-      keyboard: false,
-      icon: L.divIcon({
-        className: '',
-        html: `<div style="transform:translate(9px,-10px);font-size:11px;font-weight:700;color:#22d07a;text-shadow:0 0 3px #000,0 0 2px #000;white-space:nowrap">${id}</div>`,
-        iconSize: [1, 1],
-        iconAnchor: [0, 0],
-      }),
-    });
-    const pointLayer = L.layerGroup([marker, label]).addTo(coordLayerGroup);
-    coordMarkers.set(id, pointLayer);
-  }
 
   const empty = $('coord-empty');
   if (empty) empty.remove();
@@ -1629,16 +1342,6 @@ function addCoord(lat, lng) {
   $('btn-clear').disabled    = false;
 }
 
-function clearAllCoords() {
-  coords = [];
-  coordIdx = 0;
-  if (coordLayerGroup) {
-    try { coordLayerGroup.clearLayers(); } catch { /* ignore */ }
-  }
-  coordMarkers.clear();
-  resetCoordList();
-}
-
 $('coord-list').addEventListener('click', e => {
   const cpBtn  = e.target.closest('[data-copy]');
   const delBtn = e.target.closest('[data-del]');
@@ -1650,11 +1353,6 @@ $('coord-list').addEventListener('click', e => {
     const id = +delBtn.dataset.del;
     coords = coords.filter(x => x.id !== id);
     $(`ci-${id}`)?.remove();
-    const marker = coordMarkers.get(id);
-    if (marker) {
-      try { marker.remove(); } catch { /* ignore */ }
-      coordMarkers.delete(id);
-    }
     if (coords.length === 0) resetCoordList();
   }
 });
@@ -1666,41 +1364,7 @@ $('btn-copy-all').onclick = () => {
   showToast(`${coords.length} coordinate${coords.length !== 1 ? 's' : ''} copied as JSON`);
 };
 
-$('btn-load-coords-json').onclick = () => $('coord-json-input').click();
-
-$('coord-json-input').addEventListener('change', async e => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-  try {
-    const text = await file.text();
-    const data = JSON.parse(text);
-    if (!Array.isArray(data)) throw new Error('JSON root must be an array');
-    const parsed = data.map((item, i) => {
-      const lat = Number(item?.lat);
-      const lng = Number(item?.lng);
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-        throw new Error(`Invalid coordinate at index ${i}`);
-      }
-      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-        throw new Error(`Out-of-range coordinate at index ${i}`);
-      }
-      return { lat, lng };
-    });
-    clearAllCoords();
-    parsed.forEach(p => addCoord(p.lat, p.lng));
-    if (parsed.length && map) {
-      const bounds = L.latLngBounds(parsed.map(p => [p.lat, p.lng]));
-      map.fitBounds(bounds.pad(0.25), { maxZoom: 19 });
-    }
-    showToast(`Loaded ${parsed.length} coordinate${parsed.length !== 1 ? 's' : ''} from JSON`);
-  } catch (err) {
-    showToast(`Invalid JSON file: ${err?.message || 'parse error'}`);
-  } finally {
-    e.target.value = '';
-  }
-});
-
-$('btn-clear').onclick = clearAllCoords;
+$('btn-clear').onclick = () => { coords = []; coordIdx = 0; resetCoordList(); };
 
 function resetCoordList() {
   $('coord-list').innerHTML =
@@ -1725,40 +1389,34 @@ let editRid     = null;   // row id being edited (null = creating new)
 let drawTmp     = [];     // temp Leaflet layers during draw
 let editHandles = {};     // { startM, endM, ctrlM, ctrlLine }
 let groupHandles = {};    // { moveM | centerM, rotM, rotLine }
-let hierarchy   = { levels: 2, names: ['Section', 'Block'], options: {}, rowNameConvention: { mode: 'manual', parts: ['row'] } };
+let hierarchy   = { levels: 2, names: ['Section', 'Block'], options: {} };
 let metaRid     = null;
 let groups      = [];     // [{ id, name, collapsed, rowIds: [] }]
 let groupIdCtr  = 0;
 let selectedRowIds = new Set();
 let dragRowId = null;
-let seatLinkState = null; // { targetId }
 let splitState = null;    // { type:'row'|'group', rowId?|groupId?, p1?, marker1?, knifeLine? }
 const HISTORY_LIMIT = 10;
 let undoStack = [];
 let redoStack = [];
 let hierarchyCollapsed = false;
-let dupDialogCtx = null;
 
 function saveUIState() {
   try {
     localStorage.setItem(UI_KEY, JSON.stringify({
       activeTab: $('tab-rows-btn').classList.contains('active') ? 'rows' : 'main',
       hierarchyCollapsed: !!hierarchyCollapsed,
-      rowsTopH: Math.round($('rows-list-frame')?.getBoundingClientRect().height || 0),
-      rowsMetaH: Math.round($('rows-meta-frame')?.getBoundingClientRect().height || 0),
     }));
   } catch {}
 }
 
 function applyTab(tabName) {
   const rowsOn = tabName === 'rows';
-  const pb = document.querySelector('.pb');
   $('tab-main').classList.toggle('hidden', rowsOn);
   $('tab-rows').classList.toggle('hidden', !rowsOn);
   $('tab-rows-rows').classList.toggle('hidden', !rowsOn);
   $('tab-main-btn').classList.toggle('active', !rowsOn);
   $('tab-rows-btn').classList.toggle('active', rowsOn);
-  if (pb) pb.classList.toggle('rows-mode', rowsOn);
 }
 
 function applyHierarchyCollapseUI() {
@@ -1772,101 +1430,16 @@ function loadUIState() {
   hierarchyCollapsed = !!data?.hierarchyCollapsed;
   applyHierarchyCollapseUI();
   applyTab(data?.activeTab === 'rows' ? 'rows' : 'main');
-  const topH = Number(data?.rowsTopH);
-  if (Number.isFinite(topH) && topH > 0) {
-    const top = $('rows-list-frame');
-    if (top) top.style.flex = `0 0 ${Math.max(120, Math.min(600, topH))}px`;
-  }
-  const metaH = Number(data?.rowsMetaH);
-  if (Number.isFinite(metaH) && metaH > 0) {
-    const meta = $('rows-meta-frame');
-    if (meta) meta.style.flex = `0 0 ${Math.max(120, Math.min(700, metaH))}px`;
-  }
+  const bot = $('rows-bottom-pane');
+  if (bot) bot.style.flexBasis = 'auto';
 }
 
-function isNumericText(v) {
-  const s = String(v ?? '').trim();
-  if (!s) return false;
-  const n = Number(s);
-  return Number.isFinite(n);
-}
-
-function incrementByRules(value, levelIdx = null) {
-  const s = String(value ?? '').trim();
-  if (!s) return s;
-  if (levelIdx !== null && Array.isArray(hierarchy.options?.[levelIdx]) && hierarchy.options[levelIdx].length) {
-    const opts = hierarchy.options[levelIdx];
-    const i = opts.findIndex(x => String(x) === s);
-    if (i >= 0 && i < opts.length - 1) return opts[i + 1];
-    return s;
-  }
-  if (isNumericText(s)) return String(Number(s) + 1);
-  return s;
-}
-
-function getDuplicateConfigFromUI() {
-  const list = $('dup-options-list');
-  const levelSet = {};
-  list.querySelectorAll('[data-dup-level]').forEach(chk => {
-    if (chk.checked) levelSet[chk.dataset.dupLevel] = true;
-  });
-  return {
-    incRow: !!list.querySelector('[data-dup-row]')?.checked,
-    incSeatStart: !!list.querySelector('[data-dup-seat]')?.checked,
-    incLevels: levelSet,
-  };
-}
-
-function showDuplicateOptionsDialog(onApply) {
-  const list = $('dup-options-list');
-  const levelNames = hierarchy.names.slice(0, hierarchy.levels).map((n, i) => n || `Level ${i + 1}`);
-  list.innerHTML = `
-    <label><input type="checkbox" data-dup-row> Increment Row value</label>
-    <label><input type="checkbox" data-dup-seat> Increment Seat start (end + 1)</label>
-    ${levelNames.map((n, i) => `<label><input type="checkbox" data-dup-level="${i}"> Increment ${escHtml(n)}</label>`).join('')}
-  `;
-  dupDialogCtx = { onApply };
-  $('dup-modal').classList.add('show');
-}
-
-function hideDuplicateOptionsDialog() {
-  dupDialogCtx = null;
-  $('dup-modal').classList.remove('show');
-}
-
-function showErrorDialog(msg, revealRowIds = []) {
-  $('error-modal-text').value = msg;
-  const wrap = $('error-reveal-wrap');
-  const list = $('error-reveal-list');
-  const uniqIds = [...new Set((revealRowIds || []).filter(id => Number.isFinite(Number(id))).map(Number))];
-  if (uniqIds.length) {
-    wrap.style.display = '';
-    list.innerHTML = uniqIds
-      .map(id => `<button class="btn btn-sub" data-reveal-row-id="${id}">id ${id}</button>`)
-      .join('');
-    list.querySelectorAll('[data-reveal-row-id]').forEach(b => b.addEventListener('click', () => {
-      const id = Number(b.dataset.revealRowId);
-      hideErrorDialog();
-      applyTab('rows');
-      selectRow(id);
-    }));
-  } else {
-    wrap.style.display = 'none';
-    list.innerHTML = '';
-  }
-  $('error-modal').classList.add('show');
-  setTimeout(() => $('error-modal-text').focus(), 0);
-}
-
-function hideErrorDialog() {
-  $('error-modal').classList.remove('show');
-}
-
-function initRowsSplitter() {
-  const split = $('rows-splitter');
-  const wrap = $('rows-layout');
-  const top = $('rows-list-frame');
-  if (!split || !wrap || !top) return;
+function initRowsInnerSplitter() {
+  const split = $('rows-inner-splitter');
+  const top = $('rows-top-pane');
+  const bot = $('rows-bottom-pane');
+  const wrap = $('rows-split');
+  if (!split || !top || !bot || !wrap) return;
   let dragging = false;
   split.addEventListener('mousedown', e => {
     e.preventDefault();
@@ -1876,11 +1449,12 @@ function initRowsSplitter() {
   window.addEventListener('mousemove', e => {
     if (!dragging) return;
     const r = wrap.getBoundingClientRect();
-    const splitH = split.getBoundingClientRect().height || 10;
     const minTop = 120;
-    const minBottom = 120;
-    const topH = Math.max(minTop, Math.min(r.height - minBottom - splitH, e.clientY - r.top));
+    const minBot = 140;
+    const topH = Math.max(minTop, Math.min(r.height - minBot, e.clientY - r.top));
+    const botH = Math.max(minBot, r.height - topH - split.getBoundingClientRect().height);
     top.style.flex = `0 0 ${Math.round(topH)}px`;
+    bot.style.flexBasis = `${Math.round(botH)}px`;
   });
   window.addEventListener('mouseup', () => {
     if (!dragging) return;
@@ -1890,35 +1464,23 @@ function initRowsSplitter() {
   });
 }
 
-function initRowsMetaSplitter() {
-  const split = $('rows-meta-splitter');
-  const wrap = $('rows-layout');
-  const top = $('rows-list-frame');
-  const meta = $('rows-meta-frame');
-  const splitTop = $('rows-splitter');
-  if (!split || !wrap || !top || !meta || !splitTop) return;
-  let dragging = false;
-  split.addEventListener('mousedown', e => {
-    e.preventDefault();
-    dragging = true;
-    split.classList.add('dragging');
-  });
-  window.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const r = wrap.getBoundingClientRect();
-    const topH = top.getBoundingClientRect().height;
-    const s1H = splitTop.getBoundingClientRect().height || 10;
-    const minMeta = 120;
-    const maxMeta = Math.max(minMeta, r.height - topH - s1H - 20);
-    const desired = Math.max(minMeta, Math.min(maxMeta, e.clientY - (r.top + topH + s1H)));
-    meta.style.flex = `0 0 ${Math.round(desired)}px`;
-  });
-  window.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    split.classList.remove('dragging');
-    saveUIState();
-  });
+function trimRowsBottomPane() {
+  const bot = $('rows-bottom-pane');
+  if (!bot) return;
+  const minH = 90;
+  const current = bot.getBoundingClientRect().height || 0;
+  if (!current) return;
+  const visibleKids = [...bot.children].filter(el => getComputedStyle(el).display !== 'none');
+  if (!visibleKids.length) return;
+  const firstTop = visibleKids[0].offsetTop;
+  const maxBottom = visibleKids.reduce((m, el) => Math.max(m, el.offsetTop + el.offsetHeight), 0);
+  const style = getComputedStyle(bot);
+  const padTop = parseFloat(style.paddingTop || '0') || 0;
+  const padBottom = parseFloat(style.paddingBottom || '0') || 0;
+  const contentH = Math.max(minH, Math.ceil((maxBottom - firstTop) + padTop + padBottom + 8));
+  if (Math.abs(current - contentH) > 8) {
+    bot.style.flexBasis = `${contentH}px`;
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -1928,34 +1490,16 @@ function ll2xy(lat, lng, rlat, rlng) {
   const cos = Math.cos(rlat * Math.PI / 180);
   return { x: (lng - rlng) * cos * 111320, y: (lat - rlat) * 111320 };
 }
-
-/** Ground distance (m) between two lat/lng in the same local plane as row curves (see ll2xy). */
-function geoDistMeters(lat1, lng1, lat2, lng2) {
-  const rlat = (lat1 + lat2) / 2;
-  const rlng = (lng1 + lng2) / 2;
-  const p1 = ll2xy(lat1, lng1, rlat, rlng);
-  const p2 = ll2xy(lat2, lng2, rlat, rlng);
-  return Math.hypot(p2.x - p1.x, p2.y - p1.y);
-}
-
 function xy2ll(x, y, rlat, rlng) {
   const cos = Math.cos(rlat * Math.PI / 180);
   return { lat: rlat + y / 111320, lng: rlng + x / (cos * 111320) };
 }
 
-// Quadratic / cubic Bezier point at parameter t
+// Quadratic Bezier point at parameter t
 function bezPt(p0, p1, p2, t) {
   const u = 1 - t;
   return { x: u*u*p0.x + 2*u*t*p1.x + t*t*p2.x,
            y: u*u*p0.y + 2*u*t*p1.y + t*t*p2.y };
-}
-function bezPtCubic(p0, p1, p2, p3, t) {
-  const u = 1 - t;
-  const uu = u * u, tt = t * t;
-  return {
-    x: p0.x * uu * u + 3 * p1.x * uu * t + 3 * p2.x * u * tt + p3.x * tt * t,
-    y: p0.y * uu * u + 3 * p1.y * uu * t + 3 * p2.y * u * tt + p3.y * tt * t,
-  };
 }
 
 // n points evenly distributed by arc length along the Bezier
@@ -2002,68 +1546,26 @@ function rowLocalCoords(row) {
     p0: ll2xy(row.start.lat, row.start.lng, rlat, rlng),
     p1: ll2xy(row.ctrl.lat,  row.ctrl.lng,  rlat, rlng),
     p2: ll2xy(row.end.lat,   row.end.lng,   rlat, rlng),
-    p3: row.ctrl2 ? ll2xy(row.ctrl2.lat, row.ctrl2.lng, rlat, rlng) : null,
     rlat, rlng,
   };
 }
 
 function computeSeats(row) {
-  const { p0, p1, p2, p3, rlat, rlng } = rowLocalCoords(row);
+  const { p0, p1, p2, rlat, rlng } = rowLocalCoords(row);
   let n = row.seatCount;
   if (!n && row.spacingM) {
-    const len = p3 ? bezierArcLenCubic(p0, p1, p3, p2) : bezierArcLen(p0, p1, p2);
-    n = Math.max(2, Math.round(len / row.spacingM) + 1);
+    n = Math.max(2, Math.round(bezierArcLen(p0, p1, p2) / row.spacingM) + 1);
   }
   n = Math.max(2, Math.min(500, n || 10));
-  const pts = p3 ? bezierEvenPtsCubic(p0, p1, p3, p2, n) : bezierEvenPts(p0, p1, p2, n);
-  return pts.map(pt => xy2ll(pt.x, pt.y, rlat, rlng));
+  return bezierEvenPts(p0, p1, p2, n).map(pt => xy2ll(pt.x, pt.y, rlat, rlng));
 }
 
 function bezierCurveSamples(row, res = 64) {
-  const { p0, p1, p2, p3, rlat, rlng } = rowLocalCoords(row);
+  const { p0, p1, p2, rlat, rlng } = rowLocalCoords(row);
   const pts = [];
-  for (let i = 0; i <= res; i++) {
-    const t = i / res;
-    const pt = p3 ? bezPtCubic(p0, p1, p3, p2, t) : bezPt(p0, p1, p2, t);
-    pts.push(xy2ll(pt.x, pt.y, rlat, rlng));
-  }
+  for (let i = 0; i <= res; i++)
+    pts.push(xy2ll(...Object.values(bezPt(p0, p1, p2, i / res)), rlat, rlng));
   return pts;
-}
-
-function bezierEvenPtsCubic(p0, p1, p2, p3, n) {
-  if (n <= 1) return [bezPtCubic(p0, p1, p2, p3, 0)];
-  const S = 1000;
-  const arc = [0];
-  let prev = bezPtCubic(p0, p1, p2, p3, 0);
-  for (let i = 1; i <= S; i++) {
-    const cur = bezPtCubic(p0, p1, p2, p3, i / S);
-    const dx = cur.x - prev.x, dy = cur.y - prev.y;
-    arc.push(arc[i - 1] + Math.hypot(dx, dy));
-    prev = cur;
-  }
-  const total = arc[S];
-  const out = [];
-  let si = 0;
-  for (let k = 0; k < n; k++) {
-    const target = (k / (n - 1)) * total;
-    while (si < S && arc[si] < target) si++;
-    if (si === 0) { out.push(bezPtCubic(p0, p1, p2, p3, 0)); continue; }
-    if (si >= S) { out.push(bezPtCubic(p0, p1, p2, p3, 1)); continue; }
-    const frac = (target - arc[si - 1]) / (arc[si] - arc[si - 1]);
-    out.push(bezPtCubic(p0, p1, p2, p3, (si - 1 + frac) / S));
-  }
-  return out;
-}
-
-function bezierArcLenCubic(p0, p1, p2, p3) {
-  const S = 500; let len = 0, prev = p0;
-  for (let i = 1; i <= S; i++) {
-    const cur = bezPtCubic(p0, p1, p2, p3, i / S);
-    const dx = cur.x - prev.x, dy = cur.y - prev.y;
-    len += Math.hypot(dx, dy);
-    prev = cur;
-  }
-  return len;
 }
 
 function computeSeatNumbers(row, count) {
@@ -2080,28 +1582,14 @@ function lerpLL(a, b, t) {
 }
 
 function splitRowGeometry(row, t) {
-  if (row.ctrl2) {
-    const p0 = row.start, p1 = row.ctrl, p2 = row.ctrl2, p3 = row.end;
-    const a = lerpLL(p0, p1, t);
-    const b = lerpLL(p1, p2, t);
-    const c = lerpLL(p2, p3, t);
-    const d = lerpLL(a, b, t);
-    const e = lerpLL(b, c, t);
-    const f = lerpLL(d, e, t);
-    return {
-      left:  { start: { ...p0 }, ctrl: a, ctrl2: d, end: f },
-      right: { start: f, ctrl: e, ctrl2: c, end: { ...p3 } },
-    };
-  } else {
-    const p0 = row.start, p1 = row.ctrl, p2 = row.end;
-    const p01 = lerpLL(p0, p1, t);
-    const p12 = lerpLL(p1, p2, t);
-    const pm = lerpLL(p01, p12, t);
-    return {
-      left:  { start: { ...p0 },  ctrl: p01, end: pm },
-      right: { start: pm, ctrl: p12, end: { ...p2 } },
-    };
-  }
+  const p0 = row.start, p1 = row.ctrl, p2 = row.end;
+  const p01 = lerpLL(p0, p1, t);
+  const p12 = lerpLL(p1, p2, t);
+  const pm = lerpLL(p01, p12, t);
+  return {
+    left:  { start: { ...p0 },  ctrl: p01, end: pm },
+    right: { start: pm, ctrl: p12, end: { ...p2 } },
+  };
 }
 
 function estimateSeatSplitCounts(row, t) {
@@ -2127,11 +1615,10 @@ function splitRowAtT(row, t) {
   const counts = estimateSeatSplitCounts(row, tt);
   const srcStartNumber = Number.isFinite(row.meta?.startNumber) ? row.meta.startNumber : 1;
   const srcDirection = row.meta?.direction || 'start_to_end';
-  const leftCount = row.seatCount ? counts.left : (computeSeats({ ...row, start: geom.left.start, ctrl: geom.left.ctrl, ctrl2: geom.left.ctrl2, end: geom.left.end }).length || counts.left);
-  const rightCount = row.seatCount ? counts.right : (computeSeats({ ...row, start: geom.right.start, ctrl: geom.right.ctrl, ctrl2: geom.right.ctrl2, end: geom.right.end }).length || counts.right);
+  const leftCount = row.seatCount ? counts.left : (computeSeats({ ...row, start: geom.left.start, ctrl: geom.left.ctrl, end: geom.left.end }).length || counts.left);
+  const rightCount = row.seatCount ? counts.right : (computeSeats({ ...row, start: geom.right.start, ctrl: geom.right.ctrl, end: geom.right.end }).length || counts.right);
   row.start = geom.left.start;
   row.ctrl = geom.left.ctrl;
-  row.ctrl2 = geom.left.ctrl2 || null;
   row.end = geom.left.end;
   if (row.seatCount) row.seatCount = counts.left;
   const metaCopy = row.meta ? JSON.parse(JSON.stringify(row.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' };
@@ -2143,7 +1630,6 @@ function splitRowAtT(row, t) {
     color: ROW_COLORS[rows.length % ROW_COLORS.length],
     start: geom.right.start,
     ctrl: geom.right.ctrl,
-    ctrl2: geom.right.ctrl2 || null,
     end: geom.right.end,
     visible: row.visible !== false,
     meta: metaCopy,
@@ -2232,11 +1718,7 @@ function findKnifeIntersectionT(row, aLL, bLL) {
 }
 
 function rowCenterPoint(row) {
-  const pts = [row.start, row.end, row.ctrl];
-  if (row.ctrl2) pts.push(row.ctrl2);
-  const lat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
-  const lng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
-  return map.latLngToContainerPoint([lat, lng]);
+  return map.latLngToContainerPoint([(row.start.lat + row.end.lat + row.ctrl.lat) / 3, (row.start.lng + row.end.lng + row.ctrl.lng) / 3]);
 }
 
 function beginSplitGroup(id) {
@@ -2413,9 +1895,6 @@ function showEditHandles(row) {
     { icon: hdIcon(row.color, 'circle'), draggable: true, zIndexOffset: 900 }).addTo(map);
   const ctrlM = L.marker([row.ctrl.lat, row.ctrl.lng],
     { icon: hdIcon('#f7a24f', 'diamond'), draggable: true, zIndexOffset: 900 }).addTo(map);
-  const ctrl2M = row.ctrl2
-    ? L.marker([row.ctrl2.lat, row.ctrl2.lng], { icon: hdIcon('#ff7fd4', 'diamond'), draggable: true, zIndexOffset: 900 }).addTo(map)
-    : null;
   const midM = L.marker([(row.start.lat + row.end.lat) / 2, (row.start.lng + row.end.lng) / 2],
     { icon: hdIcon('#ffffff', 'diamond'), draggable: true, zIndexOffset: 880 }).addTo(map);
 
@@ -2423,16 +1902,11 @@ function showEditHandles(row) {
     [[row.ctrl.lat, row.ctrl.lng], [row.ctrl.lat, row.ctrl.lng]],
     { color: '#f7a24f', weight: 1.2, dashArray: '3 3', opacity: 0.7, interactive: false }
   ).addTo(map);
-  const ctrl2Line = ctrl2M ? L.polyline(
-    [[row.ctrl2.lat, row.ctrl2.lng], [row.ctrl2.lat, row.ctrl2.lng]],
-    { color: '#ff7fd4', weight: 1.2, dashArray: '3 3', opacity: 0.7, interactive: false }
-  ).addTo(map) : null;
 
   function updateCtrlLine() {
     const mLat = (row.start.lat + row.end.lat) / 2;
     const mLng = (row.start.lng + row.end.lng) / 2;
     ctrlLine.setLatLngs([[mLat, mLng], [row.ctrl.lat, row.ctrl.lng]]);
-    if (row.ctrl2 && ctrl2Line) ctrl2Line.setLatLngs([[mLat, mLng], [row.ctrl2.lat, row.ctrl2.lng]]);
     midM.setLatLng([mLat, mLng]);
   }
   updateCtrlLine();
@@ -2441,7 +1915,6 @@ function showEditHandles(row) {
     row.start = { lat: startM.getLatLng().lat, lng: startM.getLatLng().lng };
     row.end   = { lat: endM.getLatLng().lat,   lng: endM.getLatLng().lng   };
     row.ctrl  = { lat: ctrlM.getLatLng().lat,  lng: ctrlM.getLatLng().lng  };
-    if (ctrl2M) row.ctrl2 = { lat: ctrl2M.getLatLng().lat, lng: ctrl2M.getLatLng().lng };
     updateCtrlLine();
     renderRow(row);
     renderRowList();
@@ -2455,11 +1928,9 @@ function showEditHandles(row) {
     row.start = { lat: row.start.lat + dLat, lng: row.start.lng + dLng };
     row.end = { lat: row.end.lat + dLat, lng: row.end.lng + dLng };
     row.ctrl = { lat: row.ctrl.lat + dLat, lng: row.ctrl.lng + dLng };
-    if (row.ctrl2) row.ctrl2 = { lat: row.ctrl2.lat + dLat, lng: row.ctrl2.lng + dLng };
     startM.setLatLng([row.start.lat, row.start.lng]);
     endM.setLatLng([row.end.lat, row.end.lng]);
     ctrlM.setLatLng([row.ctrl.lat, row.ctrl.lng]);
-    if (ctrl2M && row.ctrl2) ctrl2M.setLatLng([row.ctrl2.lat, row.ctrl2.lng]);
     lastMid = cur;
     updateCtrlLine();
     renderRow(row);
@@ -2471,10 +1942,9 @@ function showEditHandles(row) {
   startM.on('drag', onDrag);
   endM.on('drag', onDrag);
   ctrlM.on('drag', onDrag);
-  if (ctrl2M) ctrl2M.on('drag', onDrag);
-  startM.on('dragend', saveRows); endM.on('dragend', saveRows); ctrlM.on('dragend', saveRows); if (ctrl2M) ctrl2M.on('dragend', saveRows); midM.on('dragend', saveRows);
+  startM.on('dragend', saveRows); endM.on('dragend', saveRows); ctrlM.on('dragend', saveRows); midM.on('dragend', saveRows);
 
-  editHandles = { startM, endM, ctrlM, ctrl2M, midM, ctrlLine, ctrl2Line };
+  editHandles = { startM, endM, ctrlM, midM, ctrlLine };
 }
 
 function clearEditHandles() {
@@ -2484,15 +1954,8 @@ function clearEditHandles() {
 
 
 function clearGroupHandles() {
-  Object.values(groupHandles).forEach(l => {
-    try { if (l && typeof l.remove === 'function') l.remove(); } catch {}
-  });
+  Object.values(groupHandles).forEach(l => { try { l.remove(); } catch {} });
   groupHandles = {};
-}
-
-function prepareGroupHandles(groupId) {
-  if (groupHandles._gid && groupHandles._gid !== groupId) clearGroupHandles();
-  groupHandles._gid = groupId;
 }
 
 function clearSplitUI() {
@@ -2507,7 +1970,7 @@ function clearSplitUI() {
 function getRowsSnapshot() {
   return rows.map(r => ({
     id: r.id, name: r.name, color: r.color,
-    start: { ...r.start }, end: { ...r.end }, ctrl: { ...r.ctrl }, ctrl2: r.ctrl2 ? { ...r.ctrl2 } : null,
+    start: { ...r.start }, end: { ...r.end }, ctrl: { ...r.ctrl },
     seatCount: r.seatCount, spacingM: r.spacingM, visible: r.visible !== false,
     meta: r.meta ? JSON.parse(JSON.stringify(r.meta)) : null,
   }));
@@ -2518,7 +1981,6 @@ function applyRowsData(rowsData, opts = {}) {
   rows = (rowsData || []).map(r => ({
     ...r,
     ctrl: r.ctrl ?? { lat: (r.start.lat + r.end.lat) / 2, lng: (r.start.lng + r.end.lng) / 2 },
-    ctrl2: r.ctrl2 || null,
     visible: r.visible !== false,
     meta: r.meta || { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
     _group: null, _curve: null, _seats: [],
@@ -2611,10 +2073,6 @@ function redoAction() {
 //  ROWS — selection
 // ═══════════════════════════════════════════════════
 function selectRow(id) {
-  if (seatLinkState && id !== seatLinkState.targetId) {
-    applySeatLinkFromSource(id);
-    return;
-  }
   clearSplitUI();
   clearGroupHandles();
   selectedRid = id;
@@ -2633,15 +2091,45 @@ function selectRow(id) {
   saveUIState();
   const rowEl = $('row-list').querySelector(`.ri[data-rid="${id}"]`);
   if (rowEl) rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  renderSelectedRowSummary();
+}
+
+function deselectRow() {
+  clearSplitUI();
+  clearEditHandles();
+  clearGroupHandles();
+  selectedRid = null;
+  rows.forEach(r => renderRow(r));
+  hideRowForm();
+  closeMetaEditor();
+  renderRowList();
+  renderSelectedRowSummary();
+}
+
+function renderSelectedRowSummary() {
+  const box = $('row-selected-summary');
+  if (!box) return;
+  const row = rows.find(r => r.id === selectedRid);
+  if (!row) {
+    box.innerHTML = '<div class="muted">No row selected.</div>';
+    return;
+  }
+  const seats = row._seats?.length ? row._seats : computeSeats(row);
+  const count = seats.length;
+  const modeText = row.spacingM ? `Spacing ${row.spacingM}m` : `Count ${row.seatCount || count}`;
+  const nums = computeSeatNumbers(row, count);
+  const first = nums[0] ?? '—';
+  const last = nums[count - 1] ?? '—';
+  box.innerHTML = `
+    <div><b>${escHtml(row.name || `Row ${row.id}`)}</b></div>
+    <div class="muted">${modeText} · Seats on map: ${count}</div>
+    <div class="muted">Seat numbers: ${first}${count > 1 ? ` → ${last}` : ''}</div>
+  `;
+  trimRowsBottomPane();
 }
 
 function cancelActiveToolOrSelection() {
   let acted = false;
-  if (seatLinkState) {
-    seatLinkState = null;
-    showToast('Seat link cancelled');
-    acted = true;
-  }
   if (drawSt !== null) {
     clearDrawTmp();
     setDrawSt(null);
@@ -2665,16 +2153,6 @@ function cancelActiveToolOrSelection() {
     acted = true;
   }
   return acted;
-}
-
-function deselectRow() {
-  clearSplitUI();
-  clearEditHandles();
-  clearGroupHandles();
-  selectedRid = null;
-  rows.forEach(r => renderRow(r));
-  hideRowForm();
-  renderRowList();
 }
 
 function getGroupByRowId(rowId) {
@@ -2705,11 +2183,6 @@ function getGroupCenter(group) {
       sumLng += p.lng;
       n++;
     });
-    if (r.ctrl2) {
-      sumLat += r.ctrl2.lat;
-      sumLng += r.ctrl2.lng;
-      n++;
-    }
   });
   return n ? { lat: sumLat / n, lng: sumLng / n } : null;
 }
@@ -2718,18 +2191,16 @@ function shiftRowBy(row, dLat, dLng) {
   row.start = { lat: row.start.lat + dLat, lng: row.start.lng + dLng };
   row.end = { lat: row.end.lat + dLat, lng: row.end.lng + dLng };
   row.ctrl = { lat: row.ctrl.lat + dLat, lng: row.ctrl.lng + dLng };
-  if (row.ctrl2) row.ctrl2 = { lat: row.ctrl2.lat + dLat, lng: row.ctrl2.lng + dLng };
 }
 
 function moveGroup(groupId) {
   const group = groups.find(g => g.id === groupId);
   if (!group) return;
   clearEditHandles();
-  prepareGroupHandles(groupId);
+  clearGroupHandles();
   selectedRid = null;
   const center = getGroupCenter(group);
   if (!center) return;
-  try { groupHandles.moveM?.remove(); } catch {}
   const moveM = L.marker([center.lat, center.lng], {
     icon: hdIcon('#7bdfff', 'diamond'),
     draggable: true,
@@ -2747,24 +2218,11 @@ function moveGroup(groupId) {
         renderRow(r);
       }
     });
-    if (groupHandles.centerM) {
-      const c = groupHandles.centerM.getLatLng();
-      groupHandles.centerM.setLatLng([c.lat + dLat, c.lng + dLng]);
-    }
-    if (groupHandles.rotM) {
-      const rll = groupHandles.rotM.getLatLng();
-      groupHandles.rotM.setLatLng([rll.lat + dLat, rll.lng + dLng]);
-    }
-    if (groupHandles.rotLine && groupHandles.centerM && groupHandles.rotM) {
-      const c = groupHandles.centerM.getLatLng();
-      const rll = groupHandles.rotM.getLatLng();
-      groupHandles.rotLine.setLatLngs([[c.lat, c.lng], [rll.lat, rll.lng]]);
-    }
     last = cur;
     renderRowList();
   });
   moveM.on('dragend', saveRows);
-  groupHandles = { ...groupHandles, _gid: groupId, moveM };
+  groupHandles = { moveM };
 }
 
 function normalizeDeltaDeg(d) {
@@ -2775,27 +2233,25 @@ function normalizeDeltaDeg(d) {
 }
 
 function rotateLLAroundCenter(latlng, centerLL, deltaDeg) {
-  // Rotate in a stable local geo plane (meters), not screen pixels,
-  // to preserve row-to-row geometry even for large groups/zoom levels.
-  const p = ll2xy(latlng.lat, latlng.lng, centerLL.lat, centerLL.lng);
+  const p = map.latLngToContainerPoint(L.latLng(latlng.lat, latlng.lng));
+  const c = map.latLngToContainerPoint(L.latLng(centerLL.lat, centerLL.lng));
   const rad = deltaDeg * Math.PI / 180;
   const cos = Math.cos(rad), sin = Math.sin(rad);
-  const rx = p.x * cos - p.y * sin;
-  const ry = p.x * sin + p.y * cos;
-  return xy2ll(rx, ry, centerLL.lat, centerLL.lng);
+  const dx = p.x - c.x, dy = p.y - c.y;
+  const rx = dx * cos - dy * sin;
+  const ry = dx * sin + dy * cos;
+  const out = map.containerPointToLatLng(L.point(c.x + rx, c.y + ry));
+  return { lat: out.lat, lng: out.lng };
 }
 
 function rotateGroup(groupId) {
   const group = groups.find(g => g.id === groupId);
   if (!group) return;
   clearEditHandles();
-  prepareGroupHandles(groupId);
+  clearGroupHandles();
   selectedRid = null;
   const center = getGroupCenter(group);
   if (!center) return;
-  try { groupHandles.centerM?.remove(); } catch {}
-  try { groupHandles.rotM?.remove(); } catch {}
-  try { groupHandles.rotLine?.remove(); } catch {}
 
   const cPt = map.latLngToContainerPoint(L.latLng(center.lat, center.lng));
   const rPt = L.point(cPt.x, cPt.y - 70);
@@ -2818,14 +2274,9 @@ function rotateGroup(groupId) {
   ).addTo(map);
 
   let lastAngle = 0;
-  const getCenterLL = () => {
-    const ll = centerM.getLatLng();
-    return { lat: ll.lat, lng: ll.lng };
-  };
   const calcAngle = (ll) => {
     const p = map.latLngToContainerPoint(L.latLng(ll.lat, ll.lng));
-    const curC = getCenterLL();
-    const c = map.latLngToContainerPoint(L.latLng(curC.lat, curC.lng));
+    const c = map.latLngToContainerPoint(L.latLng(center.lat, center.lng));
     return Math.atan2(p.y - c.y, p.x - c.x) * 180 / Math.PI;
   };
 
@@ -2834,22 +2285,20 @@ function rotateGroup(groupId) {
     const curAngle = calcAngle(rotM.getLatLng());
     const delta = normalizeDeltaDeg(curAngle - lastAngle);
     if (Math.abs(delta) < 0.001) return;
-    const curCenter = getCenterLL();
     rows.forEach(r => {
       if (!group.rowIds.includes(r.id)) return;
-      r.start = rotateLLAroundCenter(r.start, curCenter, delta);
-      r.end = rotateLLAroundCenter(r.end, curCenter, delta);
-      r.ctrl = rotateLLAroundCenter(r.ctrl, curCenter, delta);
-      if (r.ctrl2) r.ctrl2 = rotateLLAroundCenter(r.ctrl2, curCenter, delta);
+      r.start = rotateLLAroundCenter(r.start, center, delta);
+      r.end = rotateLLAroundCenter(r.end, center, delta);
+      r.ctrl = rotateLLAroundCenter(r.ctrl, center, delta);
       renderRow(r);
     });
-    rotLine.setLatLngs([[curCenter.lat, curCenter.lng], [rotM.getLatLng().lat, rotM.getLatLng().lng]]);
+    rotLine.setLatLngs([[center.lat, center.lng], [rotM.getLatLng().lat, rotM.getLatLng().lng]]);
     lastAngle = curAngle;
     renderRowList();
   });
   rotM.on('dragend', saveRows);
 
-  groupHandles = { ...groupHandles, _gid: groupId, centerM, rotM, rotLine };
+  groupHandles = { centerM, rotM, rotLine };
 }
 
 function moveRowBetweenGroups(rowId, targetGroupId) {
@@ -2862,76 +2311,6 @@ function moveRowBetweenGroups(rowId, targetGroupId) {
   if (current) current.rowIds = current.rowIds.filter(id => id !== rowId);
   target.rowIds.push(rowId);
   normalizeGroups();
-  return true;
-}
-
-function toggleSecondBendHandle(id) {
-  const row = rows.find(r => r.id === id);
-  if (!row) return;
-  pushHistory();
-  if (row.ctrl2) {
-    // Degree reduction cubic->quadratic; preserves shape for elevated curves
-    // and keeps a stable approximation otherwise.
-    const { p0, p1, p2, p3, rlat, rlng } = rowLocalCoords(row);
-    if (p3) {
-      const q1x = (3 * p1.x - p0.x) / 2;
-      const q1y = (3 * p1.y - p0.y) / 2;
-      const q2x = (3 * p2.x - p3.x) / 2;
-      const q2y = (3 * p2.y - p3.y) / 2;
-      const qx = (q1x + q2x) / 2;
-      const qy = (q1y + q2y) / 2;
-      row.ctrl = xy2ll(qx, qy, rlat, rlng);
-    }
-    row.ctrl2 = null;
-  } else {
-    // Degree elevation quadratic->cubic (exactly shape-preserving).
-    const q = { ...row.ctrl };
-    row.ctrl = {
-      lat: row.start.lat + (2 / 3) * (q.lat - row.start.lat),
-      lng: row.start.lng + (2 / 3) * (q.lng - row.start.lng),
-    };
-    row.ctrl2 = {
-      lat: row.end.lat + (2 / 3) * (q.lat - row.end.lat),
-      lng: row.end.lng + (2 / 3) * (q.lng - row.end.lng),
-    };
-  }
-  renderRow(row);
-  if (selectedRid === id) showEditHandles(row);
-  renderRowList();
-  saveRows();
-}
-
-function setRowStartFromAnotherRow(targetId) {
-  const target = rows.find(r => r.id === targetId);
-  if (!target) return;
-  seatLinkState = { targetId };
-  showToast(`Pick source row for "${target.name}" (map or list)`);
-}
-
-function applySeatLinkFromSource(sourceId) {
-  if (!seatLinkState) return false;
-  const target = rows.find(r => r.id === seatLinkState.targetId);
-  const src = rows.find(r => r.id === sourceId);
-  seatLinkState = null;
-  if (!target || !src || target.id === src.id) {
-    showToast('Invalid source row');
-    return true;
-  }
-  if (!src) {
-    showToast('Invalid row ID');
-    return true;
-  }
-  pushHistory();
-  const seats = src._seats?.length ? src._seats : computeSeats(src);
-  const nums = computeSeatNumbers(src, seats.length).map(v => Number(v));
-  const endSeat = Number.isFinite(nums[nums.length - 1]) ? nums[nums.length - 1] : ((Number(src.meta?.startNumber) || 1) + Math.max(0, seats.length - 1));
-  target.meta = target.meta || { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' };
-  target.meta.startNumber = endSeat + 1;
-  renderRow(target);
-  if (metaRid === target.id) openMetaEditor(target.id);
-  renderRowList();
-  saveRows();
-  showToast(`"${target.name}" now starts from ${target.meta.startNumber}`);
   return true;
 }
 
@@ -2996,57 +2375,6 @@ function renderHierarchyOptionsEditor() {
   `).join('');
 }
 
-function normalizeRowNameConvention() {
-  hierarchy.rowNameConvention = hierarchy.rowNameConvention || { mode: 'manual', parts: ['row'] };
-  hierarchy.rowNameConvention.mode = hierarchy.rowNameConvention.mode === 'auto' ? 'auto' : 'manual';
-  const validParts = new Set(['row', ...Array.from({ length: hierarchy.levels }, (_, i) => `level:${i}`)]);
-  let parts = (hierarchy.rowNameConvention.parts || []).filter(p => validParts.has(p));
-  // In auto mode, row must always participate in naming.
-  if (hierarchy.rowNameConvention.mode === 'auto') {
-    parts = parts.filter(p => p !== 'row');
-    parts = ['row', ...parts];
-  }
-  if (!parts.length) parts = ['row'];
-  hierarchy.rowNameConvention.parts = parts;
-}
-
-function renderRowNameConventionEditor() {
-  normalizeRowNameConvention();
-  document.querySelectorAll('input[name="row-name-conv-mode"]').forEach(r => {
-    r.checked = r.value === hierarchy.rowNameConvention.mode;
-  });
-  const names = hierarchy.names.slice(0, hierarchy.levels).map((n, i) => n || `Level ${i + 1}`);
-  const selected = new Set(hierarchy.rowNameConvention.parts);
-  $('hier-row-convention-parts').innerHTML = `
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      <label><input type="checkbox" data-conv-part="row" checked disabled> Row</label>
-      ${names.map((n, i) => `<label><input type="checkbox" data-conv-part="level:${i}" ${selected.has(`level:${i}`) ? 'checked' : ''}> ${escHtml(n)}</label>`).join('')}
-    </div>
-  `;
-  $('hier-row-convention-parts').style.display = hierarchy.rowNameConvention.mode === 'auto' ? '' : 'none';
-}
-
-function getRowDisplayName(row) {
-  normalizeRowNameConvention();
-  if (hierarchy.rowNameConvention.mode !== 'auto') return row.name;
-  const parts = hierarchy.rowNameConvention.parts.map(p => {
-    if (p === 'row') return String(row.meta?.rowValue || '').trim();
-    if (p.startsWith('level:')) {
-      const idx = Number(p.split(':')[1]);
-      return String(row.meta?.hierarchy?.[idx] || '').trim();
-    }
-    return '';
-  }).filter(Boolean);
-  return parts.length ? parts.join(' - ') : row.name;
-}
-
-function applyAutoRowName(row) {
-  if (!row) return;
-  if (hierarchy.rowNameConvention?.mode !== 'auto') return;
-  const autoName = getRowDisplayName(row);
-  if (autoName && autoName !== row.name) row.name = autoName;
-}
-
 function validateHierarchyForm() {
   const levels = Math.max(1, Math.min(8, parseInt($('hier-level-count').value) || 1));
   const names = $('hier-level-names').value.split(',').map(s => s.trim()).filter(Boolean);
@@ -3064,6 +2392,7 @@ function openMetaEditor(id) {
   row.meta.link = row.meta.link || { rowValue: false, startNumber: false, direction: false, hierarchy: {}, invalid: {} };
   row.meta.link.hierarchy = row.meta.link.hierarchy || {};
   row.meta.link.invalid = row.meta.link.invalid || {};
+  $('meta-row-name').value = row.name || '';
   buildMetaHierarchyFields(row);
   $('meta-start-num').value = row.meta.startNumber ?? 1;
   $('meta-direction').value = row.meta.direction || 'start_to_end';
@@ -3071,14 +2400,14 @@ function openMetaEditor(id) {
   $('meta-direction')?.classList.toggle('linked-field', !!row.meta.link?.direction);
   $('meta-link-start')?.classList.toggle('on', !!row.meta.link?.startNumber);
   $('meta-link-direction')?.classList.toggle('on', !!row.meta.link?.direction);
-  $('row-meta-empty').style.display = 'none';
   $('row-meta-form').style.display = '';
+  trimRowsBottomPane();
 }
 
 function closeMetaEditor() {
   metaRid = null;
   $('row-meta-form').style.display = 'none';
-  if ($('row-form').style.display === 'none') $('row-meta-empty').style.display = '';
+  trimRowsBottomPane();
 }
 
 function withMetaDefaults(r) {
@@ -3160,14 +2489,13 @@ function applyMetaFromUI() {
   $('row-meta-hierarchy').querySelectorAll('[data-hier-invalid]').forEach(inp => {
     hInvalid[inp.dataset.hierInvalid] = !!inp.checked;
   });
+  row.name = ($('meta-row-name').value || '').trim() || row.name;
   row.meta.hierarchy = hValues;
   row.meta.invalid = hInvalid;
   row.meta.rowValue = rowField ? rowField.value.trim() : (row.meta?.rowValue || '');
   row.meta.startNumber = parseInt($('meta-start-num').value) || 1;
   row.meta.direction = $('meta-direction').value || 'start_to_end';
   syncLinkedMetaAcrossGroup(row);
-  applyAutoRowName(row);
-  getMetaGroupRows(row).forEach(r => applyAutoRowName(r));
   renderRow(row);
   renderRowList();
   saveRows();
@@ -3179,7 +2507,7 @@ function applyMetaFromUI() {
 function setDrawSt(st) {
   if (st) clearSplitUI();
   drawSt = st;
-  $('row-add-ui').style.display  = st === null ? '' : 'none';
+  $('row-add-ui').style.display  = '';
   $('draw-status').style.display = (st === 'start' || st === 'end') ? '' : 'none';
   $('row-form').style.display    = st === 'form' ? '' : 'none';
 
@@ -3191,7 +2519,12 @@ function setDrawSt(st) {
   } else {
     $('map-wrap').classList.remove('picking');
   }
+  if (st === 'form') {
+    closeMetaEditor();
+    $('btn-create-row').textContent = '✅ Create Row';
+  }
   if (st === null) clearDrawTmp();
+  trimRowsBottomPane();
 }
 
 function clearDrawTmp() {
@@ -3219,8 +2552,9 @@ function handleDrawClick(e) {
     // Pre-fill name
     const letter = String.fromCharCode(65 + (rows.length % 26));
     $('row-name').value = `Row ${letter}`;
+    $('btn-create-row').textContent = 'Create Row';
     editRid = null;
-    createOrUpdateRow();
+    setDrawSt('form');
     return true;
   }
   return false;
@@ -3231,29 +2565,29 @@ function handleDrawClick(e) {
 // ═══════════════════════════════════════════════════
 function showRowForm(row) {
   if (row) {
-    $('row-name').value = getRowDisplayName(row) || row.name || '';
-    $('row-name').disabled = hierarchy.rowNameConvention?.mode === 'auto';
+    $('row-name').value = row.name;
     const useSpacing = !!row.spacingM;
     document.querySelector(`input[name="row-mode"][value="${useSpacing ? 'spacing' : 'count'}"]`).checked = true;
     $('row-count-ctrl').style.display   = useSpacing ? 'none' : '';
     $('row-spacing-ctrl').style.display = useSpacing ? ''     : 'none';
     if (useSpacing) $('row-spacing').value = row.spacingM;
     else            $('row-seats').value   = row.seatCount || 10;
+    $('btn-create-row').textContent = 'Update';
     editRid = row.id;
   }
   $('row-form').style.display    = '';
-  $('row-add-ui').style.display  = 'none';
+  $('row-add-ui').style.display  = '';
   $('draw-status').style.display = 'none';
-  $('row-meta-empty').style.display = 'none';
+  trimRowsBottomPane();
 }
 
 function hideRowForm() {
   if (drawSt === 'form') { setDrawSt(null); return; }
   $('row-form').style.display   = 'none';
   $('row-add-ui').style.display = '';
-  $('row-name').disabled = false;
+  $('btn-create-row').textContent = 'Create Row';
   editRid = null;
-  if ($('row-meta-form').style.display === 'none') $('row-meta-empty').style.display = '';
+  trimRowsBottomPane();
 }
 
 // ═══════════════════════════════════════════════════
@@ -3310,37 +2644,24 @@ function deleteRow(id) {
   saveRows();
 }
 
-function duplicateRow(id, dupCfg = { incRow: false, incSeatStart: false, incLevels: {} }) {
+function duplicateRow(id) {
   const src = rows.find(r => r.id === id);
   if (!src) return;
   pushHistory();
-  const off = 0.00002;
+  const off = 0.00008;
   const row = {
-    id: ++rowIdCtr, name: src.name,
+    id: ++rowIdCtr, name: bumpPlusOneText(src.name),
     seatCount: src.seatCount, spacingM: src.spacingM,
     color: ROW_COLORS[rows.length % ROW_COLORS.length],
     start: { lat: src.start.lat + off, lng: src.start.lng + off },
     end:   { lat: src.end.lat   + off, lng: src.end.lng   + off },
     ctrl:  { lat: src.ctrl.lat  + off, lng: src.ctrl.lng  + off },
-    ctrl2: src.ctrl2 ? { lat: src.ctrl2.lat + off, lng: src.ctrl2.lng + off } : null,
     visible: src.visible !== false,
     meta: src.meta ? JSON.parse(JSON.stringify(src.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
     _group: null, _curve: null, _seats: [],
   };
   if (row.meta) {
-    row.meta.rowValue = String(row.meta.rowValue || '');
-    if (dupCfg.incRow) row.meta.rowValue = incrementByRules(row.meta.rowValue, null);
-    Object.keys(dupCfg.incLevels || {}).forEach(k => {
-      if (!dupCfg.incLevels[k]) return;
-      const idx = Number(k);
-      row.meta.hierarchy = row.meta.hierarchy || {};
-      row.meta.hierarchy[idx] = incrementByRules(row.meta.hierarchy[idx] || '', idx);
-    });
-    if (dupCfg.incSeatStart) {
-      const seats = src._seats?.length ? src._seats : computeSeats(src);
-      const last = Number(src.meta?.startNumber || 1) + Math.max(0, seats.length - 1);
-      row.meta.startNumber = last + 1;
-    }
+    row.meta.rowValue = bumpPlusOneText(row.meta.rowValue || src.name || '');
   }
   rows.push(row);
   const group = getGroupByRowId(src.id);
@@ -3375,7 +2696,7 @@ function groupSelectedRows() {
   saveRows();
 }
 
-function duplicateGroup(id, dupCfg = { incRow: false, incSeatStart: false, incLevels: {} }) {
+function duplicateGroup(id) {
   const group = groups.find(g => g.id === id);
   if (!group) return;
   pushHistory();
@@ -3384,7 +2705,8 @@ function duplicateGroup(id, dupCfg = { incRow: false, incSeatStart: false, incLe
   group.rowIds.forEach(rid => {
     const src = rows.find(r => r.id === rid);
     if (!src) return;
-    const name = src.name;
+    const m = String(src.name || '').match(/^(.*?)(\d+)\s*$/);
+    const name = m ? `${m[1]}${parseInt(m[2], 10) + 1}` : `${src.name} 1`;
     const row = {
       id: ++rowIdCtr, name,
       seatCount: src.seatCount, spacingM: src.spacingM,
@@ -3392,26 +2714,10 @@ function duplicateGroup(id, dupCfg = { incRow: false, incSeatStart: false, incLe
       start: { lat: src.start.lat + off, lng: src.start.lng + off },
       end:   { lat: src.end.lat   + off, lng: src.end.lng   + off },
       ctrl:  { lat: src.ctrl.lat  + off, lng: src.ctrl.lng  + off },
-      ctrl2: src.ctrl2 ? { lat: src.ctrl2.lat + off, lng: src.ctrl2.lng + off } : null,
       visible: src.visible !== false,
       meta: src.meta ? JSON.parse(JSON.stringify(src.meta)) : { hierarchy: {}, invalid: {}, startNumber: 1, direction: 'start_to_end' },
       _group: null, _curve: null, _seats: [],
     };
-    if (row.meta) {
-      row.meta.rowValue = String(row.meta.rowValue || '');
-      if (dupCfg.incRow) row.meta.rowValue = incrementByRules(row.meta.rowValue, null);
-      Object.keys(dupCfg.incLevels || {}).forEach(k => {
-        if (!dupCfg.incLevels[k]) return;
-        const idx = Number(k);
-        row.meta.hierarchy = row.meta.hierarchy || {};
-        row.meta.hierarchy[idx] = incrementByRules(row.meta.hierarchy[idx] || '', idx);
-      });
-      if (dupCfg.incSeatStart) {
-        const seats = src._seats?.length ? src._seats : computeSeats(src);
-        const last = Number(src.meta?.startNumber || 1) + Math.max(0, seats.length - 1);
-        row.meta.startNumber = last + 1;
-      }
-    }
     rows.push(row);
     renderRow(row);
     newIds.push(row.id);
@@ -3443,30 +2749,6 @@ function deleteGroup(id) {
   saveRows();
 }
 
-function deleteAllRows() {
-  if (!rows.length) {
-    showToast('No rows to remove');
-    return;
-  }
-  if (!confirm(`Do you really want to delete all ${rows.length} row${rows.length !== 1 ? 's' : ''}?`)) return;
-  pushHistory();
-  rows.forEach(r => clearRowLayers(r));
-  rows = [];
-  groups = [];
-  selectedRowIds.clear();
-  selectedRid = null;
-  rowIdCtr = 0;
-  groupIdCtr = 0;
-  clearEditHandles();
-  clearGroupHandles();
-  clearSplitUI();
-  hideRowForm();
-  closeMetaEditor();
-  renderRowList();
-  saveRows();
-  showToast('All rows removed');
-}
-
 // ═══════════════════════════════════════════════════
 //  ROWS — list render
 // ═══════════════════════════════════════════════════
@@ -3482,21 +2764,18 @@ function renderRowList() {
     const n   = r._seats?.length || '—';
     const sel = selectedRid === r.id ? ' selected' : '';
     const doneCls = rowHasFullMeta(r) ? ' complete' : '';
-    const displayName = getRowDisplayName(r);
     const visIcon = r.visible === false ? '🙈' : '👁';
     const visTitle = r.visible === false ? 'Show row' : 'Hide row';
     return `<div class="ri${sel}" data-rid="${r.id}" draggable="true">
       <input type="checkbox" class="ri-select" data-multi="${r.id}" ${selectedRowIds.has(r.id) ? 'checked' : ''} title="Select for grouping">
       <span class="ri-dot" style="background:${r.color}"></span>
-      <span class="ri-name${doneCls}">${escHtml(displayName)}</span>
+      <span class="ri-name${doneCls}">${escHtml(r.name)}</span>
       <span class="ri-cnt">${n}</span>
       <div class="ri-btns" onclick="event.stopPropagation()">
         <button class="btn-icon" title="${visTitle}" data-vis="${r.id}">${visIcon}</button>
         <button class="btn-icon" title="Rename"    data-rename="${r.id}">✎</button>
         <button class="btn-icon" title="Edit shape" data-edit="${r.id}">✏</button>
         <button class="btn-icon" title="Meta data" data-meta="${r.id}">⚙</button>
-        <button class="btn-icon" title="Toggle 2nd bend handle" data-b2="${r.id}">${r.ctrl2 ? '◉' : '◎'}</button>
-        <button class="btn-icon" title="Start seat from another row end + 1" data-seat-link="${r.id}">⇢</button>
         <button class="btn-icon" title="Split row" data-split="${r.id}">✂</button>
         <button class="btn-icon" title="Duplicate" data-dup="${r.id}">⧉</button>
         <button class="btn-icon" title="Copy seats as JSON" data-exp="${r.id}">↓</button>
@@ -3517,7 +2796,8 @@ function renderRowList() {
         <span class="ri-group-cnt">${cnt}</span>
         <div class="ri-btns" onclick="event.stopPropagation()">
           <button class="btn-icon" title="Rename group" data-g-rename="${g.id}">✎</button>
-          <button class="btn-icon" title="Transform group (move + rotate)" data-g-xform="${g.id}">⤧</button>
+          <button class="btn-icon" title="Move group" data-g-move="${g.id}">⇄</button>
+          <button class="btn-icon" title="Rotate group" data-g-rot="${g.id}">↻</button>
           <button class="btn-icon" title="Knife split group" data-g-split="${g.id}">✂</button>
           <button class="btn-icon" title="Duplicate group" data-g-dup="${g.id}">⧉</button>
           <button class="btn-icon" title="Delete group" data-g-del="${g.id}" style="color:var(--danger)">✕</button>
@@ -3587,13 +2867,8 @@ function renderRowList() {
     selectRow(id);
     openMetaEditor(id);
   }));
-  list.querySelectorAll('[data-b2]').forEach(b => b.addEventListener('click', () => toggleSecondBendHandle(+b.dataset.b2)));
-  list.querySelectorAll('[data-seat-link]').forEach(b => b.addEventListener('click', () => setRowStartFromAnotherRow(+b.dataset.seatLink)));
   list.querySelectorAll('[data-split]').forEach(b => b.addEventListener('click', () => beginSplitRow(+b.dataset.split)));
-  list.querySelectorAll('[data-dup]').forEach(b  => b.addEventListener('click', () => {
-    const id = +b.dataset.dup;
-    showDuplicateOptionsDialog(cfg => duplicateRow(id, cfg));
-  }));
+  list.querySelectorAll('[data-dup]').forEach(b  => b.addEventListener('click', () => duplicateRow(+b.dataset.dup)));
   list.querySelectorAll('[data-del]').forEach(b  => b.addEventListener('click', () => deleteRow(+b.dataset.del)));
   list.querySelectorAll('[data-g-toggle]').forEach(b => b.addEventListener('click', () => {
     const g = groups.find(x => x.id === +b.dataset.gToggle);
@@ -3612,16 +2887,10 @@ function renderRowList() {
     renderRowList();
     saveRows();
   }));
-  list.querySelectorAll('[data-g-xform]').forEach(b => b.addEventListener('click', () => {
-    const gid = +b.dataset.gXform;
-    moveGroup(gid);
-    rotateGroup(gid);
-  }));
+  list.querySelectorAll('[data-g-move]').forEach(b => b.addEventListener('click', () => moveGroup(+b.dataset.gMove)));
+  list.querySelectorAll('[data-g-rot]').forEach(b => b.addEventListener('click', () => rotateGroup(+b.dataset.gRot)));
   list.querySelectorAll('[data-g-split]').forEach(b => b.addEventListener('click', () => beginSplitGroup(+b.dataset.gSplit)));
-  list.querySelectorAll('[data-g-dup]').forEach(b => b.addEventListener('click', () => {
-    const id = +b.dataset.gDup;
-    showDuplicateOptionsDialog(cfg => duplicateGroup(id, cfg));
-  }));
+  list.querySelectorAll('[data-g-dup]').forEach(b => b.addEventListener('click', () => duplicateGroup(+b.dataset.gDup)));
   list.querySelectorAll('[data-g-del]').forEach(b => b.addEventListener('click', () => deleteGroup(+b.dataset.gDel)));
   list.querySelectorAll('.ri-group').forEach(gEl => {
     gEl.addEventListener('dragover', e => {
@@ -3653,6 +2922,7 @@ function renderRowList() {
     );
     showToast(`${row._seats.length} seats from "${row.name}" copied as JSON`);
   }));
+  renderSelectedRowSummary();
 }
 
 // ═══════════════════════════════════════════════════
@@ -3662,7 +2932,7 @@ function saveRows() {
   try {
     localStorage.setItem(ROWS_KEY, JSON.stringify({
       rows: rows.map(r => ({ id: r.id, name: r.name, color: r.color,
-        start: r.start, end: r.end, ctrl: r.ctrl, ctrl2: r.ctrl2 || null,
+        start: r.start, end: r.end, ctrl: r.ctrl,
         seatCount: r.seatCount, spacingM: r.spacingM, visible: r.visible !== false, meta: r.meta || null })),
       groups,
       groupIdCtr,
@@ -3694,12 +2964,10 @@ function loadHierarchy() {
     hierarchy.levels = Math.max(1, Math.min(8, Number(h.levels) || 2));
     hierarchy.names = Array.isArray(h.names) ? h.names : hierarchy.names;
     hierarchy.options = typeof h.options === 'object' && h.options ? h.options : {};
-    hierarchy.rowNameConvention = typeof h.rowNameConvention === 'object' && h.rowNameConvention ? h.rowNameConvention : hierarchy.rowNameConvention;
   } catch {}
   $('hier-level-count').value = hierarchy.levels;
   $('hier-level-names').value = hierarchy.names.join(',');
   renderHierarchyOptionsEditor();
-  renderRowNameConventionEditor();
   validateHierarchyForm();
 }
 
@@ -3780,13 +3048,9 @@ function applyVenueSnapshot(data) {
     hierarchy.levels = Math.max(1, Math.min(8, Number(data.hierarchy.levels) || hierarchy.levels));
     hierarchy.names = Array.isArray(data.hierarchy.names) ? data.hierarchy.names : hierarchy.names;
     hierarchy.options = typeof data.hierarchy.options === 'object' && data.hierarchy.options ? data.hierarchy.options : {};
-    hierarchy.rowNameConvention = typeof data.hierarchy.rowNameConvention === 'object' && data.hierarchy.rowNameConvention
-      ? data.hierarchy.rowNameConvention
-      : (hierarchy.rowNameConvention || { mode: 'manual', parts: ['row'] });
     $('hier-level-count').value = hierarchy.levels;
     $('hier-level-names').value = hierarchy.names.join(',');
     renderHierarchyOptionsEditor();
-    renderRowNameConventionEditor();
     validateHierarchyForm();
     saveHierarchy();
   }
@@ -3808,47 +3072,18 @@ function applyVenueSnapshot(data) {
 $('btn-add-row').onclick = () => { deselectRow(); setDrawSt('start'); };
 
 $('btn-cancel-draw').onclick  = () => setDrawSt(null);
-$('btn-cancel-draw2')?.addEventListener('click', () => { clearDrawTmp(); setDrawSt(null); hideRowForm(); });
-$('btn-create-row')?.addEventListener('click', createOrUpdateRow);
-
-function applyRowFormToSelected() {
-  if (selectedRid === null) return;
-  const row = rows.find(r => r.id === selectedRid);
-  if (!row) return;
-  const name = $('row-name').value.trim();
-  const mode = document.querySelector('input[name="row-mode"]:checked')?.value || 'count';
-  if (hierarchy.rowNameConvention?.mode !== 'auto') {
-    row.name = name || row.name;
-  } else {
-    applyAutoRowName(row);
-    $('row-name').value = getRowDisplayName(row) || row.name || '';
-  }
-  if (mode === 'count') {
-    row.seatCount = Math.max(2, parseInt($('row-seats').value) || row.seatCount || 10);
-    row.spacingM = null;
-  } else {
-    row.spacingM = Math.max(0.1, parseFloat($('row-spacing').value) || row.spacingM || 1);
-    row.seatCount = null;
-  }
-  renderRow(row);
-  renderRowList();
-  if (metaRid === row.id) openMetaEditor(row.id);
-  saveRows();
-}
-
-$('row-name').addEventListener('input', applyRowFormToSelected);
-$('row-seats').addEventListener('input', applyRowFormToSelected);
-$('row-spacing').addEventListener('input', applyRowFormToSelected);
+$('btn-cancel-draw2').onclick = () => { clearDrawTmp(); setDrawSt(null); hideRowForm(); };
+$('btn-create-row').onclick   = createOrUpdateRow;
 
 document.querySelectorAll('input[name="row-mode"]').forEach(r => {
   r.addEventListener('change', e => {
     $('row-count-ctrl').style.display   = e.target.value === 'count'   ? '' : 'none';
     $('row-spacing-ctrl').style.display = e.target.value === 'spacing' ? '' : 'none';
-    applyRowFormToSelected();
   });
 });
 
-$('btn-close-meta')?.addEventListener('click', closeMetaEditor);
+$('btn-close-meta').onclick = closeMetaEditor;
+$('meta-row-name').addEventListener('input', applyMetaFromUI);
 $('meta-start-num').addEventListener('input', applyMetaFromUI);
 $('meta-direction').addEventListener('change', applyMetaFromUI);
 $('row-meta-hierarchy').addEventListener('input', e => {
@@ -3892,14 +3127,9 @@ $('btn-save-hierarchy').onclick = () => {
     if (opts.length) nextOptions[i] = opts;
   }
   hierarchy.options = nextOptions;
-  const mode = document.querySelector('input[name="row-name-conv-mode"]:checked')?.value || 'manual';
-  const parts = [...$('hier-row-convention-parts').querySelectorAll('[data-conv-part]:checked')].map(x => x.dataset.convPart);
-  hierarchy.rowNameConvention = { mode: mode === 'auto' ? 'auto' : 'manual', parts: parts.length ? parts : ['row'] };
-  normalizeRowNameConvention();
   $('hier-level-count').value = hierarchy.levels;
   $('hier-level-names').value = hierarchy.names.join(',');
   renderHierarchyOptionsEditor();
-  renderRowNameConventionEditor();
   saveHierarchy();
   if (metaRid !== null) openMetaEditor(metaRid);
   renderRowList();
@@ -3910,44 +3140,9 @@ $('hier-level-count').addEventListener('input', () => {
   const levels = Math.max(1, Math.min(8, parseInt($('hier-level-count').value) || 1));
   hierarchy.levels = levels;
   renderHierarchyOptionsEditor();
-  renderRowNameConventionEditor();
   validateHierarchyForm();
 });
-$('hier-level-names').addEventListener('input', () => { validateHierarchyForm(); renderRowNameConventionEditor(); });
-document.querySelectorAll('input[name="row-name-conv-mode"]').forEach(r => {
-  r.addEventListener('change', () => {
-    hierarchy.rowNameConvention = hierarchy.rowNameConvention || { mode: 'manual', parts: ['row'] };
-    hierarchy.rowNameConvention.mode = r.value;
-    renderRowNameConventionEditor();
-    normalizeRowNameConvention();
-    saveHierarchy();
-    renderRowList();
-    if (selectedRid !== null) {
-      const srow = rows.find(x => x.id === selectedRid);
-      if (srow) showRowForm(srow);
-    }
-    if (metaRid !== null) {
-      const row = rows.find(x => x.id === metaRid);
-      if (row) openMetaEditor(row.id);
-    }
-  });
-});
-$('hier-row-convention-parts').addEventListener('change', () => {
-  const parts = [...$('hier-row-convention-parts').querySelectorAll('[data-conv-part]:checked')].map(x => x.dataset.convPart);
-  hierarchy.rowNameConvention = hierarchy.rowNameConvention || { mode: 'manual', parts: ['row'] };
-  hierarchy.rowNameConvention.parts = ['row', ...parts.filter(p => p !== 'row')];
-  normalizeRowNameConvention();
-  saveHierarchy();
-  renderRowList();
-  if (selectedRid !== null) {
-    const srow = rows.find(x => x.id === selectedRid);
-    if (srow) showRowForm(srow);
-  }
-  if (metaRid !== null) {
-    const row = rows.find(x => x.id === metaRid);
-    if (row) openMetaEditor(row.id);
-  }
-});
+$('hier-level-names').addEventListener('input', validateHierarchyForm);
 
 $('btn-sort-rows-name').onclick = () => {
   pushHistory();
@@ -3973,7 +3168,6 @@ $('btn-clear-row-selection').onclick = () => {
   renderRowList();
   saveRows();
 };
-$('btn-delete-all-rows').onclick = deleteAllRows;
 $('btn-undo').onclick = undoAction;
 $('btn-redo').onclick = redoAction;
 const saveVenueHandler = () => {
@@ -3984,31 +3178,6 @@ const saveVenueHandler = () => {
 const loadVenueHandler = () => $('venue-file-input').click();
 $('btn-save-venue-top').onclick = saveVenueHandler;
 $('btn-load-venue-top').onclick = loadVenueHandler;
-$('dup-cancel').onclick = hideDuplicateOptionsDialog;
-$('dup-modal').addEventListener('click', e => {
-  if (e.target === $('dup-modal')) hideDuplicateOptionsDialog();
-});
-$('dup-apply').onclick = () => {
-  const ctx = dupDialogCtx;
-  const cfg = getDuplicateConfigFromUI();
-  hideDuplicateOptionsDialog();
-  if (ctx?.onApply) ctx.onApply(cfg);
-};
-$('error-close').onclick = hideErrorDialog;
-$('error-modal').addEventListener('click', e => {
-  if (e.target === $('error-modal')) hideErrorDialog();
-});
-$('error-copy').onclick = async () => {
-  const txt = $('error-modal-text').value || '';
-  try {
-    await navigator.clipboard.writeText(txt);
-    showToast('Error message copied');
-  } catch {
-    $('error-modal-text').focus();
-    $('error-modal-text').select();
-    showToast('Select text and copy manually');
-  }
-};
 $('venue-file-input').addEventListener('change', async e => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -4028,7 +3197,7 @@ $('venue-file-input').addEventListener('change', async e => {
 $('btn-export-rows-json').onclick = () => {
   const incomplete = rows.filter(r => !rowHasFullMeta(r));
   if (incomplete.length) {
-    const names = incomplete.map(r => getRowDisplayName(r) || r.name || `Row ${r.id}`);
+    const names = incomplete.map(r => r.name || `Row ${r.id}`);
     const preview = names.slice(0, 4).join(', ');
     const more = names.length > 4 ? ` +${names.length - 4} more` : '';
     showToast(`Cannot export. Incomplete rows: ${preview}${more}`);
@@ -4057,8 +3226,6 @@ $('btn-export-rows-json').onclick = () => {
   };
 
   const seat_map = [];
-  const uniqMap = new Map();
-  const duplicateRows = [];
   rows.forEach(r => {
     const seats = r._seats || computeSeats(r);
     const nums = computeSeatNumbers(r, seats.length);
@@ -4080,10 +3247,9 @@ $('btn-export-rows-json').onclick = () => {
 
     seats.forEach((s, i) => {
       const seatNumber = Number(nums[i]);
-      const seatOut = Number.isFinite(seatNumber) ? seatNumber : i + 1;
       const seatItem = {
         row: rowValue,
-        seat: seatOut,
+        seat: Number.isFinite(seatNumber) ? seatNumber : i + 1,
         lat: s.lat,
         lng: s.lng,
       };
@@ -4094,50 +3260,9 @@ $('btn-export-rows-json').onclick = () => {
       if (sectionPick.idx === null || !invalid[sectionPick.idx]) {
         if (sectionValue !== null) seatItem.section = sectionValue;
       }
-      const uniqLevels = [];
-      for (let li = 0; li < hierarchy.levels; li++) {
-        if (invalid[li]) continue;
-        const lv = String(metaHierarchy?.[li] ?? '').trim();
-        uniqLevels.push([li, lv]);
-      }
-      const uniqKey = JSON.stringify([seatOut, String(rowValue ?? ''), uniqLevels]);
-      if (uniqMap.has(uniqKey)) {
-        const prev = uniqMap.get(uniqKey);
-        duplicateRows.push({
-          seat: seatOut,
-          row: rowValue,
-          levels: uniqLevels.map(([li, lv]) => `${hierarchy.names[li] || `Level ${li + 1}`}=${lv}`),
-          firstRowId: prev.rowId,
-          firstRowName: prev.rowName,
-          secondRowId: r.id,
-          secondRowName: getRowDisplayName(r) || r.name || `Row ${r.id}`,
-        });
-      } else {
-        uniqMap.set(uniqKey, { rowId: r.id, rowName: getRowDisplayName(r) || r.name || `Row ${r.id}` });
-      }
       seat_map.push(seatItem);
     });
   });
-
-  if (duplicateRows.length) {
-    const lines = duplicateRows.map((d, idx) => [
-      `#${idx + 1}`,
-      `  Key: seat=${d.seat}, row=${d.row}${d.levels.length ? ', ' + d.levels.join(', ') : ''}`,
-      `  Row A: [id=${d.firstRowId}] ${d.firstRowName}`,
-      `  Row B: [id=${d.secondRowId}] ${d.secondRowName}`,
-    ].join('\n'));
-    const msg = [
-      'Cannot export JSON.',
-      `Duplicate seat metadata found (${duplicateRows.length}):`,
-      '',
-      ...lines,
-      '',
-      'Fix by changing row/levels/seat numbering so each (seat + row + valid levels) tuple is unique.',
-    ].join('\n');
-    showErrorDialog(msg, duplicateRows.flatMap(d => [d.firstRowId, d.secondRowId]));
-    showToast('Export blocked: duplicate seat metadata');
-    return;
-  }
 
   const jsonText = `"seat_map": ${JSON.stringify(seat_map, null, 2)}`;
   navigator.clipboard.writeText(jsonText);
@@ -4196,13 +3321,10 @@ window.addEventListener('keydown', e => {
     beginSplitRow(selectedRid);
   } else if (key === 'd') {
     e.preventDefault();
-    showDuplicateOptionsDialog(cfg => duplicateRow(selectedRid, cfg));
+    duplicateRow(selectedRid);
   } else if (key === 'm') {
     e.preventDefault();
     openMetaEditor(selectedRid);
-  } else if (key === 'delete') {
-    e.preventDefault();
-    deleteRow(selectedRid);
   }
 });
 
@@ -4226,8 +3348,9 @@ loadOv();
 loadHierarchy();
 loadRows();
 loadUIState();
-initRowsSplitter();
-initRowsMetaSplitter();
+initRowsInnerSplitter();
+renderSelectedRowSummary();
+trimRowsBottomPane();
 </script>
 </body>
 </html>
