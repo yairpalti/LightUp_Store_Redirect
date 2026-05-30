@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LightUp Crowd - Flashlight Basic Patterns</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #66ccff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p { font-size: 1.1em; color: #cccccc; max-width: 640px; margin: 0 auto; }
+        .customize-note {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 18px 22px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            color: #bbbbbb;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 1.05em;
+        }
+        .intro {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 28px;
+            color: #bbbbbb;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .navigation-section {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .navigation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .navigation-link {
+            display: block;
+            padding: 10px 14px;
+            background: rgba(102, 204, 255, 0.1);
+            border-radius: 8px;
+            color: #66ccff;
+            text-decoration: none;
+            font-size: 0.9em;
+            text-align: center;
+            border: 1px solid rgba(102, 204, 255, 0.2);
+            transition: background 0.2s ease;
+        }
+        .navigation-link:hover { background: rgba(102, 204, 255, 0.2); }
+        .category-header {
+            font-size: 1.5em;
+            color: #66ccff;
+            margin: 36px 0 18px 0;
+            text-align: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            scroll-margin-top: 20px;
+        }
+        .mode-list { display: flex; flex-direction: column; gap: 28px; }
+        .mode-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            scroll-margin-top: 16px;
+        }
+        .mode-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .mode-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(102, 204, 255, 0.25);
+            color: #66ccff;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95em;
+        }
+        .mode-title { font-size: 1.45em; font-weight: bold; color: #ffffff; }
+        .mode-description {
+            color: #cccccc;
+            margin-bottom: 18px;
+            font-size: 1.05em;
+        }
+        .mode-video-wrap {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            max-width: 540px;
+            margin: 0 auto;
+        }
+        .mode-video,
+        .mode-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            vertical-align: middle;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 204, 255, 0.95), rgba(102, 204, 255, 0.7));
+            color: #ffffff;
+            border: none;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease, opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            display: flex;
+            padding: 0;
+            line-height: 1;
+        }
+        .back-to-top.visible { opacity: 1; visibility: visible; }
+        .back-to-top:hover { transform: translateY(-3px); }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.75em; }
+            .mode-card { padding: 18px; }
+            .back-to-top { bottom: 20px; right: 20px; width: 44px; height: 44px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔦 Flashlight Basic Patterns</h1>
+            <p>Non-Spatial Flashlight patterns</p>
+        </div>
+
+        <p class="customize-note">Each pattern below can be customized</p>
+
+        <div class="navigation-section">
+            <div class="navigation-grid">
+                <a href="#steady-light" class="navigation-link">Steady light</a>
+                <a href="#flashing" class="navigation-link">Flashing</a>
+                <a href="#sparkle" class="navigation-link">Sparkle</a>
+                <a href="#rhythms" class="navigation-link">Special rhythms</a>
+                <a href="#building-crowd" class="navigation-link">Building the crowd</a>
+                <a href="#fading-crowd" class="navigation-link">Fading the crowd</a>
+            </div>
+        </div>
+
+        <div class="category-header" id="steady-light">Steady light</div>
+        <div class="mode-list">
+            <article class="mode-card" id="mode-on">
+                <div class="mode-header">
+                    <span class="mode-number">1</span>
+                    <h2 class="mode-title">Lights On</h2>
+                </div>
+                <p class="mode-description">Everyone keeps their flashlight on — a solid, steady glow across the crowd.</p>
+                <div class="mode-video-wrap">
+                    <img class="mode-image" src="01_on.jpg" alt="Lights on — steady flashlight glow">
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-off">
+                <div class="mode-header">
+                    <span class="mode-number">2</span>
+                    <h2 class="mode-title">Lights Off</h2>
+                </div>
+                <p class="mode-description">Everyone turns their flashlight off — a moment of darkness.</p>
+                <div class="mode-video-wrap">
+                    <img class="mode-image" src="02_off.jpg" alt="Lights off — dark screen">
+                </div>
+            </article>
+        </div>
+
+        <div class="category-header" id="flashing">Flashing</div>
+        <div class="mode-list">
+            <article class="mode-card" id="mode-blink-slow">
+                <div class="mode-header">
+                    <span class="mode-number">3</span>
+                    <h2 class="mode-title">Slow Flash</h2>
+                </div>
+                <p class="mode-description">All phones flash together at a relaxed, unhurried pace.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="03_blink_slow.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-blink-medium">
+                <div class="mode-header">
+                    <span class="mode-number">4</span>
+                    <h2 class="mode-title">Medium Flash</h2>
+                </div>
+                <p class="mode-description">A steady, moderate rhythm — faster than slow flash, still easy to follow.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="04_blink_medium.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-blink-fast">
+                <div class="mode-header">
+                    <span class="mode-number">5</span>
+                    <h2 class="mode-title">Fast Flash</h2>
+                </div>
+                <p class="mode-description">Quick, energetic flashing — adds excitement and movement.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="05_blink_fast.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+        </div>
+
+        <div class="category-header" id="sparkle">Sparkle</div>
+        <div class="mode-list">
+            <article class="mode-card" id="mode-twinkle-all">
+                <div class="mode-header">
+                    <span class="mode-number">6</span>
+                    <h2 class="mode-title">Sparkle — Everyone</h2>
+                </div>
+                <p class="mode-description">Every phone flickers at random moments, like a field of twinkling stars.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="06_twinkle_all.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-twinkle-sparse">
+                <div class="mode-header">
+                    <span class="mode-number">7</span>
+                    <h2 class="mode-title">Sparkle — Just a Few</h2>
+                </div>
+                <p class="mode-description">Only a small handful of phones sparkle while the rest stay dark — subtle and magical.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="07_twinkle_sparse.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-twinkle-mixed">
+                <div class="mode-header">
+                    <span class="mode-number">8</span>
+                    <h2 class="mode-title">Sparkle — Mixed</h2>
+                </div>
+                <p class="mode-description">Some phones sparkle while others stay on steadily — glitter over a warm glow.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="08_twinkle_mixed.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+        </div>
+
+        <div class="category-header" id="rhythms">Special rhythms</div>
+        <div class="mode-list">
+            <article class="mode-card" id="mode-strobe">
+                <div class="mode-header">
+                    <span class="mode-number">9</span>
+                    <h2 class="mode-title">Strobe Bursts</h2>
+                </div>
+                <p class="mode-description">Short bursts of very rapid flashes, then a pause — bold and high-energy.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="09_strobe.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-heartbeat">
+                <div class="mode-header">
+                    <span class="mode-number">10</span>
+                    <h2 class="mode-title">Heartbeat</h2>
+                </div>
+                <p class="mode-description">Two quick pulses in a row, like a heartbeat, then a gentle pause — emotional and rhythmic.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="10_heartbeat.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-breathing">
+                <div class="mode-header">
+                    <span class="mode-number">11</span>
+                    <h2 class="mode-title">Breathing</h2>
+                </div>
+                <p class="mode-description">Lights softly brighten and dim, like calm breathing — peaceful and organic.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="11_breathing.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-smooth-breathing">
+                <div class="mode-header">
+                    <span class="mode-number">12</span>
+                    <h2 class="mode-title">Smooth Breathing</h2>
+                </div>
+                <p class="mode-description">The same gentle rise and fall, but smoother and more even — a flowing wave of light.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="12_smooth_breathing.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+        </div>
+
+        <div class="category-header" id="building-crowd">Building the crowd</div>
+        <div class="mode-list">
+            <article class="mode-card" id="mode-grow-steady">
+                <div class="mode-header">
+                    <span class="mode-number">13</span>
+                    <h2 class="mode-title">Grow — Steady</h2>
+                </div>
+                <p class="mode-description">More and more phones turn on until the whole crowd is glowing — the audience builds together.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="13_grow_steady.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-grow-blink">
+                <div class="mode-header">
+                    <span class="mode-number">14</span>
+                    <h2 class="mode-title">Grow — Flashing</h2>
+                </div>
+                <p class="mode-description">The crowd grows phone by phone; each new light flashes as it joins in.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="14_grow_blink.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-grow-twinkle">
+                <div class="mode-header">
+                    <span class="mode-number">15</span>
+                    <h2 class="mode-title">Grow — Sparkling</h2>
+                </div>
+                <p class="mode-description">The crowd expands with a sparkling effect as new phones join — a shimmering build-up.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="15_grow_twinkle.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+        </div>
+
+        <div class="category-header" id="fading-crowd">Fading the crowd</div>
+        <div class="mode-list">
+            <article class="mode-card" id="mode-reduce-steady">
+                <div class="mode-header">
+                    <span class="mode-number">16</span>
+                    <h2 class="mode-title">Fade Out — Steady</h2>
+                </div>
+                <p class="mode-description">Lights gradually turn off until only a few remain — a gentle wind-down.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="16_reduce_steady.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-reduce-blink">
+                <div class="mode-header">
+                    <span class="mode-number">17</span>
+                    <h2 class="mode-title">Fade Out — Flashing</h2>
+                </div>
+                <p class="mode-description">The crowd slowly shrinks; remaining lights flash as phones drop out.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="17_reduce_blink.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+
+            <article class="mode-card" id="mode-reduce-twinkle">
+                <div class="mode-header">
+                    <span class="mode-number">18</span>
+                    <h2 class="mode-title">Fade Out — Sparkling</h2>
+                </div>
+                <p class="mode-description">The crowd dwindles with a soft sparkle as phones go dark — a delicate ending.</p>
+                <div class="mode-video-wrap">
+                    <video class="mode-video" src="18_reduce_twinkle.mp4" autoplay loop muted playsinline></video>
+                </div>
+            </article>
+        </div>
+
+        <p class="intro" style="margin-top: 40px;">
+            Need technical details and JSON settings? See the full <a href="flashlight_modes.html" style="color: #66ccff;">Flashlight Modes Reference</a>.
+        </p>
+    </div>
+
+    <button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+    <script>
+        (function () {
+            var btn = document.getElementById('backToTop');
+            window.addEventListener('scroll', function () {
+                btn.classList.toggle('visible', window.scrollY > 400);
+            });
+            btn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            var videos = document.querySelectorAll('.mode-video');
+            if ('IntersectionObserver' in window && videos.length) {
+                var observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        var video = entry.target;
+                        if (entry.isIntersecting) {
+                            video.play().catch(function () {});
+                        } else {
+                            video.pause();
+                        }
+                    });
+                }, { threshold: 0.35 });
+                videos.forEach(function (video) {
+                    observer.observe(video);
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
