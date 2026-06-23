@@ -997,7 +997,7 @@ a:hover {
 }
 
 .event-cat-card--entertainment {
-    --accent: rgba(110, 0, 115, 1);
+    --accent: #ff6beb;
     --card-bg: rgba(55, 0, 58, 1);
     --card-mid: rgba(110, 0, 115, 1);
 }
@@ -1015,7 +1015,7 @@ a:hover {
 }
 
 .event-cat-card--community {
-    --accent: rgba(40, 5, 100, 1);
+    --accent: #9d7bff;
     --card-bg: rgba(20, 2, 50, 1);
     --card-mid: rgba(40, 5, 100, 1);
 }
@@ -1370,5 +1370,135 @@ a:hover {
 .cta-section .store-button {
     font-size: 18px;
     padding: 16px 36px;
+}
+
+/* Download page */
+.download-page {
+    min-height: 100vh;
+}
+
+.download-header {
+    padding: 28px 20px 8px;
+    text-align: center;
+}
+
+.download-logo {
+    display: inline-block;
+    line-height: 0;
+}
+
+.download-logo img {
+    height: 110px;
+    width: auto;
+    filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.5));
+}
+
+.download-main {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.download-hero h1 {
+    font-size: clamp(28px, 4.5vw, 40px);
+    margin: 0 0 16px;
+    color: var(--text);
+}
+
+.download-lead {
+    font-size: clamp(17px, 2vw, 20px);
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin: 0 auto 32px;
+    max-width: 520px;
+}
+
+.download-store-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.download-store-buttons .store-button {
+    width: 100%;
+    max-width: 320px;
+}
+
+.download-approved {
+    padding-top: 48px;
+    padding-bottom: 48px;
+}
+
+.download-approved-title {
+    font-size: clamp(26px, 4.5vw, 42px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    margin: 0 0 28px;
+    background: linear-gradient(90deg,
+        #e040fb, #00e5c8, #448aff, #b388ff,
+        #e040fb, #00e5c8, #448aff, #b388ff
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: events-color-wave 4s linear infinite;
+}
+
+.download-approved-visual {
+    max-width: 640px;
+    margin: 0 auto 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.download-approved-visual img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.download-approved-note {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--text-muted);
+    margin: 0 auto;
+    max-width: 480px;
+}
+
+.download-page .cta-section {
+    margin-top: 8px;
+    padding-bottom: 48px;
+}
+
+.download-page .site-footer {
+    padding-bottom: 32px;
+}
+
+.initially-hidden {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .download-store-buttons {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .download-store-buttons .store-button {
+        width: auto;
+        min-width: 240px;
+    }
+
+    .download-logo img {
+        height: 130px;
+    }
 }
 
