@@ -30,8 +30,9 @@
             position: relative;
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
+            padding-top: clamp(20px, 4vh, 40px);
             overflow: hidden;
         }
         .hero-bg-video {
@@ -55,14 +56,14 @@
         .hero-content {
             position: relative;
             z-index: 2;
-            padding: 48px 20px 60px;
+            padding: 24px 20px 32px;
             max-width: 720px;
             margin: 0 auto;
         }
         .hero-brand {
             display: flex;
             justify-content: center;
-            margin-bottom: 32px;
+            margin-bottom: 22px;
         }
         .hero-brand-logo {
             height: 130px;
@@ -130,17 +131,74 @@
         .section h2 { font-size: 26px; }
         .scroll-nav { margin-top: 16px; }
         .scroll-hint {
-            position: absolute;
-            bottom: 24px;
+            position: fixed;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 2;
-            color: rgba(255,255,255,0.7);
-            font-size: 14px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-decoration: none;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.6);
             animation: bounce 2s ease-in-out infinite;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
         }
-        .scroll-hint span { display: block; font-size: 24px; margin-bottom: 4px; }
+        .scroll-hint.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .scroll-hint span { display: block; font-size: 22px; line-height: 1; }
         @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+        @media (max-width: 640px) {
+            .hero-wrap {
+                padding-top: 12px;
+            }
+            .hero-content {
+                padding: 12px 16px 28px;
+            }
+            .hero-brand {
+                margin-bottom: 14px;
+            }
+            .hero-brand-logo {
+                height: 96px;
+            }
+            .hero-supertitle {
+                margin-bottom: 12px;
+                font-size: 15px;
+                line-height: 1.45;
+            }
+            .hero-heading {
+                margin-bottom: 12px;
+                font-size: clamp(22px, 6.5vw, 30px);
+            }
+            .hero-sub {
+                margin-bottom: 8px;
+                font-size: 15px;
+                line-height: 1.5;
+            }
+            .hero-device-line {
+                margin-bottom: 14px;
+                font-size: 13px;
+            }
+            .scroll-nav {
+                margin-top: 8px;
+            }
+            .hero .nav-links {
+                gap: 8px;
+            }
+            .hero .nav-links .hero-nav-link {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+        }
         .back-to-top {
             position: fixed;
             right: 18px;
@@ -576,6 +634,18 @@
         section.classList.add('scroll-reveal');
         observer.observe(section);
     });
+
+    // Hide scroll hint after leaving hero
+    var scrollHint = document.querySelector('.scroll-hint');
+    var heroWrap = document.querySelector('.hero-wrap');
+    if (scrollHint && heroWrap) {
+        function updateScrollHint() {
+            var pastHero = heroWrap.getBoundingClientRect().bottom < window.innerHeight * 0.75;
+            scrollHint.classList.toggle('is-hidden', pastHero);
+        }
+        window.addEventListener('scroll', updateScrollHint, { passive: true });
+        updateScrollHint();
+    }
 
     // Ensure hero background video plays (some browsers need user interaction first)
     var heroVideo = document.querySelector('.hero-bg-video');
