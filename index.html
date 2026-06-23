@@ -16,7 +16,7 @@
     <meta name="twitter:image" content="https://lightupcrowd.com/media/crowd.png">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="alternate icon" href="favicon.ico" sizes="32x32">
-    <link rel="stylesheet" href="css/site.css?v=20260504-3">
+    <link rel="stylesheet" href="css/site.css?v=20260622-1">
     <!-- Google tag (gtag.js) - GA4 Web stream -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJZX1HFPLB"></script>
     <script>
@@ -59,18 +59,73 @@
             max-width: 720px;
             margin: 0 auto;
         }
-        .hero .purpose-line {
-            font-size: clamp(20px, 2.2vw, 26px);
-            font-weight: 700;
-            line-height: 1.6;
-            color: #f0f4ff;
-            margin: 0 0 12px;
+        .hero-brand {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        .hero-brand-logo {
+            height: 130px;
+            width: auto;
+            filter: drop-shadow(0 2px 12px rgba(0,0,0,0.6));
+        }
+        .hero-supertitle {
+            font-size: clamp(18px, 2.4vw, 26px);
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.88);
+            margin: 0 0 20px;
+            line-height: 1.55;
             text-shadow: 0 1px 4px rgba(0,0,0,0.5);
         }
-        .hero .tagline { font-size: 20px; color: var(--text-muted); margin: 8px 0 24px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-        .hero h1 { text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
-        .cta-download { margin: 24px 0; }
-        .cta-download .store-button { font-size: 20px; padding: 18px 36px; }
+        .hero-highlight-coldplay .nl {
+            display: inline;
+            text-shadow: 0 0 12px currentColor, 0 0 24px currentColor;
+        }
+        .nl-c  { color: #00c8d4; }
+        .nl-o  { color: #00aaff; }
+        .nl-l  { color: #4477ff; }
+        .nl-d  { color: #8855ff; }
+        .nl-p  { color: #bb44ff; }
+        .nl-l2 { color: #dd44cc; }
+        .nl-a  { color: #ff44aa; }
+        .nl-y  { color: #00c8d4; }
+        .hero-highlight-moment {
+            color: #fff;
+        }
+        .hero-heading {
+            font-size: clamp(26px, 4.8vw, 52px);
+            font-weight: 900;
+            letter-spacing: 0.01em;
+            line-height: 1.1;
+            margin: 0 0 20px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .hero-heading-gradient {
+            display: block;
+            background: linear-gradient(90deg, #00e5ff 0%, #e040fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub {
+            font-size: clamp(17px, 1.9vw, 20px);
+            color: rgba(255,255,255,0.78);
+            line-height: 1.65;
+            margin: 0 0 14px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.45);
+        }
+        .hero-device-line {
+            font-size: clamp(15px, 1.6vw, 17px);
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: rgba(255,255,255,0.55);
+            margin: 0 0 28px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
         .section { padding: 32px 20px; }
         .section h2 { font-size: 26px; }
         .scroll-nav { margin-top: 16px; }
@@ -119,18 +174,18 @@
         </video>
         <div class="hero-overlay" aria-hidden="true"></div>
         <div class="hero-content hero">
-            <h1>LightUp Crowd</h1>
-            <p class="purpose-line">Connect your crowd to the event with a collective synchronized light show</p>
-            <p class="tagline">No extra devices. Participant phones only. Any venue.</p>
-            <div class="cta-download">
-                <a href="download/index.html" class="store-button">Download the app</a>
+            <div class="hero-brand">
+                <img src="media/LightUp%20Crowd%20logo.png" alt="LightUp Crowd" class="hero-brand-logo">
             </div>
+            <p class="hero-supertitle">Every event deserves<br>a <span class="hero-highlight-coldplay"><span class="nl nl-c">C</span><span class="nl nl-o">O</span><span class="nl nl-l">L</span><span class="nl nl-d">D</span><span class="nl nl-p">P</span><span class="nl nl-l2">L</span><span class="nl nl-a">A</span><span class="nl nl-y">Y</span></span> <span class="hero-highlight-moment">moment</span>™</p>
+            <h1 class="hero-heading">Turn every audience<br><span class="hero-heading-gradient">into part of the show</span></h1>
+            <p class="hero-sub">LightUp Crowd delivers synchronized, interactive light shows that transform any event into an immersive, unforgettable experience.</p>
+            <p class="hero-device-line">No extra devices. Participant phones only. Any Size. Any venue.</p>
             <nav class="scroll-nav nav-links">
-                <a href="#products">Products</a>
-                <a href="#venues-events">Venues &amp; events</a>
-                <a href="#special-dynamic-modes">Dynamic modes</a>
-                <a href="#possibilities">Features</a>
-                <a href="#advantages">Why LightUp Crowd</a>
+                <a href="#events" class="hero-nav-link">For Any Event</a>
+                <a href="#products" class="hero-nav-link">Show Types</a>
+                <a href="#why" class="hero-nav-link">Why LightUp</a>
+                <a href="#cta" class="hero-nav-link hero-nav-link--primary">Book a Demo</a>
             </nav>
         </div>
         <a href="#what-it-does" class="scroll-hint" aria-label="Scroll to content">
@@ -138,458 +193,229 @@
         </a>
     </header>
 
+    <section id="events" class="section events-section">
+        <div class="events-heading-wrap" role="heading" aria-level="2">
+            <span class="events-line" aria-hidden="true"></span>
+            <span class="events-heading-text">Perfect for any event</span>
+            <span class="events-line" aria-hidden="true"></span>
+        </div>
+        <div class="events-grid">
+            <article class="event-cat-card event-cat-card--entertainment">
+                <div class="event-cat-body">
+                    <h3 class="event-cat-title">Entertainment</h3>
+                    <div class="event-cat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="30" cy="13" rx="5.5" ry="8.5" transform="rotate(18 30 13)"/><path d="M22 18a11 11 0 0 0 16 2"/><path d="M27 21l-9 11"/><path d="M12 36h14"/><path d="M15 32h8"/></svg>
+                    </div>
+                    <ul class="event-cat-list">
+                        <li>Concerts</li>
+                        <li>Festivals</li>
+                        <li>Tours</li>
+                        <li>Live Performances</li>
+                        <li>Fan Events</li>
+                    </ul>
+                </div>
+                <div class="event-cat-photo">
+                    <img src="media/events-entertainment.png" alt="Concert crowd with synchronized pink phone lights" loading="lazy">
+                </div>
+            </article>
+            <article class="event-cat-card event-cat-card--sports">
+                <div class="event-cat-body">
+                    <h3 class="event-cat-title">Sports</h3>
+                    <div class="event-cat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10h16v11c0 7-16 7-16 0V10z"/><path d="M12 12c-5 0-5 9 0 9"/><path d="M36 12c5 0 5 9 0 9"/><path d="M24 21v7"/><path d="M18 32h12"/><path d="M15 36h18"/></svg>
+                    </div>
+                    <ul class="event-cat-list">
+                        <li>Team Introductions</li>
+                        <li>Championships Celebrations</li>
+                        <li>Halftime Experiences</li>
+                        <li>Community Events</li>
+                    </ul>
+                </div>
+                <div class="event-cat-photo">
+                    <img src="media/events-sports.png" alt="Stadium crowd with synchronized green phone lights" loading="lazy">
+                </div>
+            </article>
+            <article class="event-cat-card event-cat-card--corporate">
+                <div class="event-cat-body">
+                    <h3 class="event-cat-title">Corporate</h3>
+                    <div class="event-cat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="18" width="28" height="22" rx="2"/><path d="M16 18v-4a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v4"/><path d="M10 28h28"/></svg>
+                    </div>
+                    <ul class="event-cat-list">
+                        <li>Product Launches</li>
+                        <li>Sales Meetings</li>
+                        <li>Conferences</li>
+                        <li>Company Celebrations</li>
+                    </ul>
+                </div>
+                <div class="event-cat-photo">
+                    <img src="media/events-corporate.png" alt="Corporate event with synchronized blue phone lights" loading="lazy">
+                </div>
+            </article>
+            <article class="event-cat-card event-cat-card--community">
+                <div class="event-cat-body">
+                    <h3 class="event-cat-title">Education &amp; Community</h3>
+                    <div class="event-cat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18l18-8 18 8-18 8z"/><path d="M12 24v10l12 6 12-6V24"/></svg>
+                    </div>
+                    <ul class="event-cat-list">
+                        <li>Weddings</li>
+                        <li>Graduations</li>
+                        <li>School Events</li>
+                        <li>Fundraisers</li>
+                        <li>Religious Gatherings</li>
+                        <li>City Festivals</li>
+                    </ul>
+                </div>
+                <div class="event-cat-photo">
+                    <img src="media/events-community.png" alt="Community celebration with synchronized purple phone lights" loading="lazy">
+                </div>
+            </article>
+        </div>
+    </section>
+
     <section id="what-it-does" class="section">
         <div class="section-block">
-            <h2>From Crowd Lighting to Full Event Visuals</h2>
-            <p>LightUp Crowd supports the full spectrum of event light shows, from plug-and-play activation to fully choreographed visual experiences.</p>
+            <h2>From small and easy setup events to large crowd full video art</h2>
+            <p>LightUp Crowd supports the full spectrum of event light shows, from plug-and-play activation to fully choreographed visual experiences. Using phone flashlight or multi color screen phones.</p>
         </div>
         <div id="products" data-product-picker>
-        <div class="product-circles" role="tablist" aria-label="Product types">
-            <button type="button" class="product-circle is-center" data-product="crowd-flash" role="tab" aria-selected="true" aria-controls="product-detail-reveal" title="Click to show details"><span class="product-circle-label">Crowd Flash</span></button>
-            <button type="button" class="product-circle" data-product="crowd-glow" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Crowd Glow</span></button>
-            <button type="button" class="product-circle" data-product="directed-glow" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Directed Glow</span></button>
-            <button type="button" class="product-circle" data-product="zone-show" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Zone Show</span></button>
-            <button type="button" class="product-circle" data-product="field-show" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Field Show</span></button>
-            <button type="button" class="product-circle" data-product="canvas-show" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Canvas Show</span></button>
-            <button type="button" class="product-circle" data-product="directed-canvas" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Directed Canvas</span></button>
-        </div>
-        <div id="product-detail-reveal" class="product-detail-reveal is-open" role="tabpanel">
-            <div class="product-detail-content is-visible" data-product="crowd-flash">
-                <h3 class="product-detail-title">Crowd Flash</h3>
-                <p>Many different light patterns can be applied across the whole crowd or at random - such as blinking, twinkling, random or progressive - so you get energetic, high-impact effects that work in any venue with zero setup. The classic concert lighter, reimagined at scale.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/Crowd%20Flash%20show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+            <div class="product-circles" role="tablist" aria-label="Product types">
+                <button type="button" class="product-circle is-center" data-product="crowd-show" role="tab" aria-selected="true" aria-controls="product-detail-reveal" title="Click to show details"><span class="product-circle-label">Crowd Show</span><span class="product-circle-tier">Basic</span></button>
+                <button type="button" class="product-circle" data-product="field-show" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Field Show</span><span class="product-circle-tier">Advanced</span></button>
+                <button type="button" class="product-circle" data-product="canvas-show" role="tab" aria-selected="false" aria-controls="product-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Canvas Show</span><span class="product-circle-tier">Full</span></button>
+            </div>
+            <div id="product-detail-reveal" class="product-detail-reveal is-open" role="tabpanel">
+                <div class="product-detail-content is-visible" data-product="crowd-show">
+                    <p class="product-detail-desc"><span class="product-detail-desc-line">Energy. Zero setup. Beat-driven patterns: whole crowd or random.</span><span class="product-detail-desc-line">Any venue, 50+ people.</span></p>
+                    <div class="product-videos">
+                        <div class="product-videos-slider">
+                            <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                            <div class="product-videos-track">
+                                <div class="product-video-item active">
+                                    <div class="video-wrap video-in-card">
+                                        <video controls preload="metadata"><source src="media/Crowd%20Flash%20show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                    </div>
+                                </div>
+                                <div class="product-video-item">
+                                    <div class="video-wrap video-in-card">
+                                        <video controls preload="metadata"><source src="media/crowd-flash.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/crowd-flash.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Crowd%20Flash.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/morse1.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/morse2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/tel-aviv.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/tv.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
+                            <button type="button" class="product-video-next" aria-label="Next video">›</button>
                         </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
                     </div>
                 </div>
-            </div>
-            <div class="product-detail-content" data-product="crowd-glow">
-                <h3 class="product-detail-title">Crowd Glow</h3>
-                <p>Many different color and motion patterns can be applied - such as blinking, twinkling, random or progressive - so the crowd looks alive and dynamic rather than robotic. Each phone can follow the same pattern or vary subtly. Works in any space, any size, no seat mapping required.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/Crowd%20Glow%20show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                <div class="product-detail-content" data-product="field-show">
+                    <p class="product-detail-desc"><span class="product-detail-desc-line">Patterns that move through the crowd. Location-aware spatial choreography.</span><span class="product-detail-desc-line">Large outdoor venues, 300+ people.</span></p>
+                    <div class="product-videos">
+                        <div class="product-videos-slider">
+                            <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                            <div class="product-videos-track">
+                                <div class="product-video-item active">
+                                    <div class="video-wrap video-in-card">
+                                        <video controls preload="metadata"><source src="media/Field-Show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                    </div>
+                                </div>
+                                <div class="product-video-item">
+                                    <div class="video-wrap video-in-card">
+                                        <video controls preload="metadata"><source src="media/outdoor%20zones%20gps.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/0420.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/crowd%20glow%20blue%20and%20white.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Crowd%20Glow.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/crowd-glow.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
+                            <button type="button" class="product-video-next" aria-label="Next video">›</button>
                         </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
                     </div>
                 </div>
-            </div>
-            <div class="product-detail-content" data-product="directed-glow">
-                <h3 class="product-detail-title">Directed Glow</h3>
-                <p>Same as Crowd Glow, with an operator triggering each stage live so the show stays in sync with the performance.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/Directed-Crowd-Glow.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                <div class="product-detail-content" data-product="canvas-show">
+                    <p class="product-detail-desc"><span class="product-detail-desc-line">Every phone. One giant screen. Text, logos, images, animated video art.</span><span class="product-detail-desc-line">Each participant is one pixel on the canvas. 700+ people.</span></p>
+                    <div class="product-videos">
+                        <div class="product-videos-slider">
+                            <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
+                            <div class="product-videos-track">
+                                <div class="product-video-item active">
+                                    <div class="video-wrap video-in-card">
+                                        <video controls preload="metadata"><source src="media/canvas%20show%202.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                    </div>
+                                </div>
+                                <div class="product-video-item">
+                                    <div class="video-wrap video-in-card">
+                                        <video controls preload="metadata"><source src="media/canvas%20show%201.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Directed%20Glow.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
+                            <button type="button" class="product-video-next" aria-label="Next video">›</button>
                         </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-detail-content" data-product="zone-show">
-                <h3 class="product-detail-title">Zone Show</h3>
-                <p>The crowd is divided into sections; each section glows in a different color simultaneously, creating sweeping patterns across the room.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/zone-show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Zone%20Show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-detail-content" data-product="field-show">
-                <h3 class="product-detail-title">Field Show</h3>
-                <p>Location is detected automatically. Zones are driven by where each phone is. Outdoor only - ideal for stadiums and large open venues.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/Field-Show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/outdoor%20zones%20gps.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-detail-content" data-product="canvas-show">
-                <h3 class="product-detail-title">Canvas Show</h3>
-                <p>Every seat individually addressed - the crowd becomes a high-resolution display for text, images, and video art.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/canvas%20show%202.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/canvas%20show%201.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Canvas%20Show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-detail-content" data-product="directed-canvas">
-                <h3 class="product-detail-title">Directed Canvas Show</h3>
-                <p>Canvas Show with live operator control - full video art with cues triggered in real time.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/artzi.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/Directed%20Canvas.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/nini%20-%20two%20phones%20-%20restart%20and%20joy.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/LightUp%20Crowd%20-%20Directed%20Canvas%20Show.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-    </section>
-
-    <section id="venues-events" class="section">
-        <div class="section-block">
-            <h2>Venues &amp; Events</h2>
-            <p class="section-intro">LightUp Crowd works across live experiences of every scale, from intimate gatherings to packed arenas, with the same phone-only setup and synchronized visual impact.</p>
-        </div>
-        <div class="venues-grid">
-            <article class="event-card">
-                <h3>Music &amp; Concerts</h3>
-                <p>Turn audiences into one moving light canvas that follows the music, set list, and key emotional moments.</p>
-            </article>
-            <article class="event-card">
-                <h3>Sports</h3>
-                <p>Run team colors, intros, halftime effects, and win moments in stadiums and indoor arenas without extra gear.</p>
-            </article>
-            <article class="event-card">
-                <h3>Conferences</h3>
-                <p>Elevate openings, product launches, and keynote transitions with coordinated crowd visuals from participant phones.</p>
-            </article>
-            <article class="event-card">
-                <h3>Weddings</h3>
-                <p>Create unforgettable first dance, entrance, and celebration moments with synchronized lighting from guests.</p>
-            </article>
-            <article class="event-card">
-                <h3>School Graduation Parties</h3>
-                <p>Celebrate class identity and shared memories with custom color stories, patterns, and text moments.</p>
-            </article>
-            <article class="event-card">
-                <h3>Any Live Event</h3>
-                <p>Festivals, community events, and brand activations can all use the same app experience with no venue hardware.</p>
-            </article>
-        </div>
-    </section>
-
-    <section id="special-dynamic-modes" class="section" data-product-picker>
-        <div class="section-block">
-            <h2>LightUp special dynamic modes</h2>
-            <p class="section-intro">Beyond the core show types - extra modes that react, compete, or crown the moment. Same app experience; different energy on the floor.</p>
-        </div>
-        <div class="product-circles" role="tablist" aria-label="Special dynamic modes">
-            <button type="button" class="product-circle is-center" data-product="crown-show" role="tab" aria-selected="true" aria-controls="special-modes-detail-reveal" title="Click to show details"><span class="product-circle-label">Crown Show</span></button>
-            <button type="button" class="product-circle" data-product="party-flash" role="tab" aria-selected="false" aria-controls="special-modes-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Party Flash</span></button>
-            <button type="button" class="product-circle" data-product="party-glow" role="tab" aria-selected="false" aria-controls="special-modes-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Party Glow</span></button>
-            <button type="button" class="product-circle" data-product="gaming" role="tab" aria-selected="false" aria-controls="special-modes-detail-reveal" title="Click to select; then click to show details"><span class="product-circle-label">Gaming</span></button>
-        </div>
-        <div id="special-modes-detail-reveal" class="product-detail-reveal is-open" role="tabpanel">
-            <div class="product-detail-content is-visible" data-product="crown-show">
-                <h3 class="product-detail-title">Crown Show</h3>
-                <p>Highlight a single participant or a rotating “crown” of phones - perfect for winners, VIP moments, or drawing the crowd’s focus to one glowing point.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/outstanding.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-detail-content" data-product="party-flash">
-                <h3 class="product-detail-title">Party Flash</h3>
-                <p>The crowd’s lights pulse and shift with the sound and energy of the room - tighter sync to music and atmosphere without extra hardware.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card product-video-placeholder" aria-hidden="true">
-                                    <p class="product-video-placeholder-text">Video coming soon</p>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-detail-content" data-product="party-glow">
-                <h3 class="product-detail-title">Party Glow</h3>
-                <p>Smoother color washes and random color play driven by the room’s energy - a softer party look that still tracks the vibe.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/audio%20-%20colors2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/audio%20colors%20-%20random%202.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                            <div class="product-video-item">
-                                <div class="video-wrap video-in-card">
-                                    <video controls preload="metadata"><source src="media/joy2.mp4" type="video/mp4">Your browser does not support the video tag.</video>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-detail-content" data-product="gaming">
-                <h3 class="product-detail-title">Gaming</h3>
-                <p>Interactive, game-style crowd moments - teams, reactions, and playful competition that turns the audience into part of the show.</p>
-                <div class="product-videos">
-                    <div class="product-videos-slider">
-                        <button type="button" class="product-video-prev" aria-label="Previous video">‹</button>
-                        <div class="product-videos-track">
-                            <div class="product-video-item active">
-                                <div class="video-wrap video-in-card product-video-placeholder" aria-hidden="true">
-                                    <p class="product-video-placeholder-text">Video coming soon</p>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="product-video-next" aria-label="Next video">›</button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="possibilities" class="section">
-        <h2>Product Possibilities</h2>
-        <div class="features">
-            <div class="feature">
-                <h3>Easy setup in advance</h3>
-                <p>Configure your event and light show ahead of time. Endless options: colors, waves, blinks, text, images-all in exact sync. Fully cloud-based; no local operations or hardware.</p>
-            </div>
-            <div class="feature">
-                <h3>Works offline - critical for big crowds</h3>
-                <p>The show runs without internet at the venue. Once loaded, phones stay in sync by time. No venue Wi‑Fi or cellular needed. No expensive local hardware.</p>
-            </div>
-            <div class="feature">
-                <h3>Optional operator on site</h3>
-                <p>An operator uses their phone to control the light show sequence. No external expensive hardware-just a phone like everyone else.</p>
-            </div>
-            <div class="feature">
-                <h3>Multiple events &amp; tours</h3>
-                <p>Run different events in different places or link several into one campaign. Multi-event effects: same pattern or different text/images per venue for a story or message.</p>
-            </div>
-            <div class="feature">
-                <h3>No crowd size limit</h3>
-                <p>Each phone works independently and is synced by time. No limit on crowd size-if it works for 2-3 phones, it works for the whole crowd.</p>
-            </div>
-            <div class="feature">
-                <h3>Easy event setup &amp; simulator</h3>
-                <p>Define shows in minutes to hours. The simulator shows exact behaviour at the event so you can design and approve before go-live.</p>
-            </div>
-            <div class="feature">
-                <h3>Custom &amp; automatic for users</h3>
-                <p>Easily customized per event-texts, colors, sequences. For users, once they're in the event, the app runs the show automatically. No buttons to press.</p>
-            </div>
-            <div class="feature">
-                <h3>App Store &amp; Google Play</h3>
-                <p>Available on Apple App Store and Google Play. Multi-language support and ongoing improvements.</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="advantages" class="section">
+    <section id="why" class="section">
         <div class="section-block">
             <h2>Why LightUp Crowd</h2>
-            <ul class="advantages-list">
-                <li><strong>Audience phones only</strong> - no external bands or venue hardware</li>
-                <li><strong>Works offline</strong> at show time - no internet or expensive local hardware; real advantage for big crowds</li>
-                <li><strong>Optional operator</strong> uses their phone - no expensive external hardware</li>
-                <li><strong>No crowd size limit</strong> - each phone independent, synced by time</li>
-                <li><strong>Multi-event &amp; multi-language</strong> - multiple locations and languages supported</li>
-            </ul>
-            <div class="advantages-traditional">
-                <p class="advantages-traditional-lead">Traditional alternatives - often static, expensive, or operationally heavy. Many productions still rely on dedicated controllers, RF wristbands, and logistics-heavy external systems; LightUp Crowd replaces these setups by turning participant phones into one coordinated show.</p>
-                <div class="alternatives-carousel-slider" role="region" aria-roledescription="carousel" aria-label="Traditional crowd technology setups">
-                    <button type="button" class="alternatives-carousel-prev product-video-prev" aria-label="Previous slide">‹</button>
-                    <div class="alternatives-carousel-track">
-                        <div class="alternatives-carousel-item active">
-                            <figure class="alternative-card alternative-card--carousel">
-                                <img src="media/Small-Controller-for-LED-Bracelets.png" alt="Dedicated LED wristband control hardware">
-                                <span class="alt-x" aria-hidden="true">✕</span>
-                                <figcaption>Dedicated control hardware</figcaption>
-                            </figure>
-                        </div>
-                        <div class="alternatives-carousel-item">
-                            <figure class="alternative-card alternative-card--carousel">
-                                <img src="media/RF-Remote-Control-Led-Wristband-Concert-Xylo-Bands-10-Zones-Control-Led-Wristband-for-Stadium-Concert.png" alt="RF LED wristband and controller setup">
-                                <span class="alt-x" aria-hidden="true">✕</span>
-                                <figcaption>RF wristbands and signal infrastructure</figcaption>
-                            </figure>
-                        </div>
-                        <div class="alternatives-carousel-item">
-                            <figure class="alternative-card alternative-card--carousel">
-                                <img src="media/madrid.jpg" alt="Stadium fan banner choreography">
-                                <span class="alt-x" aria-hidden="true">✕</span>
-                                <figcaption>Large fan banners and static displays</figcaption>
-                            </figure>
-                        </div>
-                        <div class="alternatives-carousel-item">
-                            <figure class="alternative-card alternative-card--carousel">
-                                <img src="media/20260420_064042.jpg" alt="Arena crowd in coordinated shirt colors">
-                                <span class="alt-x" aria-hidden="true">✕</span>
-                                <figcaption>Color t-shirts for one-time looks</figcaption>
-                            </figure>
-                        </div>
-                    </div>
-                    <button type="button" class="alternatives-carousel-next product-video-next" aria-label="Next slide">›</button>
-                </div>
+        </div>
+        <ul class="why-list">
+            <li>Uses audience phones only - no wearables required</li>
+            <li>No external bands and no venue hardware</li>
+            <li>Works online and offline for reliable show-time performance</li>
+            <li>Scales to any crowd size</li>
+            <li>Flexible operation: fully automated or with a live local operator</li>
+            <li>Fast event setup and simple participant experience</li>
+            <li>Dynamic, unlimited light patterns and motion scenes</li>
+            <li>Custom branding: welcome pages, light scripts, and event visuals</li>
+            <li>Interactive features for raffles and gamification</li>
+            <li>Affordable for recurring and one-off events</li>
+            <li>Store-approved on Apple App Store and Google Play</li>
+            <li>Built for concerts, sports, corporate, and community events</li>
+            <li>Designed to create memorable, high-impact crowd moments</li>
+        </ul>
+        <div class="why-impact" aria-label="Event impact highlights">
+            <article class="why-impact-item">
+                <span class="why-impact-icon" aria-hidden="true">❤</span>
+                <p>Deeper emotional impact</p>
+            </article>
+            <article class="why-impact-item">
+                <span class="why-impact-icon" aria-hidden="true">👥</span>
+                <p>Higher engagement and participation</p>
+            </article>
+            <article class="why-impact-item">
+                <span class="why-impact-icon" aria-hidden="true">↗</span>
+                <p>More social sharing and buzz</p>
+            </article>
+            <article class="why-impact-item">
+                <span class="why-impact-icon" aria-hidden="true">📊</span>
+                <p>Increased sponsor and brand value</p>
+            </article>
+            <article class="why-impact-item">
+                <span class="why-impact-icon" aria-hidden="true">★</span>
+                <p>Unforgettable events your audience will remember</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="vision-section" aria-label="Our vision">
+        <div class="vision-card">
+            <div class="vision-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"></circle>
+                    <path d="M24 12l3.2 6.6 7.3 1.1-5.2 5.1 1.2 7.2L24 28.6 17.5 32l1.2-7.2-5.2-5.1 7.3-1.1L24 12z"></path>
+                </svg>
+            </div>
+            <div class="vision-content">
+                <h3>Our Vision</h3>
+                <h4>Democratizing Live Event Magic</h4>
+                <p>We believe every audience deserves to feel connected. Every organizer deserves access to world-class engagement tools. And every event deserves a moment that attendees will remember forever.</p>
             </div>
         </div>
     </section>
 
-    <div class="contact-section">
-        <h2>Contact &amp; Support</h2>
-        <div class="contact-info">
-            <span>📧</span>
-            <span>Questions or feedback? Email us:</span>
-            <a href="mailto:paltidigital@gmail.com">paltidigital@gmail.com</a>
-        </div>
-        <p class="contact-tagline">We're here to help make your events more spectacular with synchronized light shows.</p>
-    </div>
+    <section id="cta" class="cta-section">
+        <h2>LET'S LIGHT UP<br>YOUR NEXT EVENT</h2>
+        <a href="mailto:paltidigital@gmail.com" class="store-button">Book a Demo</a>
+    </section>
 
     <footer class="site-footer">
         <a href="index.html">Home</a>
@@ -597,6 +423,20 @@
         <a href="download/index.html">Download</a>
         <span class="sep">·</span>
         <a href="mailto:paltidigital@gmail.com">Contact</a>
+        <div class="social-links">
+            <a href="https://www.youtube.com/playlist?list=PLihvSwX1drsRAM2m9I8LqRkgdvqtrWWRR" target="_blank" rel="noopener noreferrer" aria-label="LightUp on YouTube" class="social-link-btn social-link-btn--youtube">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 12c0 3.3-.4 5.4-.9 6.4-.4.8-1 1.4-1.8 1.8-1 .5-3 .9-8.3.9s-7.3-.4-8.3-.9c-.8-.4-1.4-1-1.8-1.8C1.4 17.4 1 15.3 1 12s.4-5.4.9-6.4c.4-.8 1-1.4 1.8-1.8C4.7 3.3 6.7 3 12 3s7.3.3 8.3.8c.8.4 1.4 1 1.8 1.8.5 1 .9 3.1.9 6.4zM10 8.7v6.6l5.8-3.3L10 8.7z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/lightupcrowd/" target="_blank" rel="noopener noreferrer" aria-label="LightUp on Instagram" class="social-link-btn social-link-btn--instagram">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9z"/><path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/><circle cx="17.6" cy="6.4" r="1.2"/></svg>
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61588681127892" target="_blank" rel="noopener noreferrer" aria-label="LightUp on Facebook" class="social-link-btn social-link-btn--facebook">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.4 22v-8.2h2.8l.4-3.2h-3.2V8.5c0-.9.3-1.6 1.6-1.6h1.7V4.1c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.2v2.4H7.7v3.2h2.6V22h3.1z"/></svg>
+            </a>
+            <a href="https://www.linkedin.com/company/lightup-crowd/" target="_blank" rel="noopener noreferrer" aria-label="LightUp on LinkedIn" class="social-link-btn social-link-btn--linkedin">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.9 8.2a1.9 1.9 0 1 1 0-3.8 1.9 1.9 0 0 1 0 3.8zM3.3 20.5V9.8h3.2v10.7H3.3zm5.6 0V9.8h3v1.5h.1c.4-.8 1.4-1.8 3-1.8 3.2 0 3.8 2.1 3.8 4.9v6.1h-3.2v-5.4c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8v5.5H8.9z"/></svg>
+            </a>
+        </div>
         <p>&copy; 2025 LightUp Crowd. All rights reserved.</p>
     </footer>
 
@@ -699,24 +539,6 @@
         if (nextBtn) nextBtn.addEventListener('click', function() { setActive(idx + 1); });
     });
 
-    // Traditional alternatives carousel
-    document.querySelectorAll('.alternatives-carousel-slider').forEach(function(slider) {
-        var track = slider.querySelector('.alternatives-carousel-track');
-        var items = track ? track.querySelectorAll('.alternatives-carousel-item') : [];
-        var prevBtn = slider.querySelector('.alternatives-carousel-prev');
-        var nextBtn = slider.querySelector('.alternatives-carousel-next');
-        if (items.length <= 1) return;
-        var idx = 0;
-        function setActive(i) {
-            idx = (i + items.length) % items.length;
-            items.forEach(function(el, n) {
-                el.classList.toggle('active', n === idx);
-            });
-        }
-        if (prevBtn) prevBtn.addEventListener('click', function() { setActive(idx - 1); });
-        if (nextBtn) nextBtn.addEventListener('click', function() { setActive(idx + 1); });
-    });
-
     // Pause product demo videos when scrolled fully off-screen; resume from same time when visible again
     (function initProductVideoViewportPause() {
         var videos = document.querySelectorAll('.product-videos video');
@@ -741,7 +563,7 @@
     })();
 
     // Fade-in sections on scroll (Intersection Observer)
-    var sections = document.querySelectorAll('.section, .contact-section');
+    var sections = document.querySelectorAll('.section, .cta-section');
     var observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
             if (entry.isIntersecting) {
