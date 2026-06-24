@@ -782,8 +782,8 @@ a:hover {
 .product-circle-tier {
     display: block;
     margin-top: 4px;
-    font-size: 0.72em;
-    font-weight: 500;
+    font-size: 0.9em;
+    font-weight: 600;
     letter-spacing: 0.04em;
     color: var(--text-muted);
     line-height: 1.1;
@@ -791,7 +791,7 @@ a:hover {
 }
 
 .product-circle.is-center .product-circle-tier {
-    font-size: 0.78em;
+    font-size: 1em;
     color: rgba(255, 255, 255, 0.75);
 }
 
