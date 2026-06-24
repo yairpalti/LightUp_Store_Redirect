@@ -483,6 +483,9 @@ a:hover {
         margin-right: -20px;
         width: calc(100% + 40px);
     }
+    .product-videos-slider {
+        --product-video-stage-height: min(85vh, 560px);
+    }
     .product-detail .video-wrap,
     .product-detail-reveal .video-wrap {
         max-height: 85vh;
@@ -841,6 +844,7 @@ a:hover {
 
 /* Product video slider (multiple videos with < > arrows) */
 .product-videos-slider {
+    --product-video-stage-height: min(70vh, 720px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -851,15 +855,46 @@ a:hover {
 .product-videos-slider:has(.product-video-item:only-child) .product-video-next {
     display: none;
 }
-.product-videos-track {
+.product-videos-slider .product-videos-track {
     flex: 1;
     min-width: 0;
     position: relative;
+    height: var(--product-video-stage-height);
+    min-height: var(--product-video-stage-height);
 }
-.product-video-item {
-    display: none;
+.product-videos-slider .product-video-item {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
-.product-video-item.active {
+.product-videos-slider .product-video-item.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.product-videos-slider .video-wrap.video-in-card {
+    flex: 0 1 auto;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.product-videos-slider .video-wrap video {
+    position: relative;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
     display: block;
 }
 .product-video-prev,
